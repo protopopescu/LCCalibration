@@ -68,10 +68,10 @@ source /afs/desy.de/project/ilcsoft/sw/x86_64_gcc49_sl6/${ilcsoftVersion}/init_i
 
 # run simulation
 ddsim \
-   --outputFile ${outputFile} \
-   --compactFile ${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeometry}.xml \
-   --steeringFile ${ddsimScript} \
-   --numberOfEvents ${numberOfEvents} \
+   --outputFile=${outputFile} \
+   --compactFile=${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeometry}.xml \
+   --steeringFile=${ddsimScript} \
+   --numberOfEvents=${numberOfEvents} \
    > ${logFile}
 
 convertToGear default ${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeometry}.xml gear_${detectorGeometry}_dd4hep.xml
