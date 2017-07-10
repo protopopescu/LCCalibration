@@ -1,0 +1,84 @@
+#!/bin/bash
+
+
+particle="$1"
+
+
+# output directory in afs pool dir
+outputDirectory="/afs/desy.de/group/flc/pool/eteremi"
+
+# detector geometry
+detectorGeometry="ILD_l4_v02"
+
+# ilcsoft version
+ilcsoftVersion="v01-19-03-pre02"
+
+# number of events to process
+numberOfEvents=10
+
+# scripts dir
+scriptsDirectory="/home/eteremi/soft/PandoraCalibrationJobs/scripts/ddsim"
+
+# particle script
+ddsimScript="ddsim-steering-${particle}.slcio"
+
+# run directory
+runDirectory="/tmp"
+
+# output file
+outputFile="ddsim-${particle}-s${ilcsoftVersion}-G${detectorGeometry}-calibration.slcio"
+
+# log file
+logFile="ddsim-${particle}-s${ilcsoftVersion}-G${detectorGeometry}.log"
+
+
+
+# ==============
+# Start of script
+
+# create run directory
+if [ ! -d "$runDirectory" ]; then
+  echo "Creating run directory: $runDirectory"
+  mkdir -p $runDirectory
+
+  if [ "$?" -neq "0" ]; then
+    echo "Couldn't create run directory: $runDirectory"
+    exit 1
+  fi
+fi
+
+# create output directory
+if [ ! -d "$outputDirectory" ]; then
+  echo "Creating output directory: $outputDirectory"
+  mkdir -p $outputDirectory
+
+  if [ "$?" -neq "0" ]; then
+    echo "Couldn't create output directory: $outputDirectory"
+    exit 1
+  fi
+fi
+
+# cd run directory and copy needed scripts for simulation
+cd $runDirectory
+cp $scriptsDirectory/* .
+
+# ilcsoft stuff
+unset MARLIN_DLL
+source /afs/desy.de/project/ilcsoft/sw/x86_64_gcc49_sl6/${ilcsoftVersion}/init_ilcsoft.sh
+
+# run simulation
+ddsim \
+   --outputFile ${outputFile} \
+   --compactFile ${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeometry}.xml \
+   --steeringFile ${ddsimScript} \
+   --numberOfEvents ${numberOfEvents} \
+   > ${logFile}
+
+convertToGear default ${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeometry}.xml gear_${detectorGeometry}_dd4hep.xml
+
+# copy output files to output directory
+cp ${outputFile} ${outputDirectory}
+cp ${logFile} ${outputDirectory}
+cp gear_${detectorGeometry}_dd4hep.xml ${outputDirectory}
+
+#
