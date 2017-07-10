@@ -68,9 +68,9 @@ source /afs/desy.de/project/ilcsoft/sw/x86_64_gcc49_sl6/${ilcsoftVersion}/init_i
 
 # run simulation
 ddsim \
-   --outputFile=${outputFile} \
+   --outputFile=./${outputFile} \
    --compactFile=${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeometry}.xml \
-   --steeringFile=${ddsimScript} \
+   --steeringFile=./${ddsimScript} \
    --numberOfEvents=${numberOfEvents} \
    > ${logFile}
 
