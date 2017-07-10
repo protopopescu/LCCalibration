@@ -20,7 +20,7 @@ numberOfEvents=10
 scriptsDirectory="$PANDORA_CALIBRATION_JOBS_DIR/scripts/ddsim"
 
 # particle script
-ddsimScript="ddsim-steering-${particle}.slcio"
+ddsimScript="ddsim-steering-${particle}.py"
 
 # run directory
 runDirectory="/tmp"
