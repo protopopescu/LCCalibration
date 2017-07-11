@@ -19,7 +19,7 @@ numberOfEvents=10
 # scripts dir
 scriptsDirectory=""
 
-if [ "$PANDORA_CALIBRATION_JOBS_DIR" -eq "" ]; then
+if [ -z "$PANDORA_CALIBRATION_JOBS_DIR" ]; then
   scriptsDirectory="$HOME/soft/PandoraCalibrationJobs/scripts/ddsim"
 else
   scriptsDirectory="$PANDORA_CALIBRATION_JOBS_DIR/scripts/ddsim"
