@@ -1,19 +1,15 @@
 #!/bin/bash
 
-particle="$1"
+particle="photon"
 
 # number of events to process
 numberOfEvents=10000
 
-if [ "$#" -gt "1" ]; then
-  numberOfEvents=$2
-fi
+# detector geometry
+detectorGeometry="ILD_l4_v02"
 
 # output directory in afs pool dir
 outputDirectory="/afs/desy.de/group/flc/pool/eteremi"
-
-# detector geometry
-detectorGeometry="ILD_l4_v02"
 
 # ilcsoft version
 ilcsoftVersion="v01-19-03-pre02"
@@ -39,6 +35,26 @@ outputFile="ddsim-${particle}-s${ilcsoftVersion}-G${detectorGeometry}-calibratio
 # log file
 logFile="ddsim-${particle}-s${ilcsoftVersion}-G${detectorGeometry}.log"
 
+# parse command line args
+if [ "$#" -gt "0" ]; then
+  particle=$1
+fi
+
+if [ "$#" -gt "1" ]; then
+  ilcsoftVersion=$2
+fi
+
+if [ "$#" -gt "2" ]; then
+  detectorGeometry=$3
+fi
+
+if [ "$#" -gt "3" ]; then
+  numberOfEvents=$4
+fi
+
+if [ "$#" -gt "4" ]; then
+  outputDirectory=$5
+fi
 
 
 # ==============
