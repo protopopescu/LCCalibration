@@ -17,7 +17,13 @@ ilcsoftVersion="v01-19-03-pre02"
 numberOfEvents=10
 
 # scripts dir
-scriptsDirectory="$PANDORA_CALIBRATION_JOBS_DIR/scripts/ddsim"
+scriptsDirectory=""
+
+if [ "$PANDORA_CALIBRATION_JOBS_DIR" -eq "" ]; then
+  scriptsDirectory="$HOME/soft/PandoraCalibrationJobs/scripts/ddsim"
+else
+  scriptsDirectory="$PANDORA_CALIBRATION_JOBS_DIR/scripts/ddsim"
+fi
 
 # particle script
 ddsimScript="ddsim-steering-${particle}.py"
