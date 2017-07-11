@@ -50,7 +50,7 @@ fi
 ddsimScript="ddsim-steering-${particle}.py"
 
 # run directory
-runDirectory="/tmp"
+runDirectory=`mktemp --dir`
 
 # output file
 outputFile="ddsim-${particle}-s${ilcsoftVersion}-G${detectorGeometry}-calibration.slcio"
@@ -60,17 +60,6 @@ logFile="ddsim-${particle}-s${ilcsoftVersion}-G${detectorGeometry}.log"
 
 # ==============
 # Start of script
-
-# create run directory
-if [ ! -d "$runDirectory" ]; then
-  echo "Creating run directory: $runDirectory"
-  mkdir -p $runDirectory
-
-  if [ "$?" -neq "0" ]; then
-    echo "Couldn't create run directory: $runDirectory"
-    exit 1
-  fi
-fi
 
 # create output directory
 if [ ! -d "$outputDirectory" ]; then
@@ -128,5 +117,8 @@ convertToGear default ${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeo
 cp ${outputFile} ${outputDirectory}
 cp ${logFile} ${outputDirectory}
 cp gear_${detectorGeometry}_dd4hep.xml ${outputDirectory}
+
+# clean up run directory
+rm -rf ${runDirectory}
 
 #
