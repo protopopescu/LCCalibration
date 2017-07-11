@@ -1,8 +1,13 @@
 #!/bin/bash
 
-
 particle="$1"
 
+# number of events to process
+numberOfEvents=10000
+
+if [ "$#" -gt "1" ]; then
+  numberOfEvents=$2
+fi
 
 # output directory in afs pool dir
 outputDirectory="/afs/desy.de/group/flc/pool/eteremi"
@@ -12,9 +17,6 @@ detectorGeometry="ILD_l4_v02"
 
 # ilcsoft version
 ilcsoftVersion="v01-19-03-pre02"
-
-# number of events to process
-numberOfEvents=10
 
 # scripts dir
 scriptsDirectory=""
