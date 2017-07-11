@@ -72,6 +72,19 @@ cp $scriptsDirectory/* .
 unset MARLIN_DLL
 source /afs/desy.de/project/ilcsoft/sw/x86_64_gcc49_sl6/${ilcsoftVersion}/init_ilcsoft.sh
 
+echo "Running zith ilcsoft version ${ilcsoftVersion}"
+echo "Running ddsim with :"
+echo "   - n evts = ${numberOfEvents}"
+echo "   - detectorGeometry = ${detectorGeometry}"
+echo "   - ddsimScript = ${ddsimScript}"
+echo "   - outputFile = ${outputFile}"
+
+
+echo ""
+echo "============================="
+echo "======= RUNNING DDSIM ======="
+echo "============================="
+
 # run simulation
 ddsim \
    --outputFile=./${outputFile} \
@@ -79,6 +92,16 @@ ddsim \
    --steeringFile=./${ddsimScript} \
    --numberOfEvents=${numberOfEvents} \
    > ${logFile}
+
+echo ""
+echo "============================="
+echo "=======  DDSIM  DONE  ======="
+echo "============================="
+
+echo ""
+echo "============================="
+echo "Converting dd4hep file to gear for further use ..."
+echo "============================="
 
 convertToGear default ${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeometry}.xml gear_${detectorGeometry}_dd4hep.xml
 
