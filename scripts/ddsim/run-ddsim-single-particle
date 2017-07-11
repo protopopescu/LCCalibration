@@ -13,6 +13,10 @@
 #(the maximum memory for my job)
 #$ -l h_vmem=5G
 #
+# stderr and stdout dirs
+#$ -e /tmp
+#$ -o /tmp
+#
 
 particle="photon"
 
