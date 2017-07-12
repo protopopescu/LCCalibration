@@ -10,14 +10,19 @@
 #
 
 # Usage
-if [ "$#" -ne "2" ]; then
+usage () {
   echo "Usage: extract-calibration-constants calibrationFile outputMode"
   echo ""
   echo "  calibrationFile       txt file output from SimCaloHitEnergyDistribution"
   echo "                        binary from PandoraAnalysis package"
-  echo "  outputMode            marlin|echo"
+  echo "  outputMode            marlin|echo-all|echo-ecal"
   echo "                        'marlin' to print calib constants into Marlin cmd line format"
-  echo "                        'echo' print into stdout"
+  echo "                        'echo' print into stdout the target calibration constant"
+}
+
+
+if [ "$#" -ne "2" ]; then
+  usage
   exit 1
 fi
 
@@ -91,15 +96,27 @@ if [ "$#" -gt "1" ]; then
     echo "--MyEcalBarrelDigi.calibration_mip=$ecalMip --MyEcalEndcapDigi.calibration_mip=$ecalMip --MyEcalRingDigi.calibration_mip=$ecalMip --MyHcalBarrelDigi.calibration_mip=$hcalBarrelMip --MyHcalEndcapDigi.calibration_mip=$hcalEndcapMip --MyHcalRingDigi.calibration_mip=$hcalRingMip"
     exit 0
     ;;
-  "echo")
+  "echo-all")
     echo "hcal barrel mip : $hcalBarrelMip"
     echo "hcal endcap mip : $hcalEndcapMip"
     echo "hcal ring mip : $hcalRingMip"
     echo "ecal mip : $ecalMip"
     exit 0
     ;;
+  "echo-hcal-barrel")
+    echo $hcalBarrelMip
+    ;;
+  "echo-hcal-endcap")
+    echo $hcalEndcapMip
+    ;;
+  "echo-hcal-ring")
+    echo $hcalRingMip
+    ;;
+  "echo-ecal")
+    echo $ecalMip
+    ;;
   *)
-    echo "Wrong output mode. Please specify one of these : marlin|echo"
+    usage
     exit 1
     ;;
   esac
