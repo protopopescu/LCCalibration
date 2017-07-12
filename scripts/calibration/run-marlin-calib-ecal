@@ -106,6 +106,7 @@ echo "=============================="
 
 Marlin --global.LCIOInputFiles="${inputDirectory}/${inputFile}" \
   --global.GearXMLFile=gear_${detectorGeometry}_dd4hep.xml \
+  --global.MaxRecordNumber=10 \
   --InitDD4hep.DD4hepXMLFile=${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeometry}.xml \
   bbudsc_3evt_stdreco_dd4hep.xml \
   > ${logFile}
