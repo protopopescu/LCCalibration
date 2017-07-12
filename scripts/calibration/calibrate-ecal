@@ -156,6 +156,7 @@ do
     --MyEcalBarrelDigi.calibration_mip=$currentEcalMip \
     --MyEcalEndcapDigi.calibration_mip=$currentEcalMip \
     --MyEcalRingDigi.calibration_mip=$currentEcalMip \
+    --global.MaxRecordNumber=100 \
     bbudsc_3evt_stdreco_dd4hep.xml \
     > ${logFile}_step${step}.log
 
