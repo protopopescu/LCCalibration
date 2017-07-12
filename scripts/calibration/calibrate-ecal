@@ -21,6 +21,10 @@
 # TODO some variables are still hard coded ...
 
 
+abs() {
+  [ $1 -lt 0 ] && echo $((-$1)) || echo $1
+}
+
 # precision of the photon energy after calibration
 calibrationPrecison=0.02
 
@@ -74,6 +78,9 @@ inputFile="ddsim-${particle}-s${ilcsoftVersion}-G${detectorGeometry}-calibration
 pfoAnalysisFile="marlin-calib-ecal-PfoAnalysis-${particle}-s${ilcsoftVersion}-G${detectorGeometry}.root"
 ecalMipCalibrationFile="calibration-ecal-mip.txt"  # temporary file name for convenience
 
+ecalCalibCalibrationFileBase="calibration-ecal-calib"
+calibPfoAnalysisFileBase="marlin-calib-ecal-calib-PfoAnalysis-${particle}-s${ilcsoftVersion}-G${detectorGeometry}"
+
 # log file base name
 logFileBase="marlin-calib-ecal-${particle}-s${ilcsoftVersion}-G${detectorGeometry}"
 
@@ -126,40 +133,88 @@ fi
 
 currentEcalMipRescalingFactor=1
 finalEcalMip=${ecalMip}
-
+currentPrecision=0
+finalPrecison=0
+goodPrecisionReached=0
+finalStep=${maxNSteps}
 
 # calibration iteration
 
-for step in `seq 0 ${maxNSteps}`
+for step in `seq 1 ${maxNSteps}`
 do
   currentEcalMip=`echo ${currentEcalMipRescalingFactor}*${ecalMip}  | bc -l`
   echo "currentEcalMip : ${currentEcalMip}"
-  
+
+  echo ""
+  echo "=============================="
+  echo "= RUNNING MARLIN (step ${step}) ="
+  echo "=============================="
+
+  Marlin --global.LCIOInputFiles="${inputDirectory}/${inputFile}" \
+    --global.GearXMLFile=gear_${detectorGeometry}_dd4hep.xml \
+    --InitDD4hep.DD4hepXMLFile=${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeometry}.xml \
+    --MyEcalBarrelDigi.calibration_mip=$currentEcalMip \
+    --MyEcalEndcapDigi.calibration_mip=$currentEcalMip \
+    --MyEcalRingDigi.calibration_mip=$currentEcalMip \
+    bbudsc_3evt_stdreco_dd4hep.xml \
+    > ${logFile}_step${step}.log
+
+    mv PfoAnalysis.root ${calibPfoAnalysisFileBase}_step${step}.root
+
+    # run the calibration for this step
+    ${ILCSOFT}/PandoraAnalysis/${pandoraAnalysisVersion}/bin/ECalDigitisation_ContainedEvents -a ${calibPfoAnalysisFileBase}_step${step}.root -b 10 -d ./
+    mv Calibration.txt ${ecalCalibCalibrationFileBase}_step${step}.txt
+
+    # save current step output for further analysis
+    cp ${ecalCalibCalibrationFileBase}_step${step}.txt ${outputDirectory}
+    cp ${calibPfoAnalysisFileBase}_step${step}.root ${outputDirectory}
+    cp ${logFile}_step${step}.log ${outputDirectory}
+
+    # extract the ecal calib mip scaling factor
+    currentEcalRescalingFactor=`./extract-ecal-rescaling-factor ${ecalCalibCalibrationFileBase}_step${step}.txt`
+    currentPrecision=`echo 1 - 1/${currentEcalRescalingFactor} | bc -l`
+
+    if [ "${currentPrecision}" -lt "${calibrationPrecison}" ]; then
+
+      # save settings
+      cp ${ecalCalibCalibrationFileBase}_step${step}.txt ${ecalCalibCalibrationFileBase}_finalStep.txt
+      cp ${calibPfoAnalysisFileBase}_step${step}.root ${calibPfoAnalysisFileBase}_finalStep.root
+
+      finalPrecison=${currentPrecision}
+      finalEcalMip=`echo ${currentEcalMipRescalingFactor}*${ecalMip}  | bc -l`
+      finalEcalCalibCalibrationFile=${ecalCalibCalibrationFileBase}_finalStep.txt
+      goodPrecisionReached=1
+      finalStep=${step}
+
+      break
+    fi
+
 done
 
+echo "====================================="
+echo "=         Calibration summary       ="
+echo "= "
+echo "= Final precison reached : ${goodPrecisionReached}"
 
-#
-#
-# echo ""
-# echo "=============================="
-# echo "======= RUNNING MARLIN ======="
-# echo "=============================="
-#
-# Marlin --global.LCIOInputFiles="${inputDirectory}/${inputFile}" \
-#   --global.GearXMLFile=gear_${detectorGeometry}_dd4hep.xml \
-#   --InitDD4hep.DD4hepXMLFile=${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeometry}.xml \
-#   bbudsc_3evt_stdreco_dd4hep.xml \
-#   > ${logFile}
-#
-# echo ""
-# echo "=============================="
-# echo "=======  MARLIN  DONE  ======="
-# echo "=============================="
-#
-# cp PfoAnalysis.root ${outputDirectory}/${pfoAnalysisFile}
-# cp ${logFile} ${outputDirectory}
+exitStatus=0
+
+if [ ${goodPrecisionReached} ]; then
+  echo "= Number of steps : ${finalStep}"
+  echo "= Final ecal mip :${finalEcalMip} GeV"
+  echo "= Final calibration file : ${finalEcalCalibCalibrationFile}"
+  echo "= Final precison : ${finalPrecison}"
+
+  cp ${finalEcalCalibCalibrationFile} ${outputDirectory}
+  cp ${calibPfoAnalysisFileBase}_finalStep.root ${outputDirectory}
+else
+  echo "= !!!!! Failed after ${maxNSteps} iterations !!!!!"
+  exitStatus=1
+fi
+
 
 # clean up run directory
 rm -rf ${runDirectory}
+
+exit ${exitStatus}
 
 #
