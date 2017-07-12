@@ -182,7 +182,7 @@ do
     echo "= current rescaling factor : ${currentEcalRescalingFactor}"
     echo ""
 
-    if [ `${currentPrecision}'<'${calibrationPrecison} | bc -l` -eq 1 ]; then
+    if [ `echo ${currentPrecision}'<'${calibrationPrecison} | bc -l` -eq 1 ]; then
 
       echo "==========================="
       echo "= Precision reached !!!!! ="
