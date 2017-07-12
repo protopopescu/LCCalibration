@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+# @author : R.Ete, DESY
+#
+# Script to extract the ecal calib rescaling factor from the
+# Calibration .txt file written by the ECalDigitisation_ContainedEvents binary
+# from PandoraAnalysis package
+#
+
+# Usage
+if [ "$#" -ne "1" ]; then
+  echo "Usage: extract-ecal-rescaling-factor calibrationFile"
+  echo ""
+  echo "  calibrationFile       txt file output from ECalDigitisation_ContainedEvents"
+  echo "                        binary from PandoraAnalysis package"
+  exit 1
+fi
+
+# (ugly) functions to extract variables from the txt file
+getTruePhotonEnergy () {
+  en=`sed '4q;d' $1 | awk '{print $5}'`
+  ret=$?
+
+  if [ "$ret" -ne "0" ]; then
+    echo "Couldn't get the true photon energy !"
+    exit $ret
+  fi
+
+  echo "$en"
+}
+
+getEcalDigiMean () {
+  en=`sed '9q;d' $1 | awk '{print $5}'`
+  ret=$?
+
+  if [ "$ret" -ne "0" ]; then
+    echo "Couldn't get the ecal digi mean !"
+    exit $ret
+  fi
+
+  echo "$en"
+}
+
+calibrationFile="$1"
+
+if [ ! -f $calibrationFile ]; then
+  echo "Calibration file '$calibrationFile' doesn't exists"
+  exit 1
+fi
+
+# extract constants once
+truePhotonEnergy=`getTruePhotonEnergy $calibrationFile`
+ecalDigiMean=`getEcalDigiMean $calibrationFile`
+echo $truePhotonEnergy/$ecalDigiMean | bc -l
+
+
+#
