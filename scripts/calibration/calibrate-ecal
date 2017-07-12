@@ -110,8 +110,8 @@ convertToGear default ${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeo
 
 
 # extract the ecal mip from PfoAnalysis root file
-pandoraAnalaysisVersion=`ls ${ILCSOFT}/PandoraAnalysis | awk '{print $1}'`
-${ILCSOFT}/PandoraAnalysis/${pandoraAnalaysisVersion}/bin/SimCaloHitEnergyDistribution -a ${inputDirectory}/${pfoAnalysisFile} -b 10 -c ./
+pandoraAnalysisVersion=`ls ${ILCSOFT}/PandoraAnalysis | awk '{print $1}'`
+${ILCSOFT}/PandoraAnalysis/${pandoraAnalysisVersion}/bin/SimCaloHitEnergyDistribution -a ${inputDirectory}/${pfoAnalysisFile} -b 10 -c ./
 mv Calibration.txt ${ecalMipCalibrationFile}
 
 ecalMip=`./extract-calibration-constants ${ecalMipCalibrationFile} echo-ecal`
