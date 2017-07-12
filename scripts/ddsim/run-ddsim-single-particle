@@ -130,12 +130,9 @@ echo "============================="
 echo "Converting dd4hep file to gear for further use ..."
 echo "============================="
 
-convertToGear default ${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeometry}.xml gear_${detectorGeometry}_dd4hep.xml
-
 # copy output files to output directory
 cp ${outputFile} ${outputDirectory}
 cp ${logFile} ${outputDirectory}
-cp gear_${detectorGeometry}_dd4hep.xml ${outputDirectory}
 
 # clean up run directory
 rm -rf ${runDirectory}
