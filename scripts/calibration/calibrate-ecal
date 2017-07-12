@@ -117,6 +117,8 @@ mv Calibration.txt ${ecalMipCalibrationFile}
 ecalMip=`./extract-calibration-constants ${ecalMipCalibrationFile} echo-ecal`
 ret=$?
 
+echo "ECal mip constant is : $ecalMip"
+
 if [ $ret -ne 0 ]; then
   echo "Couldn't extract the ecal mip constant !"
   exit $ret
