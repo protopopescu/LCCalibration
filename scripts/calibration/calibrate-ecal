@@ -175,7 +175,18 @@ do
     currentEcalRescalingFactor=`./extract-ecal-rescaling-factor ${ecalCalibCalibrationFileBase}_step${step}.txt`
     currentPrecision=`echo 1 - 1/${currentEcalRescalingFactor} | bc -l`
 
+    echo "==========================="
+    echo "=   Current step output   ="
+    echo "= current ecal mip         : ${currentEcalMip}"
+    echo "= current precision        : ${currentPrecision}"
+    echo "= current rescaling factor : ${currentEcalRescalingFactor}"
+    echo ""
+
     if [ `${currentPrecision}'<'${calibrationPrecison} | bc -l` -eq 1 ]; then
+
+      echo "==========================="
+      echo "= Precision reached !!!!! ="
+      echo "==========================="
 
       # save settings
       cp ${ecalCalibCalibrationFileBase}_step${step}.txt ${ecalCalibCalibrationFileBase}_finalStep.txt
