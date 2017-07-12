@@ -124,6 +124,19 @@ if [ $ret -ne 0 ]; then
   exit $ret
 fi
 
+currentEcalMipRescalingFactor=1
+finalEcalMip=${ecalMip}
+
+
+# calibration iteration
+
+for step in `seq 0 ${maxNSteps}`
+do
+  currentEcalMip=`echo ${currentEcalMipRescalingFactor}*${ecalMip}  | bc -l`
+  echo "currentEcalMip : ${currentEcalMip}"
+  
+done
+
 
 #
 #
