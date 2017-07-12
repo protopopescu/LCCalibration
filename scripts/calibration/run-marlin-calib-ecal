@@ -47,15 +47,15 @@ if [ "$#" -gt "1" ]; then
 fi
 
 if [ "$#" -gt "2" ]; then
-  detectorGeometry=$3
+  detectorGeometry=$2
 fi
 
 if [ "$#" -gt "3" ]; then
-  inputDirectory=$5
+  inputDirectory=$3
 fi
 
 if [ "$#" -gt "4" ]; then
-  outputDirectory=$5
+  outputDirectory=$4
 fi
 
 # run directory
