@@ -26,7 +26,7 @@ abs() {
 }
 
 # precision of the photon energy after calibration
-calibrationPrecison=0.02
+calibrationPrecison=0.01
 
 # the maximum number of steps to reah the required photon precision
 maxNSteps=5
