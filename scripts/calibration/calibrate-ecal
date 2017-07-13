@@ -131,19 +131,28 @@ if [ $ret -ne 0 ]; then
   exit $ret
 fi
 
-currentEcalMipRescalingFactor=1
-finalEcalMip=${ecalMip}
+# the nth last layers of the ecal (normally the 10th last) are twice thicker.
+# Change the following factor to adjust the calibrationFactor2 variable
+ecalLayerFactor=2
+
+calibrationFactor1=0.00616054
+calibrationFactor2=`echo ${calibrationFactor1}*${ecalLayerFactor} | bc -l`
+
 currentPrecision=0
 finalPrecison=0
 goodPrecisionReached=0
 finalStep=${maxNSteps}
+calibrationFactorRescale=1
+finalCalibrationFactor1=${calibrationFactor1}
+finalCalibrationFactor2=${calibrationFactor2}
 
 # calibration iteration
 
 for step in `seq 1 ${maxNSteps}`
 do
-  currentEcalMip=`echo ${currentEcalMipRescalingFactor}*${ecalMip}  | bc -l`
-  echo "currentEcalMip : ${currentEcalMip}"
+  # recalculate the calibration factor
+  calibrationFactor1=`echo ${calibrationFactor1}*${calibrationFactorRescale} | bc -l`
+  calibrationFactor2=`echo ${calibrationFactor2}*${calibrationFactorRescale} | bc -l`
 
   echo ""
   echo "=============================="
@@ -153,9 +162,9 @@ do
   Marlin --global.LCIOInputFiles="${inputDirectory}/${inputFile}" \
     --global.GearXMLFile=gear_${detectorGeometry}_dd4hep.xml \
     --InitDD4hep.DD4hepXMLFile=${lcgeo_DIR}/ILD/compact/${detectorGeometry}/${detectorGeometry}.xml \
-    --MyEcalBarrelDigi.calibration_mip=$currentEcalMip \
-    --MyEcalEndcapDigi.calibration_mip=$currentEcalMip \
-    --MyEcalRingDigi.calibration_mip=$currentEcalMip \
+    --MyEcalBarrelReco.calibration_factorsMipGev="${calibrationFactor1} ${calibrationFactor2}" \
+    --MyEcalEndcapReco.calibration_factorsMipGev="${calibrationFactor1} ${calibrationFactor2}" \
+    --MyEcalRingReco.calibration_factorsMipGev="${calibrationFactor1} ${calibrationFactor2}" \
     --global.MaxRecordNumber=100 \
     bbudsc_3evt_stdreco_dd4hep.xml \
     > ${logFileBase}_step${step}.log
@@ -172,14 +181,15 @@ do
     cp ${logFileBase}_step${step}.log ${outputDirectory}
 
     # extract the ecal calib mip scaling factor
-    currentEcalRescalingFactor=`./extract-ecal-rescaling-factor ${ecalCalibCalibrationFileBase}_step${step}.txt`
+    calibrationFactorRescale=`./extract-ecal-rescaling-factor ${ecalCalibCalibrationFileBase}_step${step}.txt`
     currentPrecision=`echo 1 - 1/${currentEcalRescalingFactor} | bc -l`
 
     echo "==========================="
     echo "=   Current step output   ="
-    echo "= current ecal mip         : ${currentEcalMip}"
-    echo "= current precision        : ${currentPrecision}"
-    echo "= current rescaling factor : ${currentEcalRescalingFactor}"
+    echo "= current calibration factor 1 : ${calibrationFactor1}"
+    echo "= current calibration factor 2 : ${calibrationFactor2}"
+    echo "= current precision            : ${currentPrecision}"
+    echo "= current rescaling factor     : ${calibrationFactorRescale}"
     echo ""
 
     if [ `echo ${currentPrecision}'<'${calibrationPrecison} | bc -l` -eq 1 ]; then
@@ -193,7 +203,7 @@ do
       cp ${calibPfoAnalysisFileBase}_step${step}.root ${calibPfoAnalysisFileBase}_finalStep.root
 
       finalPrecison=${currentPrecision}
-      finalEcalMip=`echo ${currentEcalMipRescalingFactor}*${ecalMip}  | bc -l`
+      finalCalibrationFactor1=`echo ${calibrationFactor1}*${calibrationFactorRescale} | bc -l`
       finalEcalCalibCalibrationFile=${ecalCalibCalibrationFileBase}_finalStep.txt
       goodPrecisionReached=1
       finalStep=${step}
@@ -211,10 +221,11 @@ echo "= Final precison reached : ${goodPrecisionReached}"
 exitStatus=0
 
 if [ ${goodPrecisionReached} ]; then
-  echo "= Number of steps : ${finalStep}"
-  echo "= Final ecal mip :${finalEcalMip} GeV"
-  echo "= Final calibration file : ${finalEcalCalibCalibrationFile}"
-  echo "= Final precison : ${finalPrecison}"
+  echo "= Number of steps            : ${finalStep}"
+  echo "= Final calibration factor 1 : ${calibrationFactor1}"
+  echo "= Final calibration factor 2 : ${calibrationFactor2}"
+  echo "= Final calibration file     : ${finalEcalCalibCalibrationFile}"
+  echo "= Final precison             : ${finalPrecison}"
 
   cp ${finalEcalCalibCalibrationFile} ${outputDirectory}
   cp ${calibPfoAnalysisFileBase}_finalStep.root ${outputDirectory}
