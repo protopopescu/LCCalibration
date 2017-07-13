@@ -204,6 +204,7 @@ do
 
       finalPrecison=${currentPrecision}
       finalCalibrationFactor1=`echo ${calibrationFactor1}*${calibrationFactorRescale} | bc -l`
+      finalCalibrationFactor2=`echo ${calibrationFactor2}*${calibrationFactorRescale} | bc -l`
       finalEcalCalibCalibrationFile=${ecalCalibCalibrationFileBase}_finalStep.txt
       goodPrecisionReached=1
       finalStep=${step}
