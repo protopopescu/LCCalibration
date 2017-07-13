@@ -183,6 +183,7 @@ do
     # extract the ecal calib mip scaling factor
     calibrationFactorRescale=`./extract-ecal-rescaling-factor ${ecalCalibCalibrationFileBase}_step${step}.txt`
     currentPrecision=`echo 1 - 1/${calibrationFactorRescale} | bc -l`
+    currentPrecision=`abs ${currentPrecision}`
 
     echo "==========================="
     echo "=   Current step output   ="
