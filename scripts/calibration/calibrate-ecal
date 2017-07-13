@@ -22,7 +22,7 @@
 
 
 abs() {
-  [ $1 -lt 0 ] && echo $((-$1)) || echo $1
+  echo "a=$1;if(0>a)a*=-1;a" | bc -l
 }
 
 # precision of the photon energy after calibration
