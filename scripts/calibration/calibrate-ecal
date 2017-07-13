@@ -158,7 +158,7 @@ do
     --MyEcalRingDigi.calibration_mip=$currentEcalMip \
     --global.MaxRecordNumber=100 \
     bbudsc_3evt_stdreco_dd4hep.xml \
-    > ${logFile}_step${step}.log
+    > ${logFileBase}_step${step}.log
 
     mv PfoAnalysis.root ${calibPfoAnalysisFileBase}_step${step}.root
 
@@ -169,7 +169,7 @@ do
     # save current step output for further analysis
     cp ${ecalCalibCalibrationFileBase}_step${step}.txt ${outputDirectory}
     cp ${calibPfoAnalysisFileBase}_step${step}.root ${outputDirectory}
-    cp ${logFile}_step${step}.log ${outputDirectory}
+    cp ${logFileBase}_step${step}.log ${outputDirectory}
 
     # extract the ecal calib mip scaling factor
     currentEcalRescalingFactor=`./extract-ecal-rescaling-factor ${ecalCalibCalibrationFileBase}_step${step}.txt`
