@@ -9,20 +9,32 @@ from lxml import etree
 
 
 class CalibrationManager(object) :
-    def __init__(self, xmlFile) :
-        parser = etree.XMLParser(remove_blank_text=True)
-        self._xmlFile = xmlFile
-        self._xmlTree = etree.parse(self._xmlFile, parser)
+    def __init__(self) :
+        self._xmlFile = ""
+        self._xmlTree = None
         self._steps = []
         self._startStep = 0
         self._endStep = sys.maxint
         self._badRun = False
         self._runException = None
 
+    def printSteps(self):
+        stepId = 0
+        print "================================"
+        print "===== Registered steps ({0}) =====".format(len(self._steps))
+        for step in self._steps:
+            print " => {0}) {1} : {2}".format(stepId, step.name(), step.description())
+            stepId += 1
+        print "================================"
+
+
     def addStep(self, step) :
         self._steps.append(step)
 
     def readCmdLine(self, parsed) :
+        self._xmlFile = parsed.inputCalibrationFile
+        parser = etree.XMLParser(remove_blank_text=True)
+        self._xmlTree = etree.parse(self._xmlFile, parser)
         self._startStep = int(parsed.startStep)
         self._endStep = min(int(parsed.endStep), len(self._steps)-1)
 

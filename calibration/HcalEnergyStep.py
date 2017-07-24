@@ -29,6 +29,9 @@ class HcalEnergyStep(CalibrationStep) :
         self._outputEnergyRescale = None
         self._outputPrecision = None
 
+    def description(self):
+        return "Calculate the constants related to the energy deposit in a hcal cell (unit GeV) in the {0} region. Outputs the hcal{0}Factor values".format(self.getHcalRegion())
+
     def getPandoraHcalRegion(self) :
         pass
 
@@ -207,7 +210,7 @@ class HcalEnergyStep(CalibrationStep) :
 
 class HcalBarrelEnergyStep(HcalEnergyStep) :
     def __init__(self) :
-        HcalEnergyStep.__init__(self, "HcalBarrelEnergyStep")
+        HcalEnergyStep.__init__(self, "HcalBarrelEnergy")
 
     def getPandoraHcalRegion(self) :
         return "Barrel"
@@ -221,7 +224,7 @@ class HcalBarrelEnergyStep(HcalEnergyStep) :
 
 class HcalEndcapEnergyStep(HcalEnergyStep) :
     def __init__(self) :
-        HcalEnergyStep.__init__(self, "HcalEndcapEnergyStep")
+        HcalEnergyStep.__init__(self, "HcalEndcapEnergy")
 
     def getPandoraHcalRegion(self) :
         return "EndCap"
@@ -231,5 +234,23 @@ class HcalEndcapEnergyStep(HcalEnergyStep) :
 
     def getThetaCut(self) :
         return [0.78, 0.98]
+
+# class HcalRingEnergyStep(CalibrationStep) :
+#     def __init__(self) :
+#         CalibrationStep.__init__(self, "HcalRingEnergy")
+#         self._marlin = Marlin()
+#         self._hcalRingMerger = None
+#         self._hcalRingCalibrator = None
+#
+#         self._pfoOutputFile =
+#
+#     def description(self):
+#         return "Calculate the constants related to the energy deposit in a hcal cell (unit GeV) in the {0} region. Outputs the hcal{0}Factor values".format(self.getHcalRegion())
+#
+#     def readCmdLine(self, parsed) :
+
+
+
+
 
 #

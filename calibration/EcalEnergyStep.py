@@ -36,6 +36,9 @@ class EcalEnergyStep(CalibrationStep) :
         self._outputEnergyRescale = None
         self._outputPrecision = None
 
+    def description(self):
+        return "Calculate the constants related to the energy deposit in a ecal cell (unit GeV). Outputs the ecalFactors values"
+
     def readCmdLine(self, parsed) :
         # setup ecal energy calibrator
         self._ecalEnergyCalibrator = PandoraAnalysisBinary(os.path.join(parsed.pandoraAnalysis, "bin/ECalDigitisation_ContainedEvents"))

@@ -31,8 +31,28 @@ marlinSteeringFile = ""
 pathToPandoraAnalysis = ""
 maxRecordNumber = 0   # process the whole file
 
+
+manager = CalibrationManager()
+
+# add a calibration step here
+manager.addStep( MipScaleStep() )
+manager.addStep( EcalEnergyStep() )
+manager.addStep( HcalBarrelEnergyStep() )
+manager.addStep( HcalEndcapEnergyStep() )
+
+
+
 parser = argparse.ArgumentParser("Running energy calibration:",
                                      formatter_class=argparse.RawTextHelpFormatter)
+
+parser.add_argument("--showSteps", action="store_true", default=False,
+                        help="Show the registered steps and exit", required = False)
+
+parsed = parser.parse_known_args()[0]
+
+if parsed.showSteps :
+    manager.printSteps()
+    sys.exit(0)
 
 parser.add_argument("--compactFile", action="store", default=compactFile,
                         help="The compact XML file", required = True)
@@ -78,15 +98,6 @@ parser.add_argument("--endStep", action="store", default=endStep,
 
 parsed = parser.parse_args()
 
-
-
-manager = CalibrationManager(parsed.inputCalibrationFile)
-
-# add a calibration step here
-manager.addStep( MipScaleStep() )
-manager.addStep( EcalEnergyStep() )
-manager.addStep( HcalBarrelEnergyStep() )
-manager.addStep( HcalEndcapEnergyStep() )
 
 # configure and run
 manager.readCmdLine(parsed)

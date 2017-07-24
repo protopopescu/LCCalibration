@@ -23,6 +23,9 @@ class MipScaleStep(CalibrationStep) :
         self._hcalRingMip = 0.
         self._ecalMip = 0.
 
+    def description(self) :
+        return "Calculate the mip values from SimCalorimeter collections in the muon lcio file. This outputs ecalMip, hcalBarrelMip, hcalEndcapMip and hcalRingMip"
+
     def readCmdLine(self, parsed) :
         # setup mip calibrator
         self._mipCalibrator = PandoraAnalysisBinary(os.path.join(parsed.pandoraAnalysis, "bin/SimCaloHitEnergyDistribution"))
@@ -59,11 +62,10 @@ class MipScaleStep(CalibrationStep) :
         # since all PandoraAnalysis binaries write output with the same
         # file name and append the result to Calibration.txt file
         # it's better to delete this file after extracting the parameters of interest
-        # try :
-        #     os.remove("./MipScale_Calibration.txt")
-        # except OSError:
-        #     pass
-        #call(["ls", "-l"])
+        try :
+            os.remove("./MipScale_Calibration.txt")
+        except OSError:
+            pass
 
     def writeOutput(self, config) :
         # replace previous exports
