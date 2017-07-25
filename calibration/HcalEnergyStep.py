@@ -8,6 +8,56 @@ import os, sys
 from lxml import *
 
 
+# class HcalEnergyFullStep(CalibrationStep) :
+#     def __init__(self, name) :
+#         CalibrationStep.__init__(self, name)
+#         self._marlin = Marlin()
+#         self._hcalEnergyCalibrator = None
+#         self._hcalRingEnergyCalibrator = None
+#
+#         self._pfoOutputFile = "PfoAnalysis_" + self._name + ".root"
+#
+#         self._maxNIterations = 5
+#         self._energyScaleAccuracy = 0.01
+#
+#         self._hcalMip = 0.
+#         self._hcalEndcapMip = 0.
+#         self._hcalRingMip = 0.
+#         self._ecalMip = 0.
+#
+#         self._inputHcalCalibFactor = None
+#         self._inputHcalRingGeometryFactor = None
+#
+#         self._outputHcalCalibFactor = None
+#         self._outputKaon0LEnergy = None
+#         self._outputEnergyRescale = None
+#         self._outputPrecision = None
+#
+#     def description(self):
+#         return "Calculate the constants related to the energy deposit in a hcal cell (unit GeV). Outputs the hcalBarrelFactor, hcalEndcapFactor and hcalRingFactor values"
+#
+#     def readCmdLine(self, parsed) :
+#         # setup ecal energy calibrator
+#         self._hcalEnergyCalibrator = PandoraAnalysisBinary(os.path.join(parsed.pandoraAnalysis, "bin/HCalDigitisation_ContainedEvents"))
+#         self._hcalEnergyCalibrator.addArgument("-b", '20')
+#         self._hcalEnergyCalibrator.addArgument("-d", "./HCalDigit_{0}_".format(self.getPandoraHcalRegion()))
+#         self._hcalEnergyCalibrator.addArgument("-g", self.getPandoraHcalRegion())
+#         self._hcalEnergyCalibrator.addArgument("-i", str(self.getThetaCut()[0]))
+#         self._hcalEnergyCalibrator.addArgument("-j", str(self.getThetaCut()[1]))
+#
+#         self._hcalRingEnergyCalibrator = PandoraAnalysisBinary(os.path.join(parsed.pandoraAnalysis, "bin/HCalDigitisation_DirectionCorrectionDistribution"))
+#
+#         # setup marlin
+#         gearFile = self._marlin.convertToGear(parsed.compactFile)
+#         self._marlin.setGearFile(gearFile)
+#         self._marlin.setSteeringFile(parsed.steeringFile)
+#         self._marlin.setProcessorParameter("InitDD4hep", "DD4hepXMLFile", parsed.compactFile)
+#         self._marlin.setMaxRecordNumber(int(parsed.maxRecordNumber))
+#         self._marlin.setInputFiles(parsed.lcioKaon0LFile)
+#
+#         self._maxNIterations = int(parsed.maxNIterations)
+#         self._energyScaleAccuracy = float(parsed.hcalCalibrationAccuracy)
+
 
 class HcalEnergyStep(CalibrationStep) :
     def __init__(self, name) :
@@ -239,17 +289,43 @@ class HcalEndcapEnergyStep(HcalEnergyStep) :
 #     def __init__(self) :
 #         CalibrationStep.__init__(self, "HcalRingEnergy")
 #         self._marlin = Marlin()
-#         self._hcalRingMerger = None
 #         self._hcalRingCalibrator = None
 #
-#         self._pfoOutputFile =
+#         self._pfoOutputFile = "./PfoAnalysis_{0}.root".format(self._name)
+#
+#         self._inputHcalRingFactor = None
+#         self._outputHcalRingFactor = None
 #
 #     def description(self):
-#         return "Calculate the constants related to the energy deposit in a hcal cell (unit GeV) in the {0} region. Outputs the hcal{0}Factor values".format(self.getHcalRegion())
+#         return "Calculate the constants related to the energy deposit in a hcal cell (unit GeV) in the Ring region. Outputs the hcalRingFactor values"
 #
 #     def readCmdLine(self, parsed) :
-
-
+#         self._hcalRingCalibrator = PandoraAnalysisBinary(os.path.join(parsed.pandoraAnalysis, "bin/HCalDigitisation_DirectionCorrectionDistribution"))
+#         self._hcalRingCalibrator.addArgument("-a", self._pfoOutputFile)
+#         self._hcalRingCalibrator.addArgument("-b", '20')
+#         self._hcalRingCalibrator.addArgument("-c", "./HCalDigit_Ring_")
+#
+#         # setup marlin
+#         gearFile = self._marlin.convertToGear(parsed.compactFile)
+#         self._marlin.setGearFile(gearFile)
+#         self._marlin.setSteeringFile(parsed.steeringFile)
+#         self._marlin.setProcessorParameter("InitDD4hep", "DD4hepXMLFile", parsed.compactFile)
+#         self._marlin.setMaxRecordNumber(int(parsed.maxRecordNumber))
+#         self._marlin.setInputFiles(parsed.lcioKaon0LFile)
+#
+#     def init(self, config) :
+#
+#         ecalMip     = float(self.getParameter(config, 'ecalMip',       'MipScale'))
+#         hcalRingMip = float(self.getParameter(config, 'hcalRingMip',   'MipScale'))
+#
+#         self._inputHcalRingFactor = float(self.getParameter(config, 'hcalRingFactor'))
+#
+#         # set the mip scale of all calorimeters
+#         self._marlin.setProcessorParameter("MyEcalBarrelDigi", "calibration_mip", str(ecalMip))
+#         self._marlin.setProcessorParameter("MyEcalEndcapDigi", "calibration_mip", str(ecalMip))
+#         self._marlin.setProcessorParameter("MyEcalRingDigi",   "calibration_mip", str(ecalMip))
+#         self._marlin.setProcessorParameter("MyHcalRingDigi",   "calibration_mip", str(hcalRingMip))
+#         self._marlin.setProcessorParameter("MyHcalRingReco",   "calibration_factorsMipGev", str(self._inputHcalRingFactor))
 
 
 
