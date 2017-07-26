@@ -9,5 +9,7 @@
     <hcalEndcapFactor>0.0291279</hcalEndcapFactor>
     <hcalRingFactor>0.0347959</hcalRingFactor>
     <ecalFactors> 0.00616054 0.01232108 </ecalFactors>
+    <muonFactor>56.7</muonFactor>
+    <hcalRingGeometryFactor>1.</hcalRingGeometryFactor>
   </input>
 </calibration>
