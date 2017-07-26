@@ -37,8 +37,7 @@ manager = CalibrationManager()
 # add a calibration step here
 manager.addStep( MipScaleStep() )
 manager.addStep( EcalEnergyStep() )
-manager.addStep( HcalBarrelEnergyStep() )
-manager.addStep( HcalEndcapEnergyStep() )
+manager.addStep( HcalEnergyStep() )
 
 
 
