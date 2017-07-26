@@ -51,8 +51,14 @@ class CalibrationStep(object) :
 
         # first look into the step element
         if stepElt :
-            return stepElt.find(name).text
+            paramElt = stepElt.find(name)
+            if paramElt is None :
+                raise NameError("Parameter '{0}' not found in '{1}' step config".format(name, step))
+            return paramElt.text
 
         # then look into user input element
-        return userInput.find(name).text
+        paramElt = userInput.find(name)
+        if paramElt is None :
+            raise NameError("Parameter '{0}' not found in user input config".format(name))
+        return paramElt.text
 #
