@@ -24,9 +24,8 @@ class PandoraMipScaleStep(CalibrationStep) :
         self._outputHcalToGeVMip = None
         self._outputMuonToGeVMip = None
 
-
     def description(self):
-        return "Calculate the constants related to the energy deposit in a ecal cell (unit GeV). Outputs the ecalFactors values"
+        return "Calculate the EcalToGeVMip, HcalToGeVMip and MuonToGeVMip that correspond to the mean reconstructed energy of mip calorimeter hit in the respective detectors"
 
     def readCmdLine(self, parsed) :
         # setup ecal energy calibrator
@@ -42,6 +41,7 @@ class PandoraMipScaleStep(CalibrationStep) :
         self._marlin.setProcessorParameter("InitDD4hep", "DD4hepXMLFile", parsed.compactFile)
         self._marlin.setMaxRecordNumber(parsed.maxRecordNumber)
         self._marlin.setInputFiles(parsed.lcioMuonFile)
+        self._marlin.setProcessorParameter("MyPfoAnalysis", "RootFile", self._pfoOutputFile)
 
     def init(self, config) :
 
@@ -104,6 +104,7 @@ class PandoraMipScaleStep(CalibrationStep) :
         step = etree.Element("step", name=self._name)
         output = etree.Element("output")
         step.append(output)
+        root.append(step)
 
         ecalElt = etree.Element("ecalToGeVMip")
         ecalElt.text = str(self._outputEcalToGeVMip)
