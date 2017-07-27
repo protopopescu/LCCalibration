@@ -7,6 +7,8 @@ from calibration.CalibrationManager import CalibrationManager
 from calibration.MipScaleStep import *
 from calibration.EcalEnergyStep import *
 from calibration.HcalEnergyStep import *
+from calibration.PandoraMipScaleStep import *
+from calibration.PandoraEMScaleStep import *
 
 import os
 import sys
@@ -38,6 +40,8 @@ manager = CalibrationManager()
 manager.addStep( MipScaleStep() )
 manager.addStep( EcalEnergyStep() )
 manager.addStep( HcalEnergyStep() )
+manager.addStep( PandoraMipScaleStep() )
+manager.addStep( PandoraEMScaleStep() )
 
 
 
