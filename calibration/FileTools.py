@@ -51,6 +51,7 @@ def getHcalToGeVMip(calibFile) :
 def getMuonToGeVMip(calibFile) :
     return float(getFileContent(calibFile, 24, 2))
 
-
+def getEcalToEMMean(calibFile) :
+    return float(getFileContent(calibFile, 9, 3))
 
 #
