@@ -89,7 +89,6 @@ class HcalEnergyStep(CalibrationStep) :
         self._marlin.setProcessorParameter("MyHcalRingReco",   "calibration_factorsMipGev", str(self._inputHcalRingFactor))
 
     def run(self, config) :
-
         # cleanup xml tree to write new incoming iteration results
         self._cleanupElement(config)
 
