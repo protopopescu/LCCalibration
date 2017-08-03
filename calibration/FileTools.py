@@ -1,10 +1,17 @@
 import linecache
+import os
 
 def getFileContent(fname, lid, tokenid) :
     line = linecache.getline(fname, lid)
     lineTokens = line.split()
     linecache.clearcache()
     return lineTokens[tokenid]
+
+def removeFile(fname):
+    try :
+        os.remove(fname)
+    except OSError:
+        pass
 
 def getHcalBarrelMip(calibFile) :
     return float(getFileContent(calibFile, 7, 5))
