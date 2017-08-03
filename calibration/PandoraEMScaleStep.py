@@ -176,11 +176,9 @@ class PandoraEMScaleStep(CalibrationStep) :
             raise RuntimeError("{0}: Couldn't reach the user accuracy ({1})".format(self._name, self._energyScaleAccuracy))
 
     def writeOutput(self, config) :
-        root = config.getroot()
-        step = etree.Element("step", name=self._name)
+        step = config.xpath("//step[@name='{0}']".format(self._name))[0]
         output = etree.Element("output")
         step.append(output)
-        root.append(step)
 
         ecalElt = etree.Element("ecalToEMGeV")
         ecalElt.text = str(self._outputEcalToEMGeV)
