@@ -59,7 +59,7 @@ class Marlin(object) :
 
     """ Set the compact file
     """
-    def setCompactFile(self, compactfile):
+    def setCompactFile(self, compactFile):
         self.setProcessorParameter("InitDD4hep", "DD4hepXMLFile", compactFile)
 
     """ Set the Pfo analysis root output file name
@@ -114,7 +114,7 @@ class Marlin(object) :
         print self._marlinParameters
         for proc,params in self._marlinParameters.iteritems() :
             for param, value in params.iteritems() :
-                args.append("--"+proc+"."+param+"="+value)
+                args.append("--"+proc+"."+param+"="+value.strip())
 
         if len(self._inputFiles) == 1 :
             lcioFiles = "--global.LCIOInputFiles=" + self._inputFiles[0]
