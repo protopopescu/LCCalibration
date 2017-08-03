@@ -16,7 +16,9 @@ def getProcessorParameter(tree, processor, name):
 
 def createCalibrationParameter(tree, processor, name):
     param = getProcessorParameter(tree, processor, name)
-    return etree.Element("parameter", processor=processor, name=name)
+    element = etree.Element("parameter", processor=processor, name=name)
+    element.text = param
+    return element
 
 marlinXmlFile = ""
 outputFile = ""
