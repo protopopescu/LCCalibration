@@ -23,7 +23,7 @@ class Marlin(object) :
     """
     def loadParameters(self, xmlTree, path):
         for elt in xmlTree.xpath(path):
-            for parameter in elt.iter("parameter")
+            for parameter in elt.iter("parameter"):
                 processor = parameter.get("processor")
                 name = parameter.get("name")
                 value = parameter.text
