@@ -33,7 +33,6 @@ class CalibrationStep(object) :
                 tree.getroot().remove(elt)
 
     def getParameter(self, config, name, step=None) :
-
         userInput = config.xpath("//input")
         stepElt = None
 
@@ -61,4 +60,27 @@ class CalibrationStep(object) :
         if paramElt is None :
             raise NameError("Parameter '{0}' not found in user input config".format(name))
         return paramElt.text
+
+    def _getXMLStep(self, tree, create=False):
+        elts = tree.xpath("//step[@name='{0}']".format(self._name))
+        if not elts and create:
+            elt = etree.Element("step", name=self._name)
+            tree.getroot().append(elt)
+            return elt
+        return None if not elts else elts[0]
+
+    def _getXMLStepOutput(self, tree, create=False):
+        step = self._getXMLStep(tree, create)
+        if step is None:
+            return None
+        output = step.find("output")
+        if output is None:
+            output = etree.Element("output")
+            step.append(output)
+        return output
+
+    def _writeProcessorParameter(self, parent, processor, name, value):
+        element = etree.Element("parameter", processor=processor, name=name)
+        element.text = str(value)
+        parent.append(element)
 #
