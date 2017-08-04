@@ -31,18 +31,21 @@ outputCalibrationFile = None
 
 marlinSteeringFile = ""
 pathToPandoraAnalysis = ""
-maxRecordNumber = 0   # process the whole file
-
+maxRecordNumber = 0   # processes the whole file by default
+hcalRingGeometryFactor = 1.
 
 manager = CalibrationManager()
 
-# add a calibration step here
+# mip scale for all detectors
 manager.addStep( MipScaleStep() )
+
+# calorimeters (ecal + hcal) calibration
 manager.addStep( EcalEnergyStep() )
 manager.addStep( HcalEnergyStep() )
+
+# advanced PandoraPFA calibration
 manager.addStep( PandoraMipScaleStep() )
 manager.addStep( PandoraEMScaleStep() )
-
 
 
 parser = argparse.ArgumentParser("Running energy calibration:",
@@ -98,6 +101,9 @@ parser.add_argument("--startStep", action="store", default=startStep,
 
 parser.add_argument("--endStep", action="store", default=endStep,
                         help="The step id to stop at", required = False)
+
+parser.add_argument("--hcalRingGeometryFactor", action="store", default=hcalRingGeometryFactor,
+                        help="The geometrical factor to apply for hcal ring factor computation (see documentation in the 'doc' directory)", required = False)
 
 parsed = parser.parse_args()
 
