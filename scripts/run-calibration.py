@@ -14,6 +14,7 @@ import os
 import sys
 from shutil import copyfile
 import argparse
+import logging
 
 compactFile = ""
 maxNIterations = 5
@@ -34,6 +35,34 @@ pathToPandoraAnalysis = ""
 maxRecordNumber = 0   # processes the whole file by default
 hcalRingGeometryFactor = 1.
 
+
+
+# Preconfigure logging before any other thing...
+# Use a specific argparser for that
+loggingLevels = [logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL]
+
+parser = argparse.ArgumentParser("Running energy calibration:", formatter_class=argparse.RawTextHelpFormatter, add_help=False)
+
+parser.add_argument("--logLevel", action="store", type=type(logging.DEBUG), default=logging.INFO, choices=loggingLevels,
+                        help="The logging level (default INFO)", required = False)
+
+parser.add_argument("--logFile", action="store", default="",
+                        help="The log file (default : no log file)", required = False)
+
+parsed, extra = parser.parse_known_args()
+
+logformat = "%(asctime)s [%(levelname)s] - %(name)s : %(message)s"
+
+if parsed.logFile:
+    logging.basicConfig(filename=parsed.logFile, filemode='w', level=parsed.logLevel, format=logformat)
+else:
+    logging.basicConfig(level=parsed.logLevel, format=logformat)
+
+
+
+
+
+# Create the calibration manager and configure it
 manager = CalibrationManager()
 
 # mip scale for all detectors
@@ -48,7 +77,7 @@ manager.addStep( PandoraMipScaleStep() )
 manager.addStep( PandoraEMScaleStep() )
 
 
-parser = argparse.ArgumentParser("Running energy calibration:", formatter_class=argparse.RawTextHelpFormatter, add_help=False)
+parser = argparse.ArgumentParser("Running energy calibration:", formatter_class=argparse.RawTextHelpFormatter, add_help=False)\
 
 parser.add_argument("--showSteps", action="store_true", default=False,
                         help="Show the registered steps and exit", required = False)
@@ -59,11 +88,21 @@ if parsed.showSteps :
     manager.printSteps()
     sys.exit(0)
 
+
+
+
+# Create the full command line interface
 parser = argparse.ArgumentParser("Running energy calibration:",
                                      formatter_class=argparse.RawTextHelpFormatter)
 
 parser.add_argument("--showSteps", action="store_true", default=False,
                         help="Show the registered steps and exit", required = False)
+
+parser.add_argument("--logLevel", action="store", type=type(logging.DEBUG), default=logging.INFO, choices=loggingLevels,
+                        help="The logging level (default INFO)", required = False)
+
+parser.add_argument("--logFile", action="store", default="",
+                        help="The log file (default : no log file)", required = False)
 
 parser.add_argument("--compactFile", action="store", default=compactFile,
                         help="The compact XML file", required = True)
