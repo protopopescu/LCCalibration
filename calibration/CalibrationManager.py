@@ -6,6 +6,7 @@ from calibration.PandoraAnalysis import *
 from calibration.FileTools import *
 import os, sys
 from lxml import etree
+import logging
 
 
 class CalibrationManager(object) :
@@ -17,6 +18,7 @@ class CalibrationManager(object) :
         self._endStep = sys.maxint
         self._badRun = False
         self._runException = None
+        self._logger = logging.getLogger("calibrationMgr")
 
     def printSteps(self):
         stepId = 0
@@ -55,7 +57,7 @@ class CalibrationManager(object) :
                 step.run(self._xmlTree)
                 step.writeOutput(self._xmlTree)
         except RuntimeError as e:
-            print "Caught exception while running: {0}".format(str(e))
+            self._logger.error("Caught exception while running: {0}".format(str(e)))
             self._badRun = True
             self._runException = e
 
