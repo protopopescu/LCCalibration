@@ -108,12 +108,16 @@ class Marlin(object) :
 
     """ Convert the compact file to gear file using 'convertToGear' binary
     """
-    def convertToGear(self, compactFile) :
+    def convertToGear(self, compactFile, force=False) :
         gearFile = "gear_" + os.path.split(compactFile)[1]
+
+        if os.path.isfile(gearFile) and not force:
+            return gearFile
+
         args = ['convertToGear', 'default', compactFile, gearFile]
         process = subprocess.Popen(args = args)
         if process.wait() :
-            raise RuntimeError
+            raise RuntimeError("Couldn't convert compact file to gear file")
         return gearFile
 
     """ Create the marlin process command line argument (Marlin + args)
