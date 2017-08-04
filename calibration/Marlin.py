@@ -38,6 +38,15 @@ class Marlin(object) :
         else :
             self._marlinParameters[processor] = {parameter : value}
 
+    """ Get a processor parameter. Note that if your parameter must have been set using setProcessorParameter() before
+        Returns None is not found
+    """
+    def getProcessorParameter(self, processor, parameter):
+        try:
+            return self._marlinParameters[processor][parameter]
+        except KeyError:
+            return None
+
     """ Set the marlin steering file
     """
     def setSteeringFile(self, steeringFile) :
