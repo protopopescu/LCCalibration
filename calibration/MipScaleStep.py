@@ -68,22 +68,4 @@ class MipScaleStep(CalibrationStep) :
         self._writeProcessorParameter(output, "MyHcalEndcapDigi", "calibration_mip", self._hcalEndcapMip)
         self._writeProcessorParameter(output, "MyHcalRingDigi",   "calibration_mip", self._hcalRingMip)
 
-        # TODO kept for backward compatibility
-        # To be removed ...
-        hbmElt = etree.Element("hcalBarrelMip")
-        hbmElt.text = str(self._hcalBarrelMip)
-        output.append(hbmElt)
-
-        hemElt = etree.Element("hcalEndcapMip")
-        hemElt.text = str(self._hcalEndcapMip)
-        output.append(hemElt)
-
-        hrmElt = etree.Element("hcalRingMip")
-        hrmElt.text = str(self._hcalRingMip)
-        output.append(hrmElt)
-
-        emElt = etree.Element("ecalMip")
-        emElt.text = str(self._ecalMip)
-        output.append(emElt)
-
 #
