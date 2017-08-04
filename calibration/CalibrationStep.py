@@ -83,4 +83,25 @@ class CalibrationStep(object) :
         element = etree.Element("parameter", processor=processor, name=name)
         element.text = str(value)
         parent.append(element)
+
+    def _configureIterationOutput(self, config):
+        step = self._getXMLStep(config, create=True)
+        iterations = step.find("iterations")
+        if iterations is None:
+            iterations = etree.Element("iterations")
+            step.append(iterations)
+        return iterations
+
+    def _writeIterationOutput(self, config, iterId, parameters):
+        iterations = self._configureIterationOutput(config)
+        iteration = etree.Element("iteration", id=str(iterId))
+        iterations.append(iteration)
+        for key, value in parameters.iteritems():
+            parameter = etree.Element(key)
+            parameter.text = str(value)
+            iteration.append(parameter)
+
+
+
+
 #
