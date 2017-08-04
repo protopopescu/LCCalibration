@@ -22,19 +22,19 @@ class EcalEnergyStep(CalibrationStep) :
         self._maxNIterations = 5
         self._energyScaleAccuracy = 0.01
 
-        self._hcalBarrelMip = 0.
-        self._hcalEndcapMip = 0.
-        self._hcalRingMip = 0.
-        self._ecalMip = 0.
+        self._inputEcalBarrelFactor1 = None
+        self._inputEcalBarrelFactor2 = None
+        self._inputEcalEndcapFactor1 = None
+        self._inputEcalEndcapFactor2 = None
+        self._inputEcalRingFactor1 = None
+        self._inputEcalRingFactor2 = None
 
-        self._inputEcalCalibFactor1 = None
-        self._inputEcalCalibFactor2 = None
-
-        self._outputEcalCalibFactor1 = None
-        self._outputEcalCalibFactor2 = None
-        self._outputPhotonEnergy = None
-        self._outputEnergyRescale = None
-        self._outputPrecision = None
+        self._outputEcalBarrelFactor1 = None
+        self._outputEcalBarrelFactor2 = None
+        self._outputEcalEndcapFactor1 = None
+        self._outputEcalEndcapFactor2 = None
+        self._outputEcalRingFactor1 = None
+        self._outputEcalRingFactor2 = None
 
     def description(self):
         return "Calculate the constants related to the energy deposit in a ecal cell (unit GeV). Outputs the ecalFactors values"
@@ -49,7 +49,7 @@ class EcalEnergyStep(CalibrationStep) :
         gearFile = self._marlin.convertToGear(parsed.compactFile)
         self._marlin.setGearFile(gearFile)
         self._marlin.setSteeringFile(parsed.steeringFile)
-        self._marlin.setProcessorParameter("InitDD4hep", "DD4hepXMLFile", parsed.compactFile)
+        self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(parsed.maxRecordNumber)
         self._marlin.setInputFiles(parsed.lcioPhotonFile)
 
@@ -58,56 +58,19 @@ class EcalEnergyStep(CalibrationStep) :
 
 
     def init(self, config) :
+        self._cleanupElement(config)
+        self._marlin.loadParameters(config, "//input")
+        self._marlin.loadParameters(config, "//step[@name='MipScale']/output")
 
-        mipScaleElts = config.xpath("//step[@name='{0}']".format("MipScale"))
-        mipConfig = None
-        userInput = config.xpath("//input")
-
-        if not len(userInput) :
-            raise RuntimeError("No user input provided")
-
-        userInput = userInput[0]
-
-        # try to get result from previous calibration step
-        if len(mipScaleElts) :
-            mipConfig = mipScaleElts[-1].find("output")
-        else : # try to get mip calibration from user inputs
-            print "MipScale step not processed. Taking mip scale values from user input !"
-            mipConfig = userInput
-
-        self._hcalBarrelMip = float(mipConfig.find("hcalBarrelMip").text)
-        self._hcalEndcapMip = float(mipConfig.find("hcalEndcapMip").text)
-        self._hcalRingMip = float(mipConfig.find("hcalRingMip").text)
-        self._ecalMip = float(mipConfig.find("ecalMip").text)
-
-        # set the mip scale of all calorimeters
-        self._marlin.setProcessorParameter("MyEcalBarrelDigi", "calibration_mip", str(self._ecalMip))
-        self._marlin.setProcessorParameter("MyEcalEndcapDigi", "calibration_mip", str(self._ecalMip))
-        self._marlin.setProcessorParameter("MyEcalRingDigi",   "calibration_mip", str(self._ecalMip))
-        self._marlin.setProcessorParameter("MyHcalBarrelDigi", "calibration_mip", str(self._hcalBarrelMip))
-        self._marlin.setProcessorParameter("MyHcalEndcapDigi", "calibration_mip", str(self._hcalEndcapMip))
-        self._marlin.setProcessorParameter("MyHcalRingDigi",   "calibration_mip", str(self._hcalRingMip))
-
-        ecalFactors = userInput.find("ecalFactors").text.split()
-        self._inputEcalCalibFactor1 = float(ecalFactors[0])
-        self._inputEcalCalibFactor2 = float(ecalFactors[1])
-
-        # set the mip scale of all calorimeters
-        self._marlin.setProcessorParameter("MyEcalBarrelReco", "calibration_factorsMipGev", "{0} {1}".format(self._inputEcalCalibFactor1, self._inputEcalCalibFactor2))
-        self._marlin.setProcessorParameter("MyEcalEndcapReco", "calibration_factorsMipGev", "{0} {1}".format(self._inputEcalCalibFactor1, self._inputEcalCalibFactor2))
-        self._marlin.setProcessorParameter("MyEcalRingReco",   "calibration_factorsMipGev", "{0} {1}".format(self._inputEcalCalibFactor1, self._inputEcalCalibFactor2))
+        self._inputEcalBarrelFactor1 = float(self._marlin.getProcessorParameter("MyEcalBarrelReco", "calibration_factorsMipGev").split()[0])
+        self._inputEcalBarrelFactor2 = float(self._marlin.getProcessorParameter("MyEcalBarrelReco", "calibration_factorsMipGev").split()[1])
+        self._inputEcalEndcapFactor1 = float(self._marlin.getProcessorParameter("MyEcalEndcapReco", "calibration_factorsMipGev").split()[0])
+        self._inputEcalEndcapFactor2 = float(self._marlin.getProcessorParameter("MyEcalEndcapReco", "calibration_factorsMipGev").split()[1])
+        self._inputEcalRingFactor1 = float(self._marlin.getProcessorParameter("MyEcalRingReco", "calibration_factorsMipGev").split()[0])
+        self._inputEcalRingFactor2 = float(self._marlin.getProcessorParameter("MyEcalRingReco", "calibration_factorsMipGev").split()[1])
 
 
     def run(self, config) :
-
-        # cleanup xml tree to write new incoming iteration results
-        self._cleanupElement(config)
-
-        root = config.getroot()
-        step = etree.Element("step", name=self._name)
-        root.append(step)
-        iterations = etree.Element("iterations")
-        step.append(iterations)
 
         # loop variables
         currentPrecision = 0.
@@ -115,29 +78,34 @@ class EcalEnergyStep(CalibrationStep) :
         calibrationRescaleFactorCumul = 1.
         accuracyReached = False
 
-        calibrationFactor1 = self._inputEcalCalibFactor1
-        calibrationFactor2 = self._inputEcalCalibFactor2
+        ecalBarrelFactor1 = self._inputEcalBarrelFactor1
+        ecalBarrelFactor2 = self._inputEcalBarrelFactor2
+        ecalEndcapFactor1 = self._inputEcalEndcapFactor1
+        ecalEndcapFactor2 = self._inputEcalEndcapFactor2
+        ecalRingFactor1 = self._inputEcalRingFactor1
+        ecalRingFactor2 = self._inputEcalRingFactor2
 
         for iteration in range(self._maxNIterations) :
 
             # readjust iteration parameters
-            calibrationFactor1 = calibrationFactor1*calibrationRescaleFactor
-            calibrationFactor2 = calibrationFactor2*calibrationRescaleFactor
+            ecalBarrelFactor1 = ecalBarrelFactor1*calibrationRescaleFactor
+            ecalBarrelFactor2 = ecalBarrelFactor2*calibrationRescaleFactor
+            ecalEndcapFactor1 = ecalEndcapFactor1*calibrationRescaleFactor
+            ecalEndcapFactor2 = ecalEndcapFactor2*calibrationRescaleFactor
+            ecalRingFactor1 = ecalRingFactor1*calibrationRescaleFactor
+            ecalRingFactor2 = ecalRingFactor2*calibrationRescaleFactor
+
             pfoAnalysisFile = "./PfoAnalysis_{0}_iter{1}.root".format(self._name, iteration)
 
             # run marlin ...
-            self._marlin.setProcessorParameter("MyEcalBarrelReco", "calibration_factorsMipGev", "{0} {1}".format(calibrationFactor1, calibrationFactor2))
-            self._marlin.setProcessorParameter("MyEcalEndcapReco", "calibration_factorsMipGev", "{0} {1}".format(calibrationFactor1, calibrationFactor2))
-            self._marlin.setProcessorParameter("MyEcalRingReco"  , "calibration_factorsMipGev", "{0} {1}".format(calibrationFactor1, calibrationFactor2))
+            self._marlin.setProcessorParameter("MyEcalBarrelReco", "calibration_factorsMipGev", "{0} {1}".format(ecalBarrelFactor1, ecalBarrelFactor2))
+            self._marlin.setProcessorParameter("MyEcalEndcapReco", "calibration_factorsMipGev", "{0} {1}".format(ecalEndcapFactor1, ecalEndcapFactor2))
+            self._marlin.setProcessorParameter("MyEcalRingReco"  , "calibration_factorsMipGev", "{0} {1}".format(ecalRingFactor1, ecalRingFactor2))
             self._marlin.setProcessorParameter("MyPfoAnalysis"   , "RootFile", pfoAnalysisFile)
             self._marlin.run()
 
             # ... and calibration script
-            try :
-                os.remove("./ECalDigit_Calibration.txt")
-            except OSError:
-                pass
-
+            removeFile("./ECalDigit_Calibration.txt")
             self._ecalEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
             self._ecalEnergyCalibrator.run()
 
@@ -146,31 +114,10 @@ class EcalEnergyStep(CalibrationStep) :
             calibrationRescaleFactorCumul = calibrationRescaleFactorCumul*calibrationRescaleFactor
             currentPrecision = abs(1 - 1. / calibrationRescaleFactor)
             newPhotonEnergy = getEcalDigiMean("./ECalDigit_Calibration.txt")
-
-            print "============================="
-            print "Set calibration factors in Marlin to {0} and {1}".format(calibrationFactor1, calibrationFactor2)
-            print "Rescale to : {0}".format(calibrationRescaleFactor)
-            print "New photon energy : {0} GeV".format(newPhotonEnergy)
-            print "Precision is {0} (compared to {1})".format(currentPrecision, self._energyScaleAccuracy)
-            print "============================="
-
             os.rename("./ECalDigit_Calibration.txt", "./ECalDigit_iter{0}_Calibration.txt".format(iteration))
 
             # write down iteration results
-            iterationElt = etree.Element("iteration", id=str(iteration))
-            iterations.append(iterationElt)
-
-            precisionElt = etree.Element("precision")
-            precisionElt.text = str(currentPrecision)
-            iterationElt.append(precisionElt)
-
-            rescaleElt = etree.Element("rescale")
-            rescaleElt.text = str(calibrationRescaleFactor)
-            iterationElt.append(rescaleElt)
-
-            photonEnergyElt = etree.Element("newPhotonEnergy")
-            photonEnergyElt.text = str(newPhotonEnergy)
-            iterationElt.append(photonEnergyElt)
+            self._writeIterationOutput(config, iteration, {"precision" : currentPrecision, "rescale" : calibrationRescaleFactor, "newPhotonEnergy" : newPhotonEnergy})
 
             # are we accurate enough ??
             if currentPrecision < self._energyScaleAccuracy :
@@ -178,11 +125,12 @@ class EcalEnergyStep(CalibrationStep) :
                 print "{0}: ecal energy accuracy reached !".format(self._name)
                 accuracyReached = True
 
-                self._outputEcalCalibFactor1 = calibrationFactor1
-                self._outputEcalCalibFactor2 = calibrationFactor2
-                self._outputPhotonEnergy = newPhotonEnergy
-                self._outputEnergyRescale = calibrationRescaleFactorCumul
-                self._outputPrecision = currentPrecision
+                self._outputEcalBarrelFactor1 = ecalBarrelFactor1
+                self._outputEcalBarrelFactor2 = ecalBarrelFactor2
+                self._outputEcalEndcapFactor1 = ecalEndcapFactor1
+                self._outputEcalEndcapFactor2 = ecalEndcapFactor2
+                self._outputEcalRingFactor1 = ecalRingFactor1
+                self._outputEcalRingFactor2 = ecalRingFactor2
 
                 break
 
@@ -191,24 +139,13 @@ class EcalEnergyStep(CalibrationStep) :
 
 
     def writeOutput(self, config) :
-        # should have been created from the run() function above
-        step = config.xpath("//step[@name='{0}']".format(self._name))[0]
+        output = self._getXMLStepOutput(config, create=True)
 
-        output = etree.Element("output")
-        step.append(output)
+        self._writeProcessorParameter(output, "MyEcalBarrelReco", "calibration_factorsMipGev", "{0} {1}".format(self._outputEcalBarrelFactor1, self._outputEcalBarrelFactor2))
+        self._writeProcessorParameter(output, "MyEcalEndcapReco", "calibration_factorsMipGev", "{0} {1}".format(self._outputEcalEndcapFactor1, self._outputEcalEndcapFactor2))
+        self._writeProcessorParameter(output, "MyEcalRingReco",   "calibration_factorsMipGev", "{0} {1}".format(self._outputEcalRingFactor1, self._outputEcalRingFactor2))
 
-        photonEnergyElt = etree.Element("photonEnergy")
-        photonEnergyElt.text = str(self._outputPhotonEnergy)
-        output.append(photonEnergyElt)
 
-        rescaleElt = etree.Element("rescale")
-        rescaleElt.text = str(self._outputEnergyRescale)
-        output.append(rescaleElt)
 
-        precision = etree.Element("precision")
-        precision.text = str(self._outputPrecision)
-        output.append(precision)
 
-        ecalFactorsElt = etree.Element("ecalFactors")
-        ecalFactorsElt.text = "{0} {1}".format(self._outputEcalCalibFactor1, self._outputEcalCalibFactor2)
-        output.append(ecalFactorsElt)
+#

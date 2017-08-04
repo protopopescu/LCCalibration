@@ -27,9 +27,6 @@ class PandoraEMScaleStep(CalibrationStep) :
         # step output
         self._outputEcalToEMGeV = None
         self._outputHcalToEMGeV = None
-        self._outputPhotonEnergy = None
-        self._outputEnergyRescale = None
-        self._outputPrecision = None
 
     # def description(self):
     #     return "Calculate the EcalToGeVMip, HcalToGeVMip and MuonToGeVMip that correspond to the mean reconstructed energy of mip calorimeter hit in the respective detectors"
@@ -44,7 +41,7 @@ class PandoraEMScaleStep(CalibrationStep) :
         gearFile = self._marlin.convertToGear(parsed.compactFile)
         self._marlin.setGearFile(gearFile)
         self._marlin.setSteeringFile(parsed.steeringFile)
-        self._marlin.setProcessorParameter("InitDD4hep", "DD4hepXMLFile", parsed.compactFile)
+        self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(parsed.maxRecordNumber)
         self._marlin.setInputFiles(parsed.lcioPhotonFile)
 
@@ -53,56 +50,17 @@ class PandoraEMScaleStep(CalibrationStep) :
 
     def init(self, config) :
 
-        ecalMip = float(self.getParameter(config, "ecalMip", "MipScale"))
-        hcalBarrelMip = float(self.getParameter(config, "hcalBarrelMip", "MipScale"))
-        hcalEndcapMip = float(self.getParameter(config, "hcalEndcapMip", "MipScale"))
-        hcalRingMip = float(self.getParameter(config, "hcalRingMip", "MipScale"))
-        inputEcalFactorsStr = self.getParameter(config, "ecalFactors", "EcalEnergy")
-        inputHcalBarrelFactor = float(self.getParameter(config, "hcalBarrelFactor", "HcalEnergy"))
-        inputHcalEndcapFactor = float(self.getParameter(config, "hcalEndcapFactor", "HcalEnergy"))
-        inputHcalRingFactor = float(self.getParameter(config, "hcalRingFactor", "HcalEnergy"))
-        inputMuonFactor = float(self.getParameter(config, "muonFactor"))
-        ecalToGeVMip = float(self.getParameter(config, "ecalToGeVMip", "PandoraMipScale"))
-        hcalToGeVMip = float(self.getParameter(config, "hcalToGeVMip", "PandoraMipScale"))
-        muonToGeVMip = float(self.getParameter(config, "muonToGeVMip", "PandoraMipScale"))
+        self._cleanupElement(config)
+        self._marlin.loadParameters(config, "//input")
+        self._marlin.loadParameters(config, "//step[@name='MipScale']/output")
+        self._marlin.loadParameters(config, "//step[@name='EcalEnergy']/output")
+        self._marlin.loadParameters(config, "//step[@name='PandoraMipScale']/output")
 
-        # set the mip scale of all calorimeters
-        self._marlin.setProcessorParameter("MyEcalBarrelDigi", "calibration_mip", str(ecalMip))
-        self._marlin.setProcessorParameter("MyEcalEndcapDigi", "calibration_mip", str(ecalMip))
-        self._marlin.setProcessorParameter("MyEcalRingDigi",   "calibration_mip", str(ecalMip))
-        self._marlin.setProcessorParameter("MyHcalBarrelDigi", "calibration_mip", str(hcalBarrelMip))
-        self._marlin.setProcessorParameter("MyHcalEndcapDigi", "calibration_mip", str(hcalEndcapMip))
-        self._marlin.setProcessorParameter("MyHcalRingDigi",   "calibration_mip", str(hcalRingMip))
+        self._inputEcalToEMGeV = float(self._marlin.getProcessorParameter("MyDDMarlinPandora", "ECalToEMGeVCalibration"))
+        self._inputHcalToEMGeV = float(self._marlin.getProcessorParameter("MyDDMarlinPandora", "HCalToEMGeVCalibration"))
 
-        # set the energy factors of all calorimeters
-        self._marlin.setProcessorParameter("MyEcalBarrelReco", "calibration_factorsMipGev", inputEcalFactorsStr)
-        self._marlin.setProcessorParameter("MyEcalEndcapReco", "calibration_factorsMipGev", inputEcalFactorsStr)
-        self._marlin.setProcessorParameter("MyEcalRingReco",   "calibration_factorsMipGev", inputEcalFactorsStr)
-        self._marlin.setProcessorParameter("MyHcalBarrelReco", "calibration_factorsMipGev", str(inputHcalBarrelFactor))
-        self._marlin.setProcessorParameter("MyHcalEndcapReco", "calibration_factorsMipGev", str(inputHcalEndcapFactor))
-        self._marlin.setProcessorParameter("MyHcalRingReco",   "calibration_factorsMipGev", str(inputHcalRingFactor))
-        self._marlin.setProcessorParameter("MySimpleMuonDigi", "CalibrMUON",                str(inputMuonFactor))
-
-        # set pandora parameters
-        self._marlin.setProcessorParameter("MyDDMarlinPandora", "ECalToMipCalibration", str(ecalToGeVMip))
-        self._marlin.setProcessorParameter("MyDDMarlinPandora", "HCalToMipCalibration", str(hcalToGeVMip))
-        self._marlin.setProcessorParameter("MyDDMarlinPandora", "MuonToMipCalibration", str(muonToGeVMip))
-
-        # constant to calibrate
-        self._inputEcalToEMGeV = float(self.getParameter(config, "ecalToEMGeV"))
-        self._inputHcalToEMGeV = float(self.getParameter(config, "hcalToEMGeV"))
-        self._marlin.setProcessorParameter("MyDDMarlinPandora", "ECalToEMGeVCalibration", str(self._inputEcalToEMGeV))
-        self._marlin.setProcessorParameter("MyDDMarlinPandora", "HCalToEMGeVCalibration", str(self._inputHcalToEMGeV))
 
     def run(self, config) :
-        # cleanup xml tree to write new incoming iteration results
-        self._cleanupElement(config)
-
-        root = config.getroot()
-        step = etree.Element("step", name=self._name)
-        root.append(step)
-        iterations = etree.Element("iterations")
-        step.append(iterations)
 
         # loop variables
         currentPrecision = 0.
@@ -127,11 +85,7 @@ class PandoraEMScaleStep(CalibrationStep) :
             self._marlin.run()
 
             # ... and calibration script
-            try :
-                os.remove("./PandoraEMScale_Calibration.txt")
-            except OSError:
-                pass
-
+            removeFile("./PandoraEMScale_Calibration.txt")
             self._emScaleCalibrator.addArgument("-a", pfoAnalysisFile)
             self._emScaleCalibrator.run()
 
@@ -139,24 +93,10 @@ class PandoraEMScaleStep(CalibrationStep) :
             calibrationRescaleFactor = 10. / newPhotonEnergy
             calibrationRescaleFactorCumul = calibrationRescaleFactorCumul*calibrationRescaleFactor
             currentPrecision = abs(1 - 1. / calibrationRescaleFactor)
-
             os.rename("./PandoraEMScale_Calibration.txt", "./PandoraEMScale_iter{0}_Calibration.txt".format(iteration))
 
             # write down iteration results
-            iterationElt = etree.Element("iteration", id=str(iteration))
-            iterations.append(iterationElt)
-
-            precisionElt = etree.Element("precision")
-            precisionElt.text = str(currentPrecision)
-            iterationElt.append(precisionElt)
-
-            rescaleElt = etree.Element("rescale")
-            rescaleElt.text = str(calibrationRescaleFactor)
-            iterationElt.append(rescaleElt)
-
-            photonEnergyElt = etree.Element("newPhotonEnergy")
-            photonEnergyElt.text = str(newPhotonEnergy)
-            iterationElt.append(photonEnergyElt)
+            self._writeIterationOutput(config, iteration, {"precision" : currentPrecision, "rescale" : calibrationRescaleFactor, "newPhotonEnergy" : newPhotonEnergy})
 
             # are we accurate enough ??
             if currentPrecision < self._energyScaleAccuracy :
@@ -166,36 +106,21 @@ class PandoraEMScaleStep(CalibrationStep) :
 
                 self._outputEcalToEMGeV = ecalToEMGeV
                 self._outputHcalToEMGeV = hcalToEMGeV
-                self._outputPhotonEnergy = newPhotonEnergy
-                self._outputEnergyRescale = calibrationRescaleFactorCumul
-                self._outputPrecision = currentPrecision
 
                 break
 
         if not accuracyReached :
             raise RuntimeError("{0}: Couldn't reach the user accuracy ({1})".format(self._name, self._energyScaleAccuracy))
 
+
     def writeOutput(self, config) :
-        step = config.xpath("//step[@name='{0}']".format(self._name))[0]
-        output = etree.Element("output")
-        step.append(output)
 
-        ecalElt = etree.Element("ecalToEMGeV")
-        ecalElt.text = str(self._outputEcalToEMGeV)
-        output.append(ecalElt)
+        output = self._getXMLStepOutput(config, create=True)
+        self._writeProcessorParameter(output, "MyDDMarlinPandora", "ECalToEMGeVCalibration", self._outputEcalToEMGeV)
+        self._writeProcessorParameter(output, "MyDDMarlinPandora", "HCalToEMGeVCalibration", self._outputHcalToEMGeV)
 
-        hcalElt = etree.Element("hcalToEMGeV")
-        hcalElt.text = str(self._outputHcalToEMGeV)
-        output.append(hcalElt)
 
-        photonEnergyElt = etree.Element("photonEnergy")
-        photonEnergyElt.text = str(self._outputPhotonEnergy)
-        output.append(photonEnergyElt)
 
-        rescaleElt = etree.Element("rescale")
-        rescaleElt.text = str(self._outputEnergyRescale)
-        output.append(rescaleElt)
 
-        precision = etree.Element("precision")
-        precision.text = str(self._outputPrecision)
-        output.append(precision)
+
+#

@@ -24,7 +24,7 @@ class MipScaleStep(CalibrationStep) :
         self._ecalMip = 0.
 
     def description(self) :
-        return "Calculate the mip values from SimCalorimeter collections in the muon lcio file. This outputs ecalMip, hcalBarrelMip, hcalEndcapMip and hcalRingMip"
+        return "Calculate the mip values from SimCalorimeter collections in the muon lcio file. Outputs ecal mip, hcal barrel mip, hcal endcap mip and hcal ring mip values"
 
     def readCmdLine(self, parsed) :
         # setup mip calibrator
@@ -37,45 +37,39 @@ class MipScaleStep(CalibrationStep) :
         gearFile = self._marlin.convertToGear(parsed.compactFile)
         self._marlin.setGearFile(gearFile)
         self._marlin.setSteeringFile(parsed.steeringFile)
-        self._marlin.setProcessorParameter("InitDD4hep", "DD4hepXMLFile", parsed.compactFile)
+        self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(parsed.maxRecordNumber)
         self._marlin.setInputFiles(parsed.lcioMuonFile)
-        self._marlin.setProcessorParameter("MyPfoAnalysis"   , "RootFile", self._pfoOutputFile)
+        self._marlin.setPfoAnalysisOutput(self._pfoOutputFile)
 
     def init(self, config) :
-        pass
+        self._cleanupElement(config)
+        self._marlin.loadParameters(config, "//input")
 
     def run(self, config) :
         self._marlin.run()
 
-        try :
-            os.remove("./MipScale_Calibration.txt")
-        except OSError:
-            pass
-
+        removeFile("./MipScale_Calibration.txt")
         self._mipCalibrator.run()
-
         self._hcalBarrelMip = getHcalBarrelMip("./MipScale_Calibration.txt")
         self._hcalEndcapMip = getHcalEndcapMip("./MipScale_Calibration.txt")
         self._hcalRingMip = getHcalRingMip("./MipScale_Calibration.txt")
         self._ecalMip = getEcalMip("./MipScale_Calibration.txt")
-        # since all PandoraAnalysis binaries write output with the same
-        # file name and append the result to Calibration.txt file
-        # it's better to delete this file after extracting the parameters of interest
-        try :
-            os.remove("./MipScale_Calibration.txt")
-        except OSError:
-            pass
+        removeFile("./MipScale_Calibration.txt")
 
     def writeOutput(self, config) :
         # replace previous exports
-        self._cleanupElement(config)
+        output = self._getXMLStepOutput(config, create=True)
 
-        root = config.getroot()
-        step = etree.Element("step", name=self._name)
-        output = etree.Element("output")
-        step.append(output)
+        self._writeProcessorParameter(output, "MyEcalBarrelDigi", "calibration_mip", self._ecalMip)
+        self._writeProcessorParameter(output, "MyEcalEndcapDigi", "calibration_mip", self._ecalMip)
+        self._writeProcessorParameter(output, "MyEcalRingDigi",   "calibration_mip", self._ecalMip)
+        self._writeProcessorParameter(output, "MyHcalBarrelDigi", "calibration_mip", self._hcalBarrelMip)
+        self._writeProcessorParameter(output, "MyHcalEndcapDigi", "calibration_mip", self._hcalEndcapMip)
+        self._writeProcessorParameter(output, "MyHcalRingDigi",   "calibration_mip", self._hcalRingMip)
 
+        # TODO kept for backward compatibility
+        # To be removed ...
         hbmElt = etree.Element("hcalBarrelMip")
         hbmElt.text = str(self._hcalBarrelMip)
         output.append(hbmElt)
@@ -91,7 +85,5 @@ class MipScaleStep(CalibrationStep) :
         emElt = etree.Element("ecalMip")
         emElt.text = str(self._ecalMip)
         output.append(emElt)
-
-        root.append(step)
 
 #

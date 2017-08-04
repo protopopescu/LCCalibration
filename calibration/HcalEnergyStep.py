@@ -18,30 +18,22 @@ class HcalEnergyStep(CalibrationStep) :
         self._maxNIterations = 5
         self._energyScaleAccuracy = 0.01
 
-        # general inputs
-        self._hcalBarrelMip = 0.
-        self._hcalEndcapMip = 0.
-        self._hcalRingMip = 0.
-        self._ecalMip = 0.
-
         # step inputs
+        self._hcalEndcapMip = None
+        self._hcalRingMip = None
         self._inputHcalBarrelFactor = None
         self._inputHcalEndcapFactor = None
-        self._inputHcalRingFactor = None
         self._inputHcalRingGeometryFactor = None
 
         # step output
         self._outputHcalBarrelFactor = None
         self._outputHcalEndcapFactor = None
-        self._outputBarrelKaon0LEnergy = None
-        self._outputEndcapKaon0LEnergy = None
-        self._outputBarrelEnergyRescale = None
-        self._outputEndcapEnergyRescale = None
-        self._outputBarrelPrecision = None
-        self._outputEndcapPrecision = None
+        self._outputHcalRingFactor = None
+
 
     def description(self):
         return "Calculate the constants related to the energy deposit in a hcal cell (unit GeV). Outputs the hcalBarrelFactor, hcalEndcapFactor and hcalRingFactor values"
+
 
     def readCmdLine(self, parsed) :
         # setup ecal energy calibrator
@@ -55,48 +47,29 @@ class HcalEnergyStep(CalibrationStep) :
         gearFile = self._marlin.convertToGear(parsed.compactFile)
         self._marlin.setGearFile(gearFile)
         self._marlin.setSteeringFile(parsed.steeringFile)
-        self._marlin.setProcessorParameter("InitDD4hep", "DD4hepXMLFile", parsed.compactFile)
+        self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(int(parsed.maxRecordNumber))
         self._marlin.setInputFiles(parsed.lcioKaon0LFile)
 
         self._maxNIterations = int(parsed.maxNIterations)
         self._energyScaleAccuracy = float(parsed.hcalCalibrationAccuracy)
+        self._inputHcalRingGeometryFactor = float(parsed.hcalRingGeometryFactor)
+
 
     def init(self, config) :
 
-        # Get settings from user input or MipScale step output
-        self._hcalBarrelMip = float(self.getParameter(config, "hcalBarrelMip", "MipScale"))
-        self._hcalEndcapMip = float(self.getParameter(config, "hcalEndcapMip", "MipScale"))
-        self._hcalRingMip = float(self.getParameter(config, "hcalRingMip", "MipScale"))
-        self._ecalMip = float(self.getParameter(config, "ecalMip", "MipScale"))
-        self._inputHcalBarrelFactor = float(self.getParameter(config, "hcalBarrelFactor"))
-        self._inputHcalEndcapFactor = float(self.getParameter(config, "hcalEndcapFactor"))
-        self._inputHcalRingFactor = float(self.getParameter(config, "hcalRingFactor"))
-        self._inputHcalRingGeometryFactor = float(self.getParameter(config, "hcalRingGeometryFactor"))
+        self._cleanupElement(config)
+        self._marlin.loadParameters(config, "//input")
+        self._marlin.loadParameters(config, "//step[@name='MipScale']/output")
+        self._marlin.loadParameters(config, "//step[@name='EcalEnergy']/output")
 
-        # set the mip scale of all calorimeters
-        self._marlin.setProcessorParameter("MyEcalBarrelDigi", "calibration_mip", str(self._ecalMip))
-        self._marlin.setProcessorParameter("MyEcalEndcapDigi", "calibration_mip", str(self._ecalMip))
-        self._marlin.setProcessorParameter("MyEcalRingDigi",   "calibration_mip", str(self._ecalMip))
-        self._marlin.setProcessorParameter("MyHcalBarrelDigi", "calibration_mip", str(self._hcalBarrelMip))
-        self._marlin.setProcessorParameter("MyHcalEndcapDigi", "calibration_mip", str(self._hcalEndcapMip))
-        self._marlin.setProcessorParameter("MyHcalRingDigi",   "calibration_mip", str(self._hcalRingMip))
+        self._inputHcalBarrelFactor = float(self._marlin.getProcessorParameter("MyHcalBarrelReco", "calibration_factorsMipGev"))
+        self._inputHcalEndcapFactor = float(self._marlin.getProcessorParameter("MyHcalEndcapReco", "calibration_factorsMipGev"))
+        self._hcalEndcapMip = float(self._marlin.getProcessorParameter("MyHcalEndcapDigi", "calibration_mip"))
+        self._hcalRingMip = float(self._marlin.getProcessorParameter("MyHcalRingDigi", "calibration_mip"))
 
-        # set initial energy calib of all calorimeters
-        # Note : setting the energy calib for ecal is not required as the ecal is not used in this step
-        self._marlin.setProcessorParameter("MyHcalBarrelReco", "calibration_factorsMipGev", str(self._inputHcalBarrelFactor))
-        self._marlin.setProcessorParameter("MyHcalEndcapReco", "calibration_factorsMipGev", str(self._inputHcalEndcapFactor))
-        self._marlin.setProcessorParameter("MyHcalRingReco",   "calibration_factorsMipGev", str(self._inputHcalRingFactor))
 
     def run(self, config) :
-        # cleanup xml tree to write new incoming iteration results
-        self._cleanupElement(config)
-
-        root = config.getroot()
-        step = etree.Element("step", name=self._name)
-        root.append(step)
-        iterations = etree.Element("iterations")
-        step.append(iterations)
 
         # loop variables
         barrelCurrentPrecision = 0.
@@ -131,14 +104,8 @@ class HcalEnergyStep(CalibrationStep) :
             self._marlin.run()
 
             # ... and calibration script
-            try :
-                os.remove("./HCalDigit_Barrel_Calibration.txt")
-            except OSError:
-                pass
-            try :
-                os.remove("./HCalDigit_EndCap_Calibration.txt")
-            except OSError:
-                pass
+            removeFile("./HCalDigit_Barrel_Calibration.txt")
+            removeFile("./HCalDigit_EndCap_Calibration.txt")
 
             self._hcalEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
 
@@ -157,8 +124,8 @@ class HcalEnergyStep(CalibrationStep) :
             self._hcalEnergyCalibrator.run()
 
             # extract calibration variables
-            barrelRescaleFactor = 1 if barrelAccuracyReached else getHcalRescalingFactor("./HCalDigit_Barrel_Calibration.txt", 20)
-            endcapRescaleFactor = 1 if endcapAccuracyReached else getHcalRescalingFactor("./HCalDigit_EndCap_Calibration.txt", 20)
+            barrelRescaleFactor = barrelRescaleFactor if barrelAccuracyReached else getHcalRescalingFactor("./HCalDigit_Barrel_Calibration.txt", 20)
+            endcapRescaleFactor = endcapRescaleFactor if endcapAccuracyReached else getHcalRescalingFactor("./HCalDigit_EndCap_Calibration.txt", 20)
             barrelRescaleFactorCumul = barrelRescaleFactorCumul*barrelRescaleFactor
             endcapRescaleFactorCumul = endcapRescaleFactorCumul*endcapRescaleFactor
             barrelCurrentPrecision = abs(1 - 1. / barrelRescaleFactor)
@@ -188,48 +155,24 @@ class HcalEnergyStep(CalibrationStep) :
             os.rename("./HCalDigit_EndCap_Calibration.txt", "./HCalDigit_EndCap_iter{0}_Calibration.txt".format(iteration))
 
             # write down iteration results
-            iterationElt = etree.Element("iteration", id=str(iteration))
-            iterations.append(iterationElt)
-
-            precisionElt = etree.Element("barrelPrecision")
-            precisionElt.text = str(barrelCurrentPrecision)
-            iterationElt.append(precisionElt)
-
-            rescaleElt = etree.Element("barrelRescale")
-            rescaleElt.text = str(barrelRescaleFactor)
-            iterationElt.append(rescaleElt)
-
-            kaon0LEnergyElt = etree.Element("newBarrelKaon0LEnergy")
-            kaon0LEnergyElt.text = str(newBarrelKaon0LEnergy)
-            iterationElt.append(kaon0LEnergyElt)
-
-            precisionElt = etree.Element("endcapPrecision")
-            precisionElt.text = str(endcapCurrentPrecision)
-            iterationElt.append(precisionElt)
-
-            rescaleElt = etree.Element("endcapRescale")
-            rescaleElt.text = str(endcapRescaleFactor)
-            iterationElt.append(rescaleElt)
-
-            kaon0LEnergyElt = etree.Element("newEndcapKaon0LEnergy")
-            kaon0LEnergyElt.text = str(newEndcapKaon0LEnergy)
-            iterationElt.append(kaon0LEnergyElt)
+            self._writeIterationOutput(config, iteration,
+                {"barrelPrecision" : barrelCurrentPrecision,
+                 "barrelRescale" : barrelRescaleFactor,
+                 "barrelRescale" : barrelRescaleFactor,
+                 "newBarrelKaon0LEnergy" : newBarrelKaon0LEnergy,
+                 "endcapPrecision" : endcapCurrentPrecision,
+                 "endcapRescale" : endcapRescaleFactor,
+                 "newEndcapKaon0LEnergy" : newEndcapKaon0LEnergy})
 
             # are we accurate enough ??
             if barrelCurrentPrecision < self._energyScaleAccuracy and not barrelAccuracyReached:
                 barrelAccuracyReached = True
                 self._outputHcalBarrelFactor = barrelFactor
-                self._outputBarrelKaon0LEnergy = newBarrelKaon0LEnergy
-                self._outputBarrelEnergyRescale = barrelRescaleFactorCumul
-                self._outputBarrelPrecision = barrelCurrentPrecision
 
             # are we accurate enough ??
             if endcapCurrentPrecision < self._energyScaleAccuracy and not endcapAccuracyReached:
                 endcapAccuracyReached = True
                 self._outputHcalEndcapFactor = endcapFactor
-                self._outputEndcapKaon0LEnergy = newEndcapKaon0LEnergy
-                self._outputEndcapEnergyRescale = endcapRescaleFactorCumul
-                self._outputEndcapPrecision = endcapCurrentPrecision
 
             if barrelAccuracyReached and endcapAccuracyReached :
                 break
@@ -237,6 +180,7 @@ class HcalEnergyStep(CalibrationStep) :
         if not barrelAccuracyReached or not endcapAccuracyReached :
             raise RuntimeError("{0}: Couldn't reach the user accuracy ({1})".format(self._name, self._energyScaleAccuracy))
 
+        removeFile("./HCalDigit_Ring_Calibration.txt")
         self._hcalRingEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
         self._hcalRingEnergyCalibrator.addArgument("-b", '20')
         self._hcalRingEnergyCalibrator.addArgument("-c", "./HCalDigit_Ring_")
@@ -245,57 +189,24 @@ class HcalEnergyStep(CalibrationStep) :
         directionCorrectionEndcap = getMeanDirCorrHcalEndcap("./HCalDigit_Ring_Calibration.txt")
         directionCorrectionRing = getMeanDirCorrHcalRing("./HCalDigit_Ring_Calibration.txt")
         directionCorrectionRatio = directionCorrectionEndcap / directionCorrectionRing
+        removeFile("./HCalDigit_Ring_Calibration.txt")
 
+        # compute hcal ring factor
         mipRatio = self._hcalEndcapMip / self._hcalRingMip
-
         self._outputHcalRingFactor = directionCorrectionRatio * mipRatio * self._outputHcalEndcapFactor * self._inputHcalRingGeometryFactor
 
-        print "=============================================="
-        print "======= Ring output after all iterations ======="
+        print "==============================================="
+        print "==== Hcal ring output after all iterations ===="
         print " => ring calib factor : " + str(self._outputHcalRingFactor)
-        print "=============================================="
+        print "==============================================="
+
 
     def writeOutput(self, config) :
-        step = config.xpath("//step[@name='{0}']".format(self._name))[0]
 
-        output = etree.Element("output")
-        step.append(output)
-
-        kaon0LEnergyElt = etree.Element("barrelKaon0LEnergy")
-        kaon0LEnergyElt.text = str(self._outputBarrelKaon0LEnergy)
-        output.append(kaon0LEnergyElt)
-
-        rescaleElt = etree.Element("barrelRescale")
-        rescaleElt.text = str(self._outputBarrelEnergyRescale)
-        output.append(rescaleElt)
-
-        precisionElt = etree.Element("barrelPrecision")
-        precisionElt.text = str(self._outputBarrelPrecision)
-        output.append(precisionElt)
-
-        hcalFactorElt = etree.Element("hcalBarrelFactor")
-        hcalFactorElt.text = str(self._outputHcalBarrelFactor)
-        output.append(hcalFactorElt)
-
-        kaon0LEnergyElt = etree.Element("endcapKaon0LEnergy")
-        kaon0LEnergyElt.text = str(self._outputEndcapKaon0LEnergy)
-        output.append(kaon0LEnergyElt)
-
-        rescaleElt = etree.Element("endcapRescale")
-        rescaleElt.text = str(self._outputEndcapEnergyRescale)
-        output.append(rescaleElt)
-
-        precisionElt = etree.Element("endcapPrecision")
-        precisionElt.text = str(self._outputEndcapPrecision)
-        output.append(precisionElt)
-
-        hcalFactorElt = etree.Element("hcalEndcapFactor")
-        hcalFactorElt.text = str(self._outputHcalEndcapFactor)
-        output.append(hcalFactorElt)
-
-        hcalFactorElt = etree.Element("hcalRingFactor")
-        hcalFactorElt.text = str(self._outputHcalRingFactor)
-        output.append(hcalFactorElt)
+        output = self._getXMLStepOutput(config, create=True)
+        self._writeProcessorParameter(output, "MyHcalBarrelReco", "calibration_factorsMipGev", self._outputHcalBarrelFactor)
+        self._writeProcessorParameter(output, "MyHcalEndcapReco", "calibration_factorsMipGev", self._outputHcalEndcapFactor)
+        self._writeProcessorParameter(output, "MyHcalRingReco",   "calibration_factorsMipGev", self._outputHcalRingFactor)
 
 
 #
