@@ -2,6 +2,7 @@
 import os
 import subprocess
 from lxml import etree
+import logging
 
 """ Marlin class.
 """
@@ -17,6 +18,7 @@ class Marlin(object) :
         self._verbosity = "MESSAGE"
         self._maxRecordNumber = 0
         self._randomSeed = 1234567890
+        self._logger = logging.getLogger("marlin")
 
     """ Load processor parameters from a xml tree
         Usage : loadParameter(xmlTree, "//input")
@@ -100,11 +102,11 @@ class Marlin(object) :
     """
     def run(self) :
         args = self._createProcessArgs()
-        print "Marlin command line : " + " ".join(args)
+        self._logger.info("Marlin command line : " + " ".join(args))
         process = subprocess.Popen(args = args)#, stdin = None, stdout = None, stderr = None)
         if process.wait() :
             raise RuntimeError
-        print "Marlin ended with status 0"
+        self._logger.info("Marlin ended with status 0")
 
     """ Convert the compact file to gear file using 'convertToGear' binary
     """
@@ -124,7 +126,6 @@ class Marlin(object) :
     """
     def _createProcessArgs(self) :
         args = ['Marlin']
-        print self._marlinParameters
         for proc,params in self._marlinParameters.iteritems() :
             for param, value in params.iteritems() :
                 args.append("--"+proc+"."+param+"="+value.strip())
