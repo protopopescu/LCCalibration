@@ -2,10 +2,12 @@
 """
 
 from lxml import etree
+import logging
 
 class CalibrationStep(object) :
     def __init__(self, stepName) :
         self._name = stepName
+        self._logger = logging.getLogger(self._name)
 
     def readCmdLine(self, cmdLine) :
         pass
