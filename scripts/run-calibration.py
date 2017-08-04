@@ -48,17 +48,22 @@ manager.addStep( PandoraMipScaleStep() )
 manager.addStep( PandoraEMScaleStep() )
 
 
+parser = argparse.ArgumentParser("Running energy calibration:", formatter_class=argparse.RawTextHelpFormatter, add_help=False)
+
+parser.add_argument("--showSteps", action="store_true", default=False,
+                        help="Show the registered steps and exit", required = False)
+
+parsed, extra = parser.parse_known_args()
+
+if parsed.showSteps :
+    manager.printSteps()
+    sys.exit(0)
+
 parser = argparse.ArgumentParser("Running energy calibration:",
                                      formatter_class=argparse.RawTextHelpFormatter)
 
 parser.add_argument("--showSteps", action="store_true", default=False,
                         help="Show the registered steps and exit", required = False)
-
-parsed = parser.parse_known_args()[0]
-
-if parsed.showSteps :
-    manager.printSteps()
-    sys.exit(0)
 
 parser.add_argument("--compactFile", action="store", default=compactFile,
                         help="The compact XML file", required = True)
