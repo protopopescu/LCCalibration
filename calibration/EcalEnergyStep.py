@@ -122,7 +122,7 @@ class EcalEnergyStep(CalibrationStep) :
             # are we accurate enough ??
             if currentPrecision < self._energyScaleAccuracy :
 
-                print "{0}: ecal energy accuracy reached !".format(self._name)
+                self._logger.info("{0}: ecal energy accuracy reached !".format(self._name))
                 accuracyReached = True
 
                 self._outputEcalBarrelFactor1 = ecalBarrelFactor1
