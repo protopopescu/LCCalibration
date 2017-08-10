@@ -133,23 +133,23 @@ class HcalEnergyStep(CalibrationStep) :
             newBarrelKaon0LEnergy = getHcalDigiMean("./HCalDigit_Barrel_Calibration.txt")
             newEndcapKaon0LEnergy = getHcalDigiMean("./HCalDigit_EndCap_Calibration.txt")
 
-            print "============================================="
-            print "======= Barrel output for iteration {0} =======".format(iteration)
-            print " => calibrationFactor : " + str(barrelFactor)
-            print " => calibrationRescaleFactor : " + str(barrelRescaleFactor)
-            print " => calibrationRescaleFactorCumul : " + str(barrelRescaleFactorCumul)
-            print " => currentPrecision : " + str(barrelCurrentPrecision)
-            print " => newKaon0LEnergy : " + str(newBarrelKaon0LEnergy)
-            print "============================================="
-            print ""
-            print "============================================="
-            print "======= Endcap output for iteration {0} =======".format(iteration)
-            print " => calibrationFactor : " + str(endcapFactor)
-            print " => calibrationRescaleFactor : " + str(endcapRescaleFactor)
-            print " => calibrationRescaleFactorCumul : " + str(endcapRescaleFactorCumul)
-            print " => currentPrecision : " + str(endcapCurrentPrecision)
-            print " => newKaon0LEnergy : " + str(newEndcapKaon0LEnergy)
-            print "============================================="
+            self._logger.info("=============================================")
+            self._logger.info("======= Barrel output for iteration {0} =======".format(iteration))
+            self._logger.info(" => calibrationFactor : " + str(barrelFactor))
+            self._logger.info(" => calibrationRescaleFactor : " + str(barrelRescaleFactor))
+            self._logger.info(" => calibrationRescaleFactorCumul : " + str(barrelRescaleFactorCumul))
+            self._logger.info(" => currentPrecision : " + str(barrelCurrentPrecision))
+            self._logger.info(" => newKaon0LEnergy : " + str(newBarrelKaon0LEnergy))
+            self._logger.info("=============================================")
+            self._logger.info("")
+            self._logger.info("=============================================")
+            self._logger.info("======= Endcap output for iteration {0} =======".format(iteration))
+            self._logger.info(" => calibrationFactor : " + str(endcapFactor))
+            self._logger.info(" => calibrationRescaleFactor : " + str(endcapRescaleFactor))
+            self._logger.info(" => calibrationRescaleFactorCumul : " + str(endcapRescaleFactorCumul))
+            self._logger.info(" => currentPrecision : " + str(endcapCurrentPrecision))
+            self._logger.info(" => newKaon0LEnergy : " + str(newEndcapKaon0LEnergy))
+            self._logger.info("=============================================")
 
             os.rename("./HCalDigit_Barrel_Calibration.txt", "./HCalDigit_Barrel_iter{0}_Calibration.txt".format(iteration))
             os.rename("./HCalDigit_EndCap_Calibration.txt", "./HCalDigit_EndCap_iter{0}_Calibration.txt".format(iteration))
@@ -195,10 +195,10 @@ class HcalEnergyStep(CalibrationStep) :
         mipRatio = self._hcalEndcapMip / self._hcalRingMip
         self._outputHcalRingFactor = directionCorrectionRatio * mipRatio * self._outputHcalEndcapFactor * self._inputHcalRingGeometryFactor
 
-        print "==============================================="
-        print "==== Hcal ring output after all iterations ===="
-        print " => ring calib factor : " + str(self._outputHcalRingFactor)
-        print "==============================================="
+        self._logger.info("===============================================")
+        self._logger.info("==== Hcal ring output after all iterations ====")
+        self._logger.info(" => ring calib factor : " + str(self._outputHcalRingFactor))
+        self._logger.info("===============================================")
 
 
     def writeOutput(self, config) :
