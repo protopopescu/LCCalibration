@@ -15,7 +15,7 @@ from subprocess import call
 class MipScaleStep(CalibrationStep) :
     def __init__(self) :
         CalibrationStep.__init__(self, "MipScale")
-        self._marlin = Marlin()
+        self._marlin = None
         self._mipCalibrator = None
         self._pfoOutputFile = "./PfoAnalysis_" + self._name + ".root"
         self._hcalBarrelMip = 0.
@@ -34,9 +34,9 @@ class MipScaleStep(CalibrationStep) :
         self._mipCalibrator.addArgument("-c", "./MipScale_")
 
         # setup marlin
+        self._marlin = Marlin(parsed.steeringFile)
         gearFile = self._marlin.convertToGear(parsed.compactFile)
         self._marlin.setGearFile(gearFile)
-        self._marlin.setSteeringFile(parsed.steeringFile)
         self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(parsed.maxRecordNumber)
         self._marlin.setInputFiles(parsed.lcioMuonFile)
