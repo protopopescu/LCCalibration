@@ -14,7 +14,7 @@ from subprocess import call
 class PandoraMipScaleStep(CalibrationStep) :
     def __init__(self) :
         CalibrationStep.__init__(self, "PandoraMipScale")
-        self._marlin = Marlin()
+        self._marlin = None
         self._mipScaleCalibrator = None
 
         self._pfoOutputFile = "./PfoAnalysis_" + self._name + ".root"
@@ -34,10 +34,10 @@ class PandoraMipScaleStep(CalibrationStep) :
         self._mipScaleCalibrator.addArgument("-b", '10')
         self._mipScaleCalibrator.addArgument("-c", "./PandoraMipScale_")
 
-        # setup marlin
+        # setup marlin\
+        self._marlin = Marlin(parsed.steeringFile)
         gearFile = self._marlin.convertToGear(parsed.compactFile)
         self._marlin.setGearFile(gearFile)
-        self._marlin.setSteeringFile(parsed.steeringFile)
         self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(parsed.maxRecordNumber)
         self._marlin.setInputFiles(parsed.lcioMuonFile)
@@ -66,6 +66,6 @@ class PandoraMipScaleStep(CalibrationStep) :
     def writeOutput(self, config) :
 
         output = self._getXMLStepOutput(config, create=True)
-        self._writeProcessorParameter(output, "MyDDMarlinPandora", "ECalToMipCalibration", self._outputEcalToEMGeV)
-        self._writeProcessorParameter(output, "MyDDMarlinPandora", "HCalToMipCalibration", self._outputHcalToEMGeV)
+        self._writeProcessorParameter(output, "MyDDMarlinPandora", "ECalToMipCalibration", self._outputEcalToGeVMip)
+        self._writeProcessorParameter(output, "MyDDMarlinPandora", "HCalToMipCalibration", self._outputHcalToGeVMip)
         self._writeProcessorParameter(output, "MyDDMarlinPandora", "MuonToMipCalibration", self._outputMuonToGeVMip)
