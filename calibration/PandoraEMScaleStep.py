@@ -14,7 +14,7 @@ from subprocess import call
 class PandoraEMScaleStep(CalibrationStep) :
     def __init__(self) :
         CalibrationStep.__init__(self, "PandoraEMScale")
-        self._marlin = Marlin()
+        self._marlin = None
         self._emScaleCalibrator = None
 
         self._maxNIterations = 5
@@ -38,9 +38,9 @@ class PandoraEMScaleStep(CalibrationStep) :
         self._emScaleCalibrator.addArgument("-d", "./PandoraEMScale_")
 
         # setup marlin
+        self._marlin = Marlin(parsed.steeringFile)
         gearFile = self._marlin.convertToGear(parsed.compactFile)
         self._marlin.setGearFile(gearFile)
-        self._marlin.setSteeringFile(parsed.steeringFile)
         self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(parsed.maxRecordNumber)
         self._marlin.setInputFiles(parsed.lcioPhotonFile)
