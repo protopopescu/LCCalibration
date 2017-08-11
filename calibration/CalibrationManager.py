@@ -32,6 +32,7 @@ class CalibrationManager(object) :
 
     def addStep(self, step) :
         self._steps.append(step)
+        step.setManager(self)
 
     def readCmdLine(self, parsed) :
         self._xmlFile = parsed.inputCalibrationFile

@@ -8,6 +8,10 @@ class CalibrationStep(object) :
     def __init__(self, stepName) :
         self._name = stepName
         self._logger = logging.getLogger(self._name)
+        self._manager = None
+
+    def setManager(self, mgr) :
+        self._manager = mgr
 
     def readCmdLine(self, cmdLine) :
         pass
