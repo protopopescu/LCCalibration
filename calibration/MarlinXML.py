@@ -21,7 +21,7 @@ class MarlinXML(object):
             raise RuntimeError("MarlinXML.loadSteeringfile: steering file not set !")
 
         xmlParser = etree.XMLParser(remove_blank_text=True)
-        self._xmlTree = etree.parse(parsed.steeringFile, xmlParser)
+        self._xmlTree = etree.parse(self._steeringFile, xmlParser)
 
     """ Load processor parameters from a calibration xml tree
         Usage : loadParameter(xmlTree, "//input")
@@ -66,7 +66,7 @@ class MarlinXML(object):
         else:
             raise KeyError("MarlinXML.getProcessorParameter: processor/parameter doesn't exists ({0}, {1})".format(processor, parameter))
 
-        return element.text.copy() # make sure the user will not overload it ...
+        return element.text
 
     """
     """
@@ -202,6 +202,6 @@ class MarlinXML(object):
     """
     def writeTmp(self, pretty_print=True):
         fhandle, fileName = tempfile.mkstemp(suffix=".xml")
-        self.write(fhandle, pretty_print)
-        fhandle.close()
+        # print type(fhandle)
+        self.write(fileName, pretty_print)
         return fileName
