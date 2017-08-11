@@ -3,107 +3,90 @@ import os
 import subprocess
 from lxml import etree
 import logging
+import tempfile
+from calibration.MarlinXML import MarlinXML
 
 """ Marlin class.
 """
 class Marlin(object) :
     """ Constructor
     """
-    def __init__(self) :
-        self._marlinParameters = {}
-        self._steeringFile = ""
-        self._inputFiles = []
-        self._gearFile = ""
-        self._skipNEvents = 0
-        self._verbosity = "MESSAGE"
-        self._maxRecordNumber = 0
-        self._randomSeed = 1234567890
+    def __init__(self, steeringFile=None) :
+        self._marlinXML = MarlinXML()
         self._logger = logging.getLogger("marlin")
+
+        # set steering file and load it
+        if steeringFile is not None :
+            self._marlinXML.setSteeringFile(steeringFile, True)
 
     """ Load processor parameters from a xml tree
         Usage : loadParameter(xmlTree, "//input")
     """
     def loadParameters(self, xmlTree, path):
-        for elt in xmlTree.xpath(path):
-            for parameter in elt.iter("parameter"):
-                processor = parameter.get("processor")
-                name = parameter.get("name")
-                value = parameter.text
-                self.setProcessorParameter(processor, name, value)
+        self._marlinXML.loadParameters(xmlTree, path)
 
-    """ Set a processor parameter. Create a new entry if not existing yet or replace it
+    """ Set a processor parameter.
     """
     def setProcessorParameter(self, processor, parameter, value) :
-        if processor in self._marlinParameters :
-            procParameters = self._marlinParameters[processor]
-            procParameters[parameter] = value
-        else :
-            self._marlinParameters[processor] = {parameter : value}
+        self._marlinXML.setProcessorParameter(processor, parameter, value)
 
-    """ Get a processor parameter. Note that if your parameter must have been set using setProcessorParameter() before
-        Returns None is not found
+    """ Get a processor parameter.
     """
     def getProcessorParameter(self, processor, parameter):
-        try:
-            return self._marlinParameters[processor][parameter]
-        except KeyError:
-            return None
+        return self._marlinXML.getProcessorParameter(processor, parameter)
 
     """ Set the marlin steering file
     """
-    def setSteeringFile(self, steeringFile) :
-        self._steeringFile = steeringFile
+    def setSteeringFile(self, steeringFile, load=False) :
+        self._marlinXML.setSteeringFile(steeringFile, load)
 
     """ Set the lcio input file(s)
         String list or string accepted
     """
     def setInputFiles(self, inputFiles) :
-        if type(inputFiles) is type(list) :
-            self._inputFiles = list(inputFiles)
-        else :
-            self._inputFiles = [inputFiles]
+        self._marlinXML.setInputFiles(inputFiles)
 
     """ Set the GEAR file
     """
     def setGearFile(self, gearFile) :
-        self._gearFile = gearFile
+        self._marlinXML.setGearFile(gearFile)
 
     """ Set the compact file
     """
     def setCompactFile(self, compactFile):
-        self.setProcessorParameter("InitDD4hep", "DD4hepXMLFile", compactFile)
+        self._marlinXML.setCompactFile(compactFile)
 
     """ Set the Pfo analysis root output file name
     """
     def setPfoAnalysisOutput(self, rootOutput):
-        self.setProcessorParameter("MyPfoAnalysis", "RootFile", rootOutput)
+        self._marlinXML.setPfoAnalysisOutput(rootOutput)
 
     """ Set the number of events to skip
     """
     def setSkipNEvents(self, nEvents) :
-        self._skipNEvents = nEvents
+        self._marlinXML.setSkipNEvents(nEvents)
 
     """ Set the global verbosity
     """
     def setVerbosity(self, verbosity) :
-        self._verbosity = verbosity
+        self._marlinXML.setVerbosity(verbosity)
 
     """ Set the max number of records to process (runs + events)
     """
     def setMaxRecordNumber(self, maxRecordNumber) :
-        self._maxRecordNumber = maxRecordNumber
+        self._marlinXML.setMaxRecordNumber(maxRecordNumber)
 
     """ Set the global random seed
     """
     def setRandomSeed(self, randomSeed) :
-        self._randomSeed = randomSeed
+        self._marlinXML.setRandomSeed(randomSeed)
 
     """ Run the marlin process using Popen function of subprocess module
     """
     def run(self) :
         args = self._createProcessArgs()
         self._logger.info("Marlin command line : " + " ".join(args))
-        process = subprocess.Popen(args = args)#, stdin = None, stdout = None, stderr = None)
+        process = subprocess.Popen(args = args)
         if process.wait() :
             raise RuntimeError
         self._logger.info("Marlin ended with status 0")
@@ -111,39 +94,16 @@ class Marlin(object) :
     """ Convert the compact file to gear file using 'convertToGear' binary
     """
     def convertToGear(self, compactFile, force=False) :
-        gearFile = "gear_" + os.path.split(compactFile)[1]
-
-        if os.path.isfile(gearFile) and not force:
-            return gearFile
-
-        args = ['convertToGear', 'default', compactFile, gearFile]
-        process = subprocess.Popen(args = args)
-        if process.wait() :
-            raise RuntimeError("Couldn't convert compact file to gear file")
-        return gearFile
+        return self._marlinXML.convertToGear(compactFile, force)
 
     """ Create the marlin process command line argument (Marlin + args)
     """
     def _createProcessArgs(self) :
         args = ['Marlin']
-        for proc,params in self._marlinParameters.iteritems() :
-            for param, value in params.iteritems() :
-                args.append("--"+proc+"."+param+"="+value.strip())
-
-        if len(self._inputFiles) == 1 :
-            lcioFiles = "--global.LCIOInputFiles=" + self._inputFiles[0]
-            args.append(lcioFiles)
-        else :
-            lcioFiles = "--global.LCIOInputFiles=\"" + " ".join(self._inputFiles) + "\""
-            args.append(lcioFiles)
-
-        args.append("--global.GearXMLFile="+self._gearFile)
-        args.append("--global.SkipNEvents="+str(self._skipNEvents))
-        args.append("--global.Verbosity="+self._verbosity)
-        args.append("--global.MaxRecordNumber="+str(self._maxRecordNumber))
-        args.append("--global.RandomSeed="+str(self._randomSeed))
-        args.append(self._steeringFile)
-
+        # generate temporary steering file for running marlin
+        tmpSteeringFile = self._marlinXML.writeTmp(False)
+        print "Wrote marlin xml file in " + tmpSteeringFile
+        args.append(tmpSteeringFile)
         return args
 
 
