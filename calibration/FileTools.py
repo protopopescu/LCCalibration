@@ -26,10 +26,10 @@ def getEcalMip(calibFile) :
     return float(getFileContent(calibFile, 10, 4))
 
 def getTruePhotonEnergy(calibFile) :
-    return float(getFileContent(calibFile, 4, 4))
+    return float(getFileContent(calibFile, 6, 4))
 
 def getEcalDigiMean(calibFile) :
-    return float(getFileContent(calibFile, 9, 4))
+    return float(getFileContent(calibFile, 11, 4))
 
 def getEcalRescalingFactor(calibFile) :
     ten = getTruePhotonEnergy(calibFile)
@@ -47,6 +47,12 @@ def getMeanDirCorrHcalEndcap(calibFile) :
     return float(getFileContent(calibFile, 4, 5))
 
 def getMeanDirCorrHcalRing(calibFile) :
+    return float(getFileContent(calibFile, 9, 5))
+
+def getMeanDirCorrEcalEndcap(calibFile) :
+    return float(getFileContent(calibFile, 4, 5))
+
+def getMeanDirCorrEcalRing(calibFile) :
     return float(getFileContent(calibFile, 9, 5))
 
 def getEcalToGeVMip(calibFile) :
