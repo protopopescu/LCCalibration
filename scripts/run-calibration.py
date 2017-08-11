@@ -34,7 +34,18 @@ marlinSteeringFile = ""
 pathToPandoraAnalysis = ""
 maxRecordNumber = 0   # processes the whole file by default
 hcalRingGeometryFactor = 1.
+ecalRingGeometryFactor = 1.
 
+ecalBarrelRegionRange = "0:0.76"
+ecalEndcapRegionRange = "0.79:0.98"
+hcalBarrelRegionRange = "0:0.76"
+hcalEndcapRegionRange = "0.79:0.98"
+
+# try to get from env vars
+try:
+    pathToPandoraAnalysis = os.environ["PANDORAANALYSIS_DIR"]
+except KeyError:
+    pass
 
 
 # Preconfigure logging before any other thing...
@@ -148,6 +159,21 @@ parser.add_argument("--endStep", action="store", default=endStep,
 
 parser.add_argument("--hcalRingGeometryFactor", action="store", default=hcalRingGeometryFactor,
                         help="The geometrical factor to apply for hcal ring factor computation (see documentation in the 'doc' directory)", required = False)
+
+parser.add_argument("--ecalRingGeometryFactor", action="store", default=ecalRingGeometryFactor,
+                        help="The geometrical factor to apply for ecal ring factor computation (see documentation in the 'doc' directory)", required = False)
+
+parser.add_argument("--ecalBarrelRegionRange", action="store", default=ecalBarrelRegionRange,
+                        help="The cos theta range 'minCosTheta:maxCosTheta' to look for ecal barrel energy deposit (default : {0})".format(ecalBarrelRegionRange), required = False)
+
+parser.add_argument("--ecalEndcapRegionRange", action="store", default=ecalEndcapRegionRange,
+                        help="The cos theta range 'minCosTheta:maxCosTheta' to look for ecal endcap energy deposit (default : {0})".format(ecalEndcapRegionRange), required = False)
+
+parser.add_argument("--hcalBarrelRegionRange", action="store", default=hcalBarrelRegionRange,
+                        help="The cos theta range 'minCosTheta:maxCosTheta' to look for hcal barrel energy deposit (default : {0})".format(hcalBarrelRegionRange), required = False)
+
+parser.add_argument("--hcalEndcapRegionRange", action="store", default=hcalEndcapRegionRange,
+                        help="The cos theta range 'minCosTheta:maxCosTheta' to look for hcal endcap energy deposit (default : {0})".format(hcalEndcapRegionRange), required = False)
 
 parsed = parser.parse_args()
 
