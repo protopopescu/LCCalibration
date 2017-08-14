@@ -62,10 +62,10 @@ class EcalEnergyStep(CalibrationStep) :
         self._energyScaleAccuracy = float(parsed.ecalCalibrationAccuracy)
         self._inputEcalRingGeometryFactor = float(parsed.ecalRingGeometryFactor)
 
-        self._inputMinCosThetaBarrel = ":".split(parsed.ecalBarrelRegionRange)[0]
-        self._inputMaxCosThetaBarrel = ":".split(parsed.ecalBarrelRegionRange)[1]
-        self._inputMinCosThetaEndcap = ":".split(parsed.ecalEndcapRegionRange)[0]
-        self._inputMaxCosThetaEndcap = ":".split(parsed.ecalEndcapRegionRange)[1]
+        self._inputMinCosThetaBarrel = parsed.ecalBarrelRegionRange.split(":")[0]
+        self._inputMaxCosThetaBarrel = parsed.ecalBarrelRegionRange.split(":")[1]
+        self._inputMinCosThetaEndcap = parsed.ecalEndcapRegionRange.split(":")[0]
+        self._inputMaxCosThetaEndcap = parsed.ecalEndcapRegionRange.split(":")[1]
 
     def init(self, config) :
         self._cleanupElement(config)
