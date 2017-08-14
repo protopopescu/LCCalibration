@@ -11,7 +11,7 @@ from lxml import *
 class HcalEnergyStep(CalibrationStep) :
     def __init__(self) :
         CalibrationStep.__init__(self, "HcalEnergy")
-        self._marlin = Marlin()
+        self._marlin = None
         self._hcalEnergyCalibrator = None
         self._hcalRingEnergyCalibrator = None
 
@@ -24,6 +24,10 @@ class HcalEnergyStep(CalibrationStep) :
         self._inputHcalBarrelFactor = None
         self._inputHcalEndcapFactor = None
         self._inputHcalRingGeometryFactor = None
+        self._inputMinCosThetaBarrel = None
+        self._inputMaxCosThetaBarrel = None
+        self._inputMinCosThetaEndcap = None
+        self._inputMaxCosThetaEndcap = None
 
         # step output
         self._outputHcalBarrelFactor = None
@@ -44,9 +48,9 @@ class HcalEnergyStep(CalibrationStep) :
         self._hcalRingEnergyCalibrator.addArgument('-b', '20')
 
         # setup marlin
+        self._marlin = Marlin(parsed.steeringFile)
         gearFile = self._marlin.convertToGear(parsed.compactFile)
         self._marlin.setGearFile(gearFile)
-        self._marlin.setSteeringFile(parsed.steeringFile)
         self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(int(parsed.maxRecordNumber))
         self._marlin.setInputFiles(self._extractFileList(parsed.lcioKaon0LFile, "slcio"))
@@ -55,6 +59,10 @@ class HcalEnergyStep(CalibrationStep) :
         self._energyScaleAccuracy = float(parsed.hcalCalibrationAccuracy)
         self._inputHcalRingGeometryFactor = float(parsed.hcalRingGeometryFactor)
 
+        self._inputMinCosThetaBarrel = parsed.hcalBarrelRegionRange.split(":")[0]
+        self._inputMaxCosThetaBarrel = parsed.hcalBarrelRegionRange.split(":")[1]
+        self._inputMinCosThetaEndcap = parsed.hcalEndcapRegionRange.split(":")[0]
+        self._inputMaxCosThetaEndcap = parsed.hcalEndcapRegionRange.split(":")[1]
 
     def init(self, config) :
 
@@ -112,15 +120,15 @@ class HcalEnergyStep(CalibrationStep) :
             # run calibration for barrel
             self._hcalEnergyCalibrator.addArgument("-d", "./HCalDigit_Barrel_")
             self._hcalEnergyCalibrator.addArgument("-g", "Barrel")
-            self._hcalEnergyCalibrator.addArgument("-i", "0")
-            self._hcalEnergyCalibrator.addArgument("-j", "0.78")
+            self._hcalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaBarrel)
+            self._hcalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaBarrel)
             self._hcalEnergyCalibrator.run()
 
             # run calibration for endcap
             self._hcalEnergyCalibrator.addArgument("-d", "./HCalDigit_EndCap_")
             self._hcalEnergyCalibrator.addArgument("-g", "EndCap")
-            self._hcalEnergyCalibrator.addArgument("-i", "0.78")
-            self._hcalEnergyCalibrator.addArgument("-j", "0.98")
+            self._hcalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaEndcap)
+            self._hcalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaEndcap)
             self._hcalEnergyCalibrator.run()
 
             # extract calibration variables
