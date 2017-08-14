@@ -146,7 +146,7 @@ parser.add_argument("--lcioMuonFile", action="store", default=lcioMuonFile,
                         help="The lcio input file containing muons to process", required = False)
 
 parser.add_argument("--pandoraAnalysis", action="store", default=pathToPandoraAnalysis,
-                        help="The path to the PandoraAnalysis package (default : '{0}')".format(pathToPandoraAnalysis), required = True)
+                        help="The path to the PandoraAnalysis package (default : '{0}')".format(pathToPandoraAnalysis), required = len(pathToPandoraAnalysis) == 0)
 
 parser.add_argument("--maxRecordNumber", action="store", default=maxRecordNumber,
                         help="The maximum number of events to process", required = False)
