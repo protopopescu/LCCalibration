@@ -49,7 +49,7 @@ class MarlinXML(object):
         if element.get("value") is not None:
             del element.attrib["value"]
 
-        if type(value) is type(list):
+        if type(value) is list:
             element.text = ("".join(value)).strip()
         else:
             element.text = str(value).strip()
@@ -83,7 +83,7 @@ class MarlinXML(object):
         if element.get("value") is not None:
             del element.attrib["value"]
 
-        if type(value) is type(list):
+        if type(value) is list:
             element.text = ("".join(value)).strip()
         else:
             element.text = str(value).strip()
@@ -92,7 +92,10 @@ class MarlinXML(object):
         String list or string accepted
     """
     def setInputFiles(self, inputFiles) :
-        self.setGlobalParameter("LCIOInputFiles", inputFiles)
+        if type(inputFiles) is list :
+            self.setGlobalParameter("LCIOInputFiles", " ".join(inputFiles))
+        else :
+            self.setGlobalParameter("LCIOInputFiles", str(inputFiles))
 
     """ Set the GEAR file
     """
@@ -147,7 +150,7 @@ class MarlinXML(object):
         This method removes entries in the <execute> marlin xml element
     """
     def turnOffProcessors(self, processors):
-        if type(processors) is not type(list):
+        if type(processors) is not list:
             raise TypeError("MarlinXML.turnOffProcessors: excepted list type for processors")
 
         if not self._xmlTree:
@@ -167,7 +170,7 @@ class MarlinXML(object):
         This method removes entries in the <execute> marlin xml element
     """
     def turnOffProcessorsExcept(self, processors):
-        if type(processors) is not type(list):
+        if type(processors) is not list:
             raise TypeError("MarlinXML.turnOffProcessorsExcept: excepted list type for processors")
 
         if not self._xmlTree:
