@@ -3,6 +3,7 @@
 
 from lxml import etree
 import logging
+import glob
 
 class CalibrationStep(object) :
     def __init__(self, stepName) :
@@ -106,6 +107,13 @@ class CalibrationStep(object) :
             parameter = etree.Element(key)
             parameter.text = str(value)
             iteration.append(parameter)
+
+    def _extractFileList(self, inputFile, extension=None) :
+        fl = glob.glob(inputFile)
+        if extension is not None :
+            fl = [f for f in fl if f.endswith(extension)]
+        return fl
+
 
 
 

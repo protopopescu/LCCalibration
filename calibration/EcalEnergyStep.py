@@ -56,7 +56,7 @@ class EcalEnergyStep(CalibrationStep) :
         self._marlin.setGearFile(gearFile)
         self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(parsed.maxRecordNumber)
-        self._marlin.setInputFiles(parsed.lcioPhotonFile)
+        self._marlin.setInputFiles(self._extractFileList(parsed.lcioPhotonFile, "slcio"))
 
         self._maxNIterations = int(parsed.maxNIterations)
         self._energyScaleAccuracy = float(parsed.ecalCalibrationAccuracy)

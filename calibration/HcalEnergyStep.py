@@ -49,7 +49,7 @@ class HcalEnergyStep(CalibrationStep) :
         self._marlin.setSteeringFile(parsed.steeringFile)
         self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(int(parsed.maxRecordNumber))
-        self._marlin.setInputFiles(parsed.lcioKaon0LFile)
+        self._marlin.setInputFiles(self._extractFileList(parsed.lcioKaon0LFile, "slcio"))
 
         self._maxNIterations = int(parsed.maxNIterations)
         self._energyScaleAccuracy = float(parsed.hcalCalibrationAccuracy)

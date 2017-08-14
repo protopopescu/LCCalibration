@@ -39,7 +39,7 @@ class MipScaleStep(CalibrationStep) :
         self._marlin.setGearFile(gearFile)
         self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(parsed.maxRecordNumber)
-        self._marlin.setInputFiles(parsed.lcioMuonFile)
+        self._marlin.setInputFiles(self._extractFileList(parsed.lcioMuonFile, "slcio"))
         self._marlin.setPfoAnalysisOutput(self._pfoOutputFile)
 
     def init(self, config) :
