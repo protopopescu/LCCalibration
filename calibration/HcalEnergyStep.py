@@ -100,8 +100,8 @@ class HcalEnergyStep(CalibrationStep) :
 
             # readjust iteration parameters
             # calibrationFactor = calibrationFactor*calibrationRescaleFactor
-            barrelFactor = barrelFactor*barrelRescaleFactor
-            endcapFactor = endcapFactor*endcapRescaleFactor
+            barrelFactor = barrelFactor*barrelRescaleFactor if not barrelAccuracyReached else barrelFactor
+            endcapFactor = endcapFactor*endcapRescaleFactor if not endcapAccuracyReached else endcapFactor
 
             pfoAnalysisFile = "./PfoAnalysis_{0}_iter{1}.root".format(self._name, iteration)
 
@@ -134,8 +134,8 @@ class HcalEnergyStep(CalibrationStep) :
             # extract calibration variables
             barrelRescaleFactor = barrelRescaleFactor if barrelAccuracyReached else getHcalRescalingFactor("./HCalDigit_Barrel_Calibration.txt", 20)
             endcapRescaleFactor = endcapRescaleFactor if endcapAccuracyReached else getHcalRescalingFactor("./HCalDigit_EndCap_Calibration.txt", 20)
-            barrelRescaleFactorCumul = barrelRescaleFactorCumul*barrelRescaleFactor
-            endcapRescaleFactorCumul = endcapRescaleFactorCumul*endcapRescaleFactor
+            barrelRescaleFactorCumul = barrelRescaleFactorCumul if barrelAccuracyReached else barrelRescaleFactorCumul*barrelRescaleFactor
+            endcapRescaleFactorCumul = endcapRescaleFactorCumul if endcapAccuracyReached else endcapRescaleFactorCumul*endcapRescaleFactor
             barrelCurrentPrecision = abs(1 - 1. / barrelRescaleFactor)
             endcapCurrentPrecision = abs(1 - 1. / endcapRescaleFactor)
             newBarrelKaon0LEnergy = getHcalDigiMean("./HCalDigit_Barrel_Calibration.txt")
