@@ -9,6 +9,7 @@ from calibration.EcalEnergyStep import *
 from calibration.HcalEnergyStep import *
 from calibration.PandoraMipScaleStep import *
 from calibration.PandoraEMScaleStep import *
+from calibration.PandoraHadScaleStep import *
 
 import os
 import sys
@@ -86,6 +87,7 @@ manager.addStep( HcalEnergyStep() )
 # advanced PandoraPFA calibration
 manager.addStep( PandoraMipScaleStep() )
 manager.addStep( PandoraEMScaleStep() )
+manager.addStep( PandoraHadScaleStep() )
 
 
 parser = argparse.ArgumentParser("Running energy calibration:", formatter_class=argparse.RawTextHelpFormatter, add_help=False)\
