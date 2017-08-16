@@ -105,6 +105,18 @@ class Marlin(object) :
         print "Wrote marlin xml file in " + tmpSteeringFile
         args.append(tmpSteeringFile)
         return args
+    
+    """ Turn off the target list of processors
+        This method removes entries in the <execute> marlin xml element
+    """
+    def turnOffProcessors(self, processors) :
+        self._marlinXML.turnOffProcessors(processors)
+    
+    """ Turn off all processors except the ones ine the spcified list
+        This method removes entries in the <execute> marlin xml element
+    """
+    def turnOffProcessorsExcept(self, processors) :
+        self._marlinXML.turnOffProcessorsExcept(processors)
 
 
 
