@@ -47,6 +47,7 @@ class MipScaleStep(CalibrationStep) :
         self._marlin.loadParameters(config, "//input")
 
     def run(self, config) :
+        self._marlin.turnOffProcessorsExcept(["InitDD4hep", "MyPfoAnalysis"])
         self._marlin.run()
 
         removeFile("./MipScale_Calibration.txt")
