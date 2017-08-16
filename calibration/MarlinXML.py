@@ -156,15 +156,20 @@ class MarlinXML(object):
         if not self._xmlTree:
             raise RuntimeError("MarlinXML.turnOffProcessors: Steering file not loaded, couldn't turn off processors")
 
-        for processor in processors:
-            procExec = self._xmlTree.xpath("//marlin/execute/processor[@name='{0}']".format(processor))
-            procExec = None if not procExec else procExec[0]
+        registeredProcessors = self._xmlTree.xpath("//marlin/execute/processor")
+        processorsToRemove = []
 
-            if procExec is None:
+        for regProcessor in registeredProcessors:
+            procName = regProcessor.get("name")
+
+            try:
+                index = processors.index(procName) # raise ValueError if not in list
+                processorsToRemove.append(regProcessor)
+            except ValueError:                
                 continue
 
-            if procExec.getparent():
-                procExec.getparent().remove(procExec)
+        for proc in processorsToRemove:
+            proc.getparent().remove(proc)
 
     """ Turn off all processors except the ones ine the spcified list
         This method removes entries in the <execute> marlin xml element
@@ -180,17 +185,16 @@ class MarlinXML(object):
         processorsToRemove = []
 
         for regProcessor in registeredProcessors:
-
             procName = regProcessor.get("name")
 
             try:
-                processors.index(procName)
-                processorsToRemove.append(regProcessor)
+                index = processors.index(procName)
             except ValueError:
+                processorsToRemove.append(regProcessor)
                 continue
 
         for proc in processorsToRemove:
-            regProcessor.getparent().remove(regProcessor)
+            proc.getparent().remove(proc)
 
     """ Write the current loaded steering file to the specified file location
     """
