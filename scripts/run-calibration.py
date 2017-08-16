@@ -36,10 +36,10 @@ maxRecordNumber = 0   # processes the whole file by default
 hcalRingGeometryFactor = 1.
 ecalRingGeometryFactor = 1.
 
-ecalBarrelRegionRange = "0:0.76"
+ecalBarrelRegionRange = "0.05:0.76"
 ecalEndcapRegionRange = "0.79:0.98"
-hcalBarrelRegionRange = "0:0.76"
-hcalEndcapRegionRange = "0.79:0.98"
+hcalBarrelRegionRange = "0.05:0.57"
+hcalEndcapRegionRange = "0.77:0.99"
 
 # try to get from env vars
 try:
