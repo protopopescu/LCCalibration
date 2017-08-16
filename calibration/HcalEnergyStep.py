@@ -99,9 +99,10 @@ class HcalEnergyStep(CalibrationStep) :
         for iteration in range(self._maxNIterations) :
 
             # readjust iteration parameters
-            # calibrationFactor = calibrationFactor*calibrationRescaleFactor
-            barrelFactor = barrelFactor*barrelRescaleFactor if not barrelAccuracyReached else barrelFactor
-            endcapFactor = endcapFactor*endcapRescaleFactor if not endcapAccuracyReached else endcapFactor
+            if not barrelAccuracyReached:
+                barrelFactor = barrelFactor*barrelRescaleFactor
+            if not endcapAccuracyReached:
+                endcapFactor = endcapFactor*endcapRescaleFactor
 
             pfoAnalysisFile = "./PfoAnalysis_{0}_iter{1}.root".format(self._name, iteration)
 
@@ -115,31 +116,37 @@ class HcalEnergyStep(CalibrationStep) :
             removeFile("./HCalDigit_Barrel_Calibration.txt")
             removeFile("./HCalDigit_EndCap_Calibration.txt")
 
-            self._hcalEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
-
             # run calibration for barrel
-            self._hcalEnergyCalibrator.addArgument("-d", "./HCalDigit_Barrel_")
-            self._hcalEnergyCalibrator.addArgument("-g", "Barrel")
-            self._hcalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaBarrel)
-            self._hcalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaBarrel)
-            self._hcalEnergyCalibrator.run()
+            if not barrelAccuracyReached:
+                self._hcalEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
+                self._hcalEnergyCalibrator.addArgument("-d", "./HCalDigit_Barrel_")
+                self._hcalEnergyCalibrator.addArgument("-g", "Barrel")
+                self._hcalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaBarrel)
+                self._hcalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaBarrel)
+                self._hcalEnergyCalibrator.run()
+                
+                barrelRescaleFactor = getHcalRescalingFactor("./HCalDigit_Barrel_Calibration.txt", 20)
+                barrelRescaleFactorCumul = barrelRescaleFactorCumul*barrelRescaleFactor
+                barrelCurrentPrecision = abs(1 - 1. / barrelRescaleFactor)
+                newBarrelKaon0LEnergy = getHcalDigiMean("./HCalDigit_Barrel_Calibration.txt")
+                
+                os.rename("./HCalDigit_Barrel_Calibration.txt", "./HCalDigit_Barrel_iter{0}_Calibration.txt".format(iteration))
 
             # run calibration for endcap
-            self._hcalEnergyCalibrator.addArgument("-d", "./HCalDigit_EndCap_")
-            self._hcalEnergyCalibrator.addArgument("-g", "EndCap")
-            self._hcalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaEndcap)
-            self._hcalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaEndcap)
-            self._hcalEnergyCalibrator.run()
+            if not endcapAccuracyReached:
+                self._hcalEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
+                self._hcalEnergyCalibrator.addArgument("-d", "./HCalDigit_EndCap_")
+                self._hcalEnergyCalibrator.addArgument("-g", "EndCap")
+                self._hcalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaEndcap)
+                self._hcalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaEndcap)
+                self._hcalEnergyCalibrator.run()
+                
+                endcapRescaleFactor = getHcalRescalingFactor("./HCalDigit_EndCap_Calibration.txt", 20)
+                endcapRescaleFactorCumul = endcapRescaleFactorCumul*endcapRescaleFactor
+                endcapCurrentPrecision = abs(1 - 1. / endcapRescaleFactor)
+                newEndcapKaon0LEnergy = getHcalDigiMean("./HCalDigit_EndCap_Calibration.txt")
 
-            # extract calibration variables
-            barrelRescaleFactor = barrelRescaleFactor if barrelAccuracyReached else getHcalRescalingFactor("./HCalDigit_Barrel_Calibration.txt", 20)
-            endcapRescaleFactor = endcapRescaleFactor if endcapAccuracyReached else getHcalRescalingFactor("./HCalDigit_EndCap_Calibration.txt", 20)
-            barrelRescaleFactorCumul = barrelRescaleFactorCumul if barrelAccuracyReached else barrelRescaleFactorCumul*barrelRescaleFactor
-            endcapRescaleFactorCumul = endcapRescaleFactorCumul if endcapAccuracyReached else endcapRescaleFactorCumul*endcapRescaleFactor
-            barrelCurrentPrecision = abs(1 - 1. / barrelRescaleFactor)
-            endcapCurrentPrecision = abs(1 - 1. / endcapRescaleFactor)
-            newBarrelKaon0LEnergy = getHcalDigiMean("./HCalDigit_Barrel_Calibration.txt")
-            newEndcapKaon0LEnergy = getHcalDigiMean("./HCalDigit_EndCap_Calibration.txt")
+                os.rename("./HCalDigit_EndCap_Calibration.txt", "./HCalDigit_EndCap_iter{0}_Calibration.txt".format(iteration))
 
             self._logger.info("=============================================")
             self._logger.info("======= Barrel output for iteration {0} =======".format(iteration))
@@ -158,9 +165,6 @@ class HcalEnergyStep(CalibrationStep) :
             self._logger.info(" => currentPrecision : " + str(endcapCurrentPrecision))
             self._logger.info(" => newKaon0LEnergy : " + str(newEndcapKaon0LEnergy))
             self._logger.info("=============================================")
-
-            os.rename("./HCalDigit_Barrel_Calibration.txt", "./HCalDigit_Barrel_iter{0}_Calibration.txt".format(iteration))
-            os.rename("./HCalDigit_EndCap_Calibration.txt", "./HCalDigit_EndCap_iter{0}_Calibration.txt".format(iteration))
 
             # write down iteration results
             self._writeIterationOutput(config, iteration,
