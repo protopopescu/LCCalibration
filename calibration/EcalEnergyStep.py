@@ -104,10 +104,13 @@ class EcalEnergyStep(CalibrationStep) :
         for iteration in range(self._maxNIterations) :
 
             # readjust iteration parameters
-            ecalBarrelFactor1 = ecalBarrelFactor1*barrelRescaleFactor
-            ecalBarrelFactor2 = ecalBarrelFactor2*barrelRescaleFactor
-            ecalEndcapFactor1 = ecalEndcapFactor1*endcapRescaleFactor
-            ecalEndcapFactor2 = ecalEndcapFactor2*endcapRescaleFactor
+            if not barrelAccuracyReached:
+                ecalBarrelFactor1 = ecalBarrelFactor1*barrelRescaleFactor
+                ecalBarrelFactor2 = ecalBarrelFactor2*barrelRescaleFactor
+            
+            if not endcapAccuracyReached:
+                ecalEndcapFactor1 = ecalEndcapFactor1*endcapRescaleFactor
+                ecalEndcapFactor2 = ecalEndcapFactor2*endcapRescaleFactor
 
             pfoAnalysisFile = "./PfoAnalysis_{0}_iter{1}.root".format(self._name, iteration)
 
@@ -121,33 +124,38 @@ class EcalEnergyStep(CalibrationStep) :
             removeFile("./ECalDigit_Barrel_Calibration.txt")
             removeFile("./ECalDigit_EndCap_Calibration.txt")
 
-            self._ecalEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
-
             # run calibration for barrel
-            self._ecalEnergyCalibrator.addArgument("-d", "./ECalDigit_Barrel_")
-            self._ecalEnergyCalibrator.addArgument("-g", "Barrel")
-            self._ecalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaBarrel)
-            self._ecalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaBarrel)
-            self._ecalEnergyCalibrator.run()
+            if not barrelAccuracyReached:
+                self._ecalEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
+                self._ecalEnergyCalibrator.addArgument("-d", "./ECalDigit_Barrel_")
+                self._ecalEnergyCalibrator.addArgument("-g", "Barrel")
+                self._ecalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaBarrel)
+                self._ecalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaBarrel)
+                self._ecalEnergyCalibrator.run()
+                            
+                barrelRescaleFactor = getEcalRescalingFactor("./ECalDigit_Barrel_Calibration.txt")
+                barrelRescaleFactorCumul = barrelRescaleFactorCumul*barrelRescaleFactor
+                barrelCurrentPrecision = abs(1 - 1. / barrelRescaleFactor)
+                newBarrelPhotonEnergy = getEcalDigiMean("./ECalDigit_Barrel_Calibration.txt")
+                
+                os.rename("./ECalDigit_Barrel_Calibration.txt", "./ECalDigit_Barrel_iter{0}_Calibration.txt".format(iteration))
 
             # run calibration for endcap
-            self._ecalEnergyCalibrator.addArgument("-d", "./ECalDigit_EndCap_")
-            self._ecalEnergyCalibrator.addArgument("-g", "EndCap")
-            self._ecalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaEndcap)
-            self._ecalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaEndcap)
-            self._ecalEnergyCalibrator.run()
-
-            # extract calibration variables
-
-            barrelRescaleFactor = barrelRescaleFactor if barrelAccuracyReached else getEcalRescalingFactor("./ECalDigit_Barrel_Calibration.txt")
-            endcapRescaleFactor = endcapRescaleFactor if endcapAccuracyReached else getEcalRescalingFactor("./ECalDigit_EndCap_Calibration.txt")
-            barrelRescaleFactorCumul = barrelRescaleFactorCumul*barrelRescaleFactor
-            endcapRescaleFactorCumul = endcapRescaleFactorCumul*endcapRescaleFactor
-            barrelCurrentPrecision = abs(1 - 1. / barrelRescaleFactor)
-            endcapCurrentPrecision = abs(1 - 1. / endcapRescaleFactor)
-            newBarrelPhotonEnergy = getEcalDigiMean("./ECalDigit_Barrel_Calibration.txt")
-            newEndcapPhotonEnergy = getEcalDigiMean("./ECalDigit_EndCap_Calibration.txt")
-
+            if not endcapAccuracyReached:
+                self._ecalEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
+                self._ecalEnergyCalibrator.addArgument("-d", "./ECalDigit_EndCap_")
+                self._ecalEnergyCalibrator.addArgument("-g", "EndCap")
+                self._ecalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaEndcap)
+                self._ecalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaEndcap)
+                self._ecalEnergyCalibrator.run()
+                                
+                endcapRescaleFactor = getEcalRescalingFactor("./ECalDigit_EndCap_Calibration.txt")
+                endcapRescaleFactorCumul = endcapRescaleFactorCumul*endcapRescaleFactor
+                endcapCurrentPrecision = abs(1 - 1. / endcapRescaleFactor)
+                newEndcapPhotonEnergy = getEcalDigiMean("./ECalDigit_EndCap_Calibration.txt")
+                
+                os.rename("./ECalDigit_EndCap_Calibration.txt", "./ECalDigit_EndCap_iter{0}_Calibration.txt".format(iteration))
+            
             self._logger.info("=============================================")
             self._logger.info("======= Barrel output for iteration {0} =======".format(iteration))
             self._logger.info(" => calibrationFactors : {0}, {1}".format(ecalBarrelFactor1, ecalBarrelFactor2))
@@ -166,8 +174,7 @@ class EcalEnergyStep(CalibrationStep) :
             self._logger.info(" => newPhotonEnergy : " + str(newEndcapPhotonEnergy))
             self._logger.info("=============================================")
 
-            os.rename("./ECalDigit_Barrel_Calibration.txt", "./ECalDigit_Barrel_iter{0}_Calibration.txt".format(iteration))
-            os.rename("./ECalDigit_EndCap_Calibration.txt", "./ECalDigit_EndCap_iter{0}_Calibration.txt".format(iteration))
+
 
             # write down iteration results
             self._writeIterationOutput(config, iteration,
