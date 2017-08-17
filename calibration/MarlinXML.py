@@ -2,6 +2,7 @@
 import os
 from lxml import etree
 import tempfile
+import subprocess
 
 
 class MarlinXML(object):
