@@ -62,16 +62,27 @@ class EcalEnergyStep(CalibrationStep) :
         self._energyScaleAccuracy = float(parsed.ecalCalibrationAccuracy)
         self._inputEcalRingGeometryFactor = float(parsed.ecalRingGeometryFactor)
 
-        self._inputMinCosThetaBarrel = parsed.ecalBarrelRegionRange.split(":")[0]
-        self._inputMaxCosThetaBarrel = parsed.ecalBarrelRegionRange.split(":")[1]
-        self._inputMinCosThetaEndcap = parsed.ecalEndcapRegionRange.split(":")[0]
-        self._inputMaxCosThetaEndcap = parsed.ecalEndcapRegionRange.split(":")[1]
+        self._inputMinCosThetaBarrel, self._inputMaxCosThetaBarrel = self._getGeometry().getEcalBarrelCosThetaRange()
+        self._inputMinCosThetaEndcap, self._inputMaxCosThetaEndcap = self._getGeometry().getEcalEndcapCosThetaRange()
 
     def init(self, config) :
+        # list of processors to run
+        processors = []
+        processors.extend(["MyAIDAProcessor"]) # not sure this is needed ...
+        processors.extend(["InitDD4hep"])
+        processors.extend(["MyEcalBarrelDigi", "MyEcalBarrelReco", "MyEcalBarrelGapFiller"])
+        processors.extend(["MyEcalEndcapDigi", "MyEcalEndcapReco", "MyEcalEndcapGapFiller"])
+        processors.extend(["MyEcalRingDigi", "MyEcalRingReco"])
+        processors.extend(["MyHcalBarrelDigi", "MyHcalBarrelReco"])
+        processors.extend(["MyHcalEndcapDigi", "MyHcalEndcapReco"])
+        processors.extend(["MyHcalRingDigi", "MyHcalRingReco"])
+        processors.extend(["MyPfoAnalysis"])
+        
         self._cleanupElement(config)
         self._marlin.loadParameters(config, "//input")
         self._marlin.loadParameters(config, "//step[@name='MipScale']/output")
-
+        self._marlin.turnOffProcessorsExcept(processors)
+    
         self._inputEcalBarrelFactor1 = float(self._marlin.getProcessorParameter("MyEcalBarrelReco", "calibration_factorsMipGev").split()[0])
         self._inputEcalBarrelFactor2 = float(self._marlin.getProcessorParameter("MyEcalBarrelReco", "calibration_factorsMipGev").split()[1])
         self._inputEcalEndcapFactor1 = float(self._marlin.getProcessorParameter("MyEcalEndcapReco", "calibration_factorsMipGev").split()[0])
