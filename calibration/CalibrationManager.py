@@ -4,6 +4,7 @@
 from calibration.Marlin import Marlin
 from calibration.PandoraAnalysis import *
 from calibration.FileTools import *
+from calibration.GeometryInterface import GeometryInterface
 import os, sys
 from lxml import etree
 import logging
@@ -19,7 +20,11 @@ class CalibrationManager(object) :
         self._badRun = False
         self._runException = None
         self._logger = logging.getLogger("calibrationMgr")
+        self._geometry = None
 
+    def getGeometry(self) :
+        return self._geometry
+        
     def printSteps(self):
         stepId = 0
         print "================================"
@@ -28,7 +33,6 @@ class CalibrationManager(object) :
             print " => {0}) {1} : {2}".format(stepId, step.name(), step.description())
             stepId += 1
         print "================================"
-
 
     def addStep(self, step) :
         self._steps.append(step)
@@ -40,6 +44,7 @@ class CalibrationManager(object) :
         self._xmlTree = etree.parse(self._xmlFile, parser)
         self._startStep = int(parsed.startStep)
         self._endStep = min(int(parsed.endStep), len(self._steps)-1)
+        self._geometry = GeometryInterface(parsed.compactFile)
 
         if self._startStep < 0 or self._endStep < 0 :
             raise ValueError("Start/End steps can't be negative")
