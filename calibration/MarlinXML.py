@@ -34,7 +34,17 @@ class MarlinXML(object):
                 name = parameter.get("name")
                 value = parameter.text
                 self.setProcessorParameter(processor, name, value)
-
+                
+    """ Load step output parameters
+    """
+    def loadStepOutputParameters(self, xmlTree, stepName):
+        self.loadParameters(xmlTree, "//step[@name='{0}']/output".format(stepName))
+    
+    """ Load input parameters
+    """
+    def loadInputParameters(self, xmlTree):
+        self.loadParameters(xmlTree, "//input")
+        
     """ Set a processor parameter.
     """
     def setProcessorParameter(self, processor, parameter, value):
