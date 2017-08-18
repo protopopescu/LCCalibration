@@ -114,6 +114,8 @@ class CalibrationStep(object) :
             fl = [f for f in fl if f.endswith(extension)]
         return fl
 
+    def _getGeometry(self) :
+        return self._manager.getGeometry()
 
 
 
