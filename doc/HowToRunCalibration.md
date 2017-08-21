@@ -39,7 +39,7 @@ optional arguments:
                         DDSim steering file
 ```
 
-Note that a steering file designed for calibration purpose is available in the *template* directory (*ddsim-steering-template.py*). Some calibration steps (see next section) requires enough statistics to perform fits, and so one... So we recommend to produce at least 2000 events to have meaningful results. The minimal command you may run is the following :
+Note that a steering file designed for calibration purpose is available in the *template* directory (*ddsim-steering-template.py*). Some calibration steps (see next section) requires enough statistics to perform fits, and so one... So we recommend to produce at least 20000 events to have meaningful results. The minimal command you may run is the following :
 
 ```shell
 python scripts/run-single-particle.py --compactFile dd4hep.xml --numberOfEvents 2000 --steeringFile template/ddsim-steering-template.py
@@ -148,8 +148,7 @@ The choice of having a XML file for the calibration is motivated by the fact tha
 
 #### The mip scale
 
-The first step (step 0) uses the simulated muon sample to find the different peak MIP values from the SimCalorimeterHit collections in the Ecal and the Hcal. The MIP peak for the Ecal will have the same value for barrel, endcap and ring regions. The Hcal will have three different values for the three regions. This gives 4 output constants namely ecalMip, hcalBarrelMip, hcalEndcapMip and hcalRingMip. Note that this step do not require any input from calibration XML file.
-
+The first step (step 0) uses the simulated muon sample to find the different peak MIP values from the SimCalorimeterHit collections in the Ecal and the Hcal. The MIP peak for the Ecal will have the same value for barrel, endcap and ring regions. The Hcal will have three different values for the three regions. This gives 4 output constants namely ecalMip, hcalBarrelMip, hcalEndcapMip and hcalRingMip.
 
 
 #
