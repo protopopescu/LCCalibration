@@ -44,15 +44,27 @@ class PandoraMipScaleStep(CalibrationStep) :
         self._marlin.setPfoAnalysisOutput(self._pfoOutputFile)
 
     def init(self, config) :
-
+        # list of processors to run
+        processors = []
+        processors.extend(["MyAIDAProcessor"]) # not sure this is needed ...
+        processors.extend(["InitDD4hep"])
+        processors.extend(["MyEcalBarrelDigi", "MyEcalBarrelReco", "MyEcalBarrelGapFiller"])
+        processors.extend(["MyEcalEndcapDigi", "MyEcalEndcapReco", "MyEcalEndcapGapFiller"])
+        processors.extend(["MyEcalRingDigi", "MyEcalRingReco"])
+        processors.extend(["MyHcalBarrelDigi", "MyHcalBarrelReco"])
+        processors.extend(["MyHcalEndcapDigi", "MyHcalEndcapReco"])
+        processors.extend(["MyHcalRingDigi", "MyHcalRingReco"])
+        processors.extend(["MySimpleBCalDigi", "MySimpleLCalDigi", "MySimpleLHCalDigi", "MySimpleMuonDigi"])
+        processors.extend(["MyPfoAnalysis"])
+        
         self._cleanupElement(config)
         self._marlin.loadInputParameters(config)
         self._marlin.loadStepOutputParameters(config, "MipScale")
         self._marlin.loadStepOutputParameters(config, "EcalEnergy")
         self._marlin.loadStepOutputParameters(config, "HcalEnergy")
+        self._marlin.turnOffProcessorsExcept(processors)
         
     def run(self, config) :
-
         self._marlin.run()
 
         removeFile("./PandoraMipScale_Calibration.txt")
