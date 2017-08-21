@@ -19,7 +19,7 @@ class PandoraAnalysisBinary(object) :
         return args
 
     def addArgument(self, parameter, value) :
-        self._arguments[parameter] = value
+        self._arguments[parameter] = str(value)
 
     def run(self) :
         args = self._createProcessArgs()
