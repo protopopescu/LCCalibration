@@ -55,12 +55,12 @@ class PandoraHadScaleStep(CalibrationStep) :
     def init(self, config) :
 
         self._cleanupElement(config)
-        self._marlin.loadParameters(config, "//input")
-        self._marlin.loadParameters(config, "//step[@name='MipScale']/output")
-        self._marlin.loadParameters(config, "//step[@name='EcalEnergy']/output")
-        self._marlin.loadParameters(config, "//step[@name='HcalEnergy']/output")
-        self._marlin.loadParameters(config, "//step[@name='PandoraMipScale']/output")
-        self._marlin.loadParameters(config, "//step[@name='PandoraEMScale']/output")
+        self._marlin.loadInputParameters(config)
+        self._marlin.loadStepOutputParameters(config, "MipScale")
+        self._marlin.loadStepOutputParameters(config, "EcalEnergy")
+        self._marlin.loadStepOutputParameters(config, "HcalEnergy")
+        self._marlin.loadStepOutputParameters(config, "PandoraMipScale")
+        self._marlin.loadStepOutputParameters(config, "PandoraEMScale")
 
         self._inputEcalToHadGeVBarrel = float(self._marlin.getProcessorParameter("MyDDMarlinPandora", "ECalToHadGeVCalibrationBarrel"))
         self._inputEcalToHadGeVEndcap = float(self._marlin.getProcessorParameter("MyDDMarlinPandora", "ECalToHadGeVCalibrationEndCap"))

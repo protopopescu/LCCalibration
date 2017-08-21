@@ -80,8 +80,8 @@ class EcalEnergyStep(CalibrationStep) :
         processors.extend(["MyPfoAnalysis"])
         
         self._cleanupElement(config)
-        self._marlin.loadParameters(config, "//input")
-        self._marlin.loadParameters(config, "//step[@name='MipScale']/output")
+        self._marlin.loadInputParameters(config)
+        self._marlin.loadStepOutputParameters(config, "MipScale")
         self._marlin.turnOffProcessorsExcept(processors)
     
         self._inputEcalBarrelFactor1 = float(self._marlin.getProcessorParameter("MyEcalBarrelReco", "calibration_factorsMipGev").split()[0])

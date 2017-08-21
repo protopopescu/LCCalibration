@@ -46,11 +46,11 @@ class PandoraMipScaleStep(CalibrationStep) :
     def init(self, config) :
 
         self._cleanupElement(config)
-        self._marlin.loadParameters(config, "//input")
-        self._marlin.loadParameters(config, "//step[@name='MipScale']/output")
-        self._marlin.loadParameters(config, "//step[@name='EcalEnergy']/output")
-        self._marlin.loadParameters(config, "//step[@name='HcalEnergy']/output")
-
+        self._marlin.loadInputParameters(config)
+        self._marlin.loadStepOutputParameters(config, "MipScale")
+        self._marlin.loadStepOutputParameters(config, "EcalEnergy")
+        self._marlin.loadStepOutputParameters(config, "HcalEnergy")
+        
     def run(self, config) :
 
         self._marlin.run()

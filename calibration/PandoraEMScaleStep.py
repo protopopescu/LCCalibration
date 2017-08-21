@@ -51,10 +51,11 @@ class PandoraEMScaleStep(CalibrationStep) :
     def init(self, config) :
 
         self._cleanupElement(config)
-        self._marlin.loadParameters(config, "//input")
-        self._marlin.loadParameters(config, "//step[@name='MipScale']/output")
-        self._marlin.loadParameters(config, "//step[@name='EcalEnergy']/output")
-        self._marlin.loadParameters(config, "//step[@name='PandoraMipScale']/output")
+        self._marlin.loadInputParameters(config)
+        self._marlin.loadStepOutputParameters(config, "MipScale")
+        self._marlin.loadStepOutputParameters(config, "EcalEnergy")
+        self._marlin.loadStepOutputParameters(config, "HcalEnergy")
+        self._marlin.loadStepOutputParameters(config, "PandoraMipScale")
 
         self._inputEcalToEMGeV = float(self._marlin.getProcessorParameter("MyDDMarlinPandora", "ECalToEMGeVCalibration"))
         self._inputHcalToEMGeV = float(self._marlin.getProcessorParameter("MyDDMarlinPandora", "HCalToEMGeVCalibration"))
