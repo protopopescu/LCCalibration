@@ -76,6 +76,7 @@ class EcalEnergyStep(CalibrationStep) :
         processors.extend(["MyHcalBarrelDigi", "MyHcalBarrelReco"])
         processors.extend(["MyHcalEndcapDigi", "MyHcalEndcapReco"])
         processors.extend(["MyHcalRingDigi", "MyHcalRingReco"])
+        processors.extend(["MySimpleBCalDigi", "MySimpleLCalDigi", "MySimpleLHCalDigi", "MySimpleMuonDigi"])
         processors.extend(["MyPfoAnalysis"])
         
         self._cleanupElement(config)
