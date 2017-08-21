@@ -63,11 +63,24 @@ class HcalEnergyStep(CalibrationStep) :
         self._inputMinCosThetaEndcap, self._inputMaxCosThetaEndcap = self._getGeometry().getHcalEndcapCosThetaRange()
 
     def init(self, config) :
-
+        # list of processors to run
+        processors = []
+        processors.extend(["MyAIDAProcessor"]) # not sure this is needed ...
+        processors.extend(["InitDD4hep"])
+        processors.extend(["MyEcalBarrelDigi", "MyEcalBarrelReco", "MyEcalBarrelGapFiller"])
+        processors.extend(["MyEcalEndcapDigi", "MyEcalEndcapReco", "MyEcalEndcapGapFiller"])
+        processors.extend(["MyEcalRingDigi", "MyEcalRingReco"])
+        processors.extend(["MyHcalBarrelDigi", "MyHcalBarrelReco"])
+        processors.extend(["MyHcalEndcapDigi", "MyHcalEndcapReco"])
+        processors.extend(["MyHcalRingDigi", "MyHcalRingReco"])
+        processors.extend(["MySimpleBCalDigi", "MySimpleLCalDigi", "MySimpleLHCalDigi", "MySimpleMuonDigi"])
+        processors.extend(["MyPfoAnalysis"])
+        
         self._cleanupElement(config)
         self._marlin.loadParameters(config, "//input")
         self._marlin.loadParameters(config, "//step[@name='MipScale']/output")
         self._marlin.loadParameters(config, "//step[@name='EcalEnergy']/output")
+        self._marlin.turnOffProcessorsExcept(processors)
 
         self._inputHcalBarrelFactor = float(self._marlin.getProcessorParameter("MyHcalBarrelReco", "calibration_factorsMipGev"))
         self._inputHcalEndcapFactor = float(self._marlin.getProcessorParameter("MyHcalEndcapReco", "calibration_factorsMipGev"))
