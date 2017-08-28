@@ -5,6 +5,7 @@ from lxml import etree
 import logging
 import tempfile
 from calibration.MarlinXML import MarlinXML
+import time
 
 """ Marlin class.
 """
@@ -94,7 +95,7 @@ class Marlin(object) :
     """ Run the marlin process using Popen function of subprocess module
     """
     def run(self) :
-        args = self._createProcessArgs()
+        args = self.createProcessArgs()
         self._logger.info("Marlin command line : " + " ".join(args))
         process = subprocess.Popen(args = args)
         if process.wait() :
@@ -108,7 +109,7 @@ class Marlin(object) :
 
     """ Create the marlin process command line argument (Marlin + args)
     """
-    def _createProcessArgs(self) :
+    def createProcessArgs(self) :
         args = ['Marlin']
         # generate temporary steering file for running marlin
         tmpSteeringFile = self._marlinXML.writeTmp(False)
@@ -129,5 +130,65 @@ class Marlin(object) :
         self._marlinXML.turnOffProcessorsExcept(processors)
 
 
+################################################################################
 
+""" ParallelMarlin class.
+
+    Run multiple instances of marlin in parallel (process)
+    Use setMaxNParallelInstances(n) to decide how many instance 
+    can be run in parallel, addMarlinInstance(marlin) to add a marlin
+    instance and run() to process
+""" 
+class ParallelMarlin(object):
+    def __init__(self):
+        self._marlinInstances = []
+        self._maxNParallelInstances = 3
+    
+    """ Add a marlin instance to run in parallel
+    """
+    def addMarlinInstance(self, marlin):
+        if isinstance(marlin, Marlin):
+            self._marlinInstances.append(marlin)
+    
+    """ Set the maximum number of concurrent marlin instance to run
+    """
+    def setMaxNParallelInstances(self, maxInstances):
+        if maxInstances > 0 :
+            self._maxNParallelInstances = maxInstances
+    
+    """ Run the registered marlin concurrently
+    """ 
+    def run(self):
+        marlinQueue = list(self._marlinInstances)
+        runningMarlinInstances = {}
+        marlinEndStatus = {m : None for m in marlinQueue}
+
+        while 1:
+            
+            if len(marlinQueue) == 0 and len(runningMarlinInstances) == 0:
+                break
+            
+            if len(runningMarlinInstances) < self._maxNParallelInstances and len(marlinQueue):
+                marlin = marlinQueue.pop(0)
+                args = marlin.createProcessArgs()
+                process = subprocess.Popen(args = args)
+                runningMarlinInstances[process] = marlin
+            else:
+                time.sleep(1)
+            
+            for proc, marlin in runningMarlinInstances.items():
+                status = proc.poll()
+                if status is not None :
+                    marlinEndStatus[marlin] = status
+                    del runningMarlinInstances[proc]
+        
+        print "ParallelMarlin ended with the following status ({0} instances):".format(len(marlinEndStatus))
+        for marlin, status in marlinEndStatus.items():
+            print "  -> {0} ended with status {1}".format(marlin, status)
+                     
+                
+        
+        
+        
+        
 #
