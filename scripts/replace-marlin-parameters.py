@@ -3,8 +3,9 @@
 """
 """
 import os
+from tempfile import mkstemp
 import sys
-from shutil import copyfile
+from shutil import move
 import argparse
 from calibration.XmlTools import etree
 
@@ -16,6 +17,15 @@ def getProcessorParameter(tree, processor, name):
         raise RuntimeError("Parameter '{0}' for processor '{1}' not found in xml file".format(name, processor))
     return elt[0]
 
+def whitespacePrefix(line):
+    prefix = ""
+    i = 0
+    while 1:
+        if len(line)-1 == i or not line[i].isspace():
+            break
+        prefix = prefix + " "
+        i = i+1
+    return prefix
 
 # command line parsing
 parser = argparse.ArgumentParser("Replace Marlin steering file parameters after calibration:",
@@ -34,12 +44,22 @@ parsed = parser.parse_args()
 
 outputFile = parsed.steeringFile if not parsed.newSteeringFile else parsed.newSteeringFile
 
-# open both xml file to read/write new calibration parameter
+# open calibration and marlin xml files
 xmlParser = etree.XMLParser(remove_blank_text=True)
 marlinXmlTree = etree.parse(parsed.steeringFile, xmlParser)
 calibrationXmlTree = etree.parse(parsed.inputFile, xmlParser)
 
-# Walk along the output parameters and update the marlin xml file
+# open marlin xml as raw file to replace just the needed lines
+# write output in temporary file and move it when finished
+marlinXmlRaw = open(parsed.steeringFile, 'r')
+fd, tmpname = mkstemp()
+marlinXmlOutput = open(tmpname, 'w')
+
+# mapping line number and xml element
+lineToParameter = {}
+
+# Walk along the output parameters, replace with the new 
+# values and map line number to xml element for future replacement
 for parameter in calibrationXmlTree.xpath("//step/output/parameter"):
 
     processor = parameter.get("processor")
@@ -49,8 +69,28 @@ for parameter in calibrationXmlTree.xpath("//step/output/parameter"):
     # Update parameter value
     marlinParameter = getProcessorParameter(marlinXmlTree, processor, name)
     marlinParameter.text = value
+    lineToParameter[marlinParameter.sourceline] = marlinParameter
 
-marlinXmlTree.write(outputFile, pretty_print=True)
+lineid = 1
+
+# Walk along the marlin xml file, replace the line if needed
+# and write down the result
+for line in marlinXmlRaw:
+    newLine = line
+    if lineToParameter.get(lineid, None) is not None:
+        element = lineToParameter.get(lineid)
+        name = element.get("name")
+        value = element.text
+        newLine = whitespacePrefix(line) + "<parameter name=\"{0}\">{1}</parameter>\n".format(name, value)
+    lineid = lineid+1
+    marlinXmlOutput.write(newLine)
+
+marlinXmlRaw.close()
+marlinXmlOutput.close()
+
+# rename temporary file to final marlin xml name
+move(tmpname, outputFile)
+
 
 
 #
