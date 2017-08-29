@@ -6,7 +6,7 @@ import os
 import sys
 from shutil import copyfile
 import argparse
-from calibration.xml import etree
+from calibration.XmlTools import etree
 
 def getProcessorParameter(tree, processor, name):
     elt = tree.xpath("//marlin/processor[@name='{0}']/parameter[@name='{1}']".format(processor, name))

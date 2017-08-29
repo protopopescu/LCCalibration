@@ -5,7 +5,7 @@ from calibration.Marlin import Marlin
 from calibration.PandoraAnalysis import *
 from calibration.FileTools import *
 import os, sys
-from calibration.xml import etree
+from calibration.XmlTools import etree
 
 
 class EcalEnergyStep(CalibrationStep) :

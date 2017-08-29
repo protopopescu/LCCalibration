@@ -6,7 +6,7 @@ from calibration.PandoraAnalysis import *
 from calibration.FileTools import *
 from calibration.GeometryInterface import GeometryInterface
 import os, sys
-from calibration.xml import etree
+from calibration.XmlTools import etree
 import logging
 
 
