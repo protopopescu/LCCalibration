@@ -6,7 +6,7 @@ except ImportError:
     try:
         # nafhh special case
         import etree
-        print("running with etree lib on Python 2.5+")
+        print("running with etree.so lib on Python 2.5+")
     except ImportError:    
         try:
             # Python 2.5
