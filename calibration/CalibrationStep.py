@@ -1,7 +1,7 @@
 """
 """
 
-from lxml import etree
+from calibration.xml import etree
 import logging
 import glob
 

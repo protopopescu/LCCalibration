@@ -1,7 +1,7 @@
 
 import os
 import subprocess
-from lxml import etree
+from calibration.xml import etree
 import logging
 import tempfile
 from calibration.MarlinXML import MarlinXML

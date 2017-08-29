@@ -6,7 +6,7 @@ import os
 import sys
 from shutil import copyfile
 import argparse
-from lxml import etree
+from calibration.xml import etree
 
 """ Helper function to get a specific xml element given a processor name and a parameter name
 """

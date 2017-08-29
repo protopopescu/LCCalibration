@@ -1,6 +1,6 @@
 
 import os
-from lxml import etree
+from calibration.xml import etree
 import tempfile
 import subprocess
 

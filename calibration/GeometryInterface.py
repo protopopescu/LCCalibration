@@ -2,7 +2,7 @@
 
 from math import *
 import os
-from lxml import etree
+from calibration.xml import etree
 import subprocess
 
 class GeometryInterface(object) :

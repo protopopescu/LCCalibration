@@ -6,7 +6,7 @@ import os
 import sys
 from shutil import copyfile
 import argparse
-from lxml import etree
+from calibration.xml import etree
 from calibration.Marlin import *
 from calibration.PandoraAnalysis import PandoraAnalysisBinary
 import glob
