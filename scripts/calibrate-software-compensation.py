@@ -131,6 +131,7 @@ softwareCompensationCalibrator = PandoraAnalysisBinary(os.path.join(pathToPandor
 softwareCompensationCalibrator.addArgument("-d", parsed.calibrationOutputPath)
 softwareCompensationCalibrator.addArgument("-e", softCompEnergies)
 softwareCompensationCalibrator.addArgument("-f", parsed.rootFilePattern)
+softwareCompensationCalibrator.addArgument("-t", "SoftwareCompensationTrainingTree")
 
 if bool(parsed.minimizeTrueEnergy):
     softwareCompensationCalibrator.addArgument("-g", "")
