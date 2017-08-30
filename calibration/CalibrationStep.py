@@ -109,6 +109,8 @@ class CalibrationStep(object) :
             iteration.append(parameter)
 
     def _extractFileList(self, inputFile, extension=None) :
+        if isinstance(inputFile, list) :
+            return inputFile
         fl = glob.glob(inputFile)
         if extension is not None :
             fl = [f for f in fl if f.endswith(extension)]

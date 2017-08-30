@@ -133,13 +133,13 @@ parser.add_argument("--inputCalibrationFile", action="store", default=inputCalib
 parser.add_argument("--outputCalibrationFile", action="store", default=outputCalibrationFile,
                         help="The XML output calibration file", required = False)
 
-parser.add_argument("--lcioPhotonFile", action="store", default=lcioPhotonFile,
+parser.add_argument("--lcioPhotonFile", action="store", default=lcioPhotonFile, nargs='+',
                         help="The lcio input file containing photons to process", required = False)
 
-parser.add_argument("--lcioKaon0LFile", action="store", default=lcioKaon0LFile,
+parser.add_argument("--lcioKaon0LFile", action="store", default=lcioKaon0LFile, nargs='+',
                         help="The lcio input file containing kaon0L to process", required = False)
 
-parser.add_argument("--lcioMuonFile", action="store", default=lcioMuonFile,
+parser.add_argument("--lcioMuonFile", action="store", default=lcioMuonFile, nargs='+',
                         help="The lcio input file containing muons to process", required = False)
 
 parser.add_argument("--pandoraAnalysis", action="store", default=pathToPandoraAnalysis,
