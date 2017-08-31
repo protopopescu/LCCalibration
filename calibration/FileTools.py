@@ -72,4 +72,11 @@ def getEcalToHadMean(calibFile) :
 
 def getHcalToHadMean(calibFile) :
     return float(getFileContent(calibFile, 6, 2))
+    
+def getSoftwareCompensationWeights(calibFile, nWeights=9):
+    weights = []
+    for w in range(0, nWeights):
+        weight = getFileContent(calibFile, 8+w, 3)
+        weights.append(weight)
+    return weights
 #
