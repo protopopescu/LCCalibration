@@ -6,7 +6,7 @@ LCCalibration is distributed under the [GPLv3 License](http://www.gnu.org/licens
 
 [![License](https://www.gnu.org/graphics/gplv3-127x51.png)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-## Running a calibration
+## Contents
 
 - ./doc
    - Documentation on how to run standard calibration or how to implement your own one
