@@ -36,6 +36,13 @@ class EcalEnergyStep(CalibrationStep) :
         self._outputEcalEndcapFactor2 = None
         self._outputEcalRingFactor1 = None
         self._outputEcalRingFactor2 = None
+        
+        # command line requirement
+        self._requireSteeringFile()
+        self._requireCompactFile()
+        self._requireIterations()
+        self._requirePhotonFile()
+        self._requireECalAccuracy()
 
 
     def description(self):

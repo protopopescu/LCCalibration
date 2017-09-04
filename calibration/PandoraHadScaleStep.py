@@ -30,6 +30,14 @@ class PandoraHadScaleStep(CalibrationStep) :
         self._outputEcalToHadGeVBarrel = None
         self._outputEcalToHadGeVEndcap = None
         self._outputHcalToHadGeV = None
+        
+        # command line requirement
+        self._requireSteeringFile()
+        self._requireCompactFile()
+        self._requireIterations()
+        self._requireKaon0LFile()
+        self._requireHCalAccuracy()
+        self._requireECalAccuracy()
 
     # def description(self):
     #     return "Calculate the EcalToGeVMip, HcalToGeVMip and MuonToGeVMip that correspond to the mean reconstructed energy of mip calorimeter hit in the respective detectors"

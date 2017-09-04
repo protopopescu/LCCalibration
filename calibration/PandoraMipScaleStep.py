@@ -23,6 +23,11 @@ class PandoraMipScaleStep(CalibrationStep) :
         self._outputEcalToGeVMip = None
         self._outputHcalToGeVMip = None
         self._outputMuonToGeVMip = None
+        
+        # command line requirement
+        self._requireSteeringFile()
+        self._requireCompactFile()
+        self._requireMuonFile()
 
     def description(self):
         return "Calculate the EcalToGeVMip, HcalToGeVMip and MuonToGeVMip that correspond to the mean reconstructed energy of mip calorimeter hit in the respective detectors"

@@ -22,6 +22,10 @@ class MipScaleStep(CalibrationStep) :
         self._hcalEndcapMip = 0.
         self._hcalRingMip = 0.
         self._ecalMip = 0.
+        # set requirements
+        self._requireMuonFile()
+        self._requireCompactFile()
+        self._requireSteeringFile()
 
     def description(self) :
         return "Calculate the mip values from SimCalorimeter collections in the muon lcio file. Outputs ecal mip, hcal barrel mip, hcal endcap mip and hcal ring mip values"

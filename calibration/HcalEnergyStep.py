@@ -34,6 +34,12 @@ class HcalEnergyStep(CalibrationStep) :
         self._outputHcalEndcapFactor = None
         self._outputHcalRingFactor = None
 
+        # command line requirement
+        self._requireSteeringFile()
+        self._requireCompactFile()
+        self._requireIterations()
+        self._requireKaon0LFile()
+        self._requireHCalAccuracy()
 
     def description(self):
         return "Calculate the constants related to the energy deposit in a hcal cell (unit GeV). Outputs the hcalBarrelFactor, hcalEndcapFactor and hcalRingFactor values"
