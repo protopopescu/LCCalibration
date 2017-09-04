@@ -109,5 +109,52 @@ class GeometryInterface(object) :
         minCosTheta = cos(atan( hcalEndcapOuterR / hcalEndcapOuterZ ))
         maxCosTheta = cos(atan( hcalEndcapInnerR / hcalEndcapInnerZ ))
         return minCosTheta, maxCosTheta
+    
+    """ Calculates and returns the following factor :
+        f = (Abs_endcap / Abs_ring) * (Sens_ring / Sens_endcap)
+    """
+    def getCalorimeterGeometryFactor(self, endcapName, ringName):
+        endcapDetector = self._getGearDetector(endcapName, "CalorimeterParameters")
+        plugDetector = self._getGearDetector(ringName, "CalorimeterParameters")
+        endcapAbsorberSum = 0
+        endcapSensitiveSum = 0
+        plugAbsorberSum = 0
+        plugSensitiveSum = 0
+        endcapLayers = endcapDetector.findall("layer")
+        plugLayers = plugDetector.findall("layer")
+        
+        if not len(plugLayers) or not len(endcapLayers):
+            raise RuntimeError("Couldn't evaluate geometry factory ! Layer list is empty")
+            
+        for layer in endcapLayers:
+            repeat = int(layer.get("repeat"))
+            absorberThickness = float(layer.get("absorberThickness"))
+            thickness = float(layer.get("thickness"))
+            senitiveThickness = thickness - absorberThickness
+            endcapAbsorberSum = endcapAbsorberSum + absorberThickness*repeat
+            endcapSensitiveSum = endcapSensitiveSum + senitiveThickness*repeat
+            
+        for layer in plugLayers:
+            repeat = int(layer.get("repeat"))
+            absorberThickness = float(layer.get("absorberThickness"))
+            thickness = float(layer.get("thickness"))
+            senitiveThickness = thickness - absorberThickness
+            plugAbsorberSum = plugAbsorberSum + absorberThickness*repeat
+            plugSensitiveSum = plugSensitiveSum + senitiveThickness*repeat
+            
+        return (endcapAbsorberSum / plugAbsorberSum) * (plugSensitiveSum / endcapSensitiveSum) 
+        
+        
+    """ Calculates and returns the following factor in the ecal
+        f = (Abs_endcap / Abs_ring) * (Sens_ring / Sens_endcap)
+    """
+    def getEcalGeometryFactor(self):
+        return self.getCalorimeterGeometryFactor("EcalEndcap", "EcalPlug")
+    
+    """ Calculates and returns the following factor in the hcal
+        f = (Abs_endcap / Abs_ring) * (Sens_ring / Sens_endcap)
+    """
+    def getHcalGeometryFactor(self):
+        return self.getCalorimeterGeometryFactor("HcalEndcap", "HcalRing")
         
 #
