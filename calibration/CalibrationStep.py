@@ -10,6 +10,7 @@ class CalibrationStep(object) :
         self._name = stepName
         self._logger = logging.getLogger(self._name)
         self._manager = None
+        self._requiredArgs = set()
 
     def setManager(self, mgr) :
         self._manager = mgr
@@ -31,6 +32,9 @@ class CalibrationStep(object) :
 
     def description(self):
         return "No description available"
+    
+    def requiredArgs(self):
+        return self._requiredArgs
 
     def _cleanupElement(self, tree) :
         elts = tree.xpath("//step[@name='{0}']".format(self._name))
@@ -118,8 +122,33 @@ class CalibrationStep(object) :
 
     def _getGeometry(self) :
         return self._manager.getGeometry()
+    
+    def _requireCustomCmdLineArg(self, arg):
+        self._requiredArgs.add(arg)
 
+    def _requireCompactFile(self):
+        self._requiredArgs.add("compactFile")
 
+    def _requireSteeringFile(self):
+        self._requiredArgs.add("steeringFile")
+    
+    def _requireIterations(self):
+        self._requiredArgs.add("maxNIteration")
+    
+    def _requireECalAccuracy(self):
+        self._requiredArgs.add("ecalCalibrationAccuracy")
 
+    def _requireHCalAccuracy(self):
+        self._requiredArgs.add("hcalCalibrationAccuracy")
+    
+    def _requirePhotonFile(self):
+        self._requiredArgs.add("lcioPhotonFile")
+        
+    def _requireKaon0LFile(self):
+        self._requiredArgs.add("lcioKaon0LFile")
+        
+    def _requireMuonFile(self):
+        self._requiredArgs.add("lcioMuonFile")
+    
 
 #
