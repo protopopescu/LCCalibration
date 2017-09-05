@@ -36,7 +36,7 @@ class PandoraAnalysisBinary(object) :
         except OSError:
             pass
     
-    def _getCalibrationFileContent(self, fname, lid, tokenid):
+    def _getFileContent(self, fname, lid, tokenid):
         line = linecache.getline(fname, lid)
         lineTokens = line.split()
         linecache.clearcache()
@@ -63,7 +63,7 @@ class PandoraAnalysisBinary(object) :
 """
 class MipCalibrator(PandoraAnalysisBinary):
     def __init__(self):
-        PandoraAnalysisBinary.__init__("SimCaloHitEnergyDistribution")
+        PandoraAnalysisBinary.__init__(self, "SimCaloHitEnergyDistribution")
         
         self._hcalBarrelMip = 0
         self._hcalEndcapMip = 0
@@ -98,10 +98,10 @@ class MipCalibrator(PandoraAnalysisBinary):
         # run binary
         PandoraAnalysisBinary.run()
         # extract variables
-        self._hcalBarrelMip = float(getFileContent(self._calibrationFile, 7, 5))
-        self._hcalEndcapMip = float(getFileContent(self._calibrationFile, 8, 5))
-        self._hcalRingMip = float(getFileContent(self._calibrationFile, 9, 5))
-        self._ecalMip = float(getFileContent(self._calibrationFile, 10, 4))
+        self._hcalBarrelMip = float(self._getFileContent(self._calibrationFile, 7, 5))
+        self._hcalEndcapMip = float(self._getFileContent(self._calibrationFile, 8, 5))
+        self._hcalRingMip = float(self._getFileContent(self._calibrationFile, 9, 5))
+        self._ecalMip = float(self._getFileContent(self._calibrationFile, 10, 4))
         # cleanup again
         self._removeFile(self._calibrationFile)
         
@@ -113,7 +113,7 @@ class MipCalibrator(PandoraAnalysisBinary):
 """
 class EcalCalibrator(PandoraAnalysisBinary):
     def __init__(self):
-        PandoraAnalysisBinary.__init__("ECalDigitisation_ContainedEvents")
+        PandoraAnalysisBinary.__init__(self, "ECalDigitisation_ContainedEvents")
         
         # set default values
         self.setPhotonEnergy(10)
@@ -145,7 +145,7 @@ class EcalCalibrator(PandoraAnalysisBinary):
         # run
         PandoraAnalysisBinary.run()
         # extract variables
-        self._ecalDigiMean = float(getFileContent(self._calibrationFile, 11, 4))
+        self._ecalDigiMean = float(self._getFileContent(self._calibrationFile, 11, 4))
         # cleanup again
         self._removeFile(self._calibrationFile)
 
@@ -161,7 +161,7 @@ class EcalCalibrator(PandoraAnalysisBinary):
 """
 class EcalRingCalibrator(PandoraAnalysisBinary):
     def __init__(self):
-        PandoraAnalysisBinary.__init__("ECalDigitisation_DirectionCorrectionDistribution")
+        PandoraAnalysisBinary.__init__(self, "ECalDigitisation_DirectionCorrectionDistribution")
         
         # set default values
         self.setPhotonEnergy(10)
@@ -189,8 +189,8 @@ class EcalRingCalibrator(PandoraAnalysisBinary):
         # run
         PandoraAnalysisBinary.run()
         # extract variables
-        self._endcapMeanDirectionCorrection = float(getFileContent(self._calibrationFile, 4, 5))
-        self._ringMeanDirectionCorrection = float(getFileContent(self._calibrationFile, 9, 5))
+        self._endcapMeanDirectionCorrection = float(self._getFileContent(self._calibrationFile, 4, 5))
+        self._ringMeanDirectionCorrection = float(self._getFileContent(self._calibrationFile, 9, 5))
         # cleanup again
         self._removeFile(self._calibrationFile)
     
@@ -204,7 +204,7 @@ class EcalRingCalibrator(PandoraAnalysisBinary):
 """
 class HcalCalibrator(PandoraAnalysisBinary):
     def __init__(self):
-        PandoraAnalysisBinary.__init__("HCalDigitisation_ContainedEvents")
+        PandoraAnalysisBinary.__init__(self, "HCalDigitisation_ContainedEvents")
         
         # set default values
         self.setKaon0LEnergy(20)
@@ -236,7 +236,7 @@ class HcalCalibrator(PandoraAnalysisBinary):
         # run
         PandoraAnalysisBinary.run()
         # extract variables
-        self._hcalDigiMean = float(getFileContent(self._calibrationFile, 9, 5))
+        self._hcalDigiMean = float(self._getFileContent(self._calibrationFile, 9, 5))
         # cleanup again
         self._removeFile(self._calibrationFile)
         
@@ -249,7 +249,7 @@ class HcalCalibrator(PandoraAnalysisBinary):
 """
 class HcalRingCalibrator(PandoraAnalysisBinary):
     def __init__(self):
-        PandoraAnalysisBinary.__init__("HCalDigitisation_DirectionCorrectionDistribution")
+        PandoraAnalysisBinary.__init__(self, "HCalDigitisation_DirectionCorrectionDistribution")
         
         # set default values
         self.setKaon0LEnergy(20)
@@ -277,8 +277,8 @@ class HcalRingCalibrator(PandoraAnalysisBinary):
         # run
         PandoraAnalysisBinary.run()
         # extract variables
-        self._endcapMeanDirectionCorrection = float(getFileContent(self._calibrationFile, 4, 5))
-        self._ringMeanDirectionCorrection = float(getFileContent(self._calibrationFile, 9, 5))
+        self._endcapMeanDirectionCorrection = float(self._getFileContent(self._calibrationFile, 4, 5))
+        self._ringMeanDirectionCorrection = float(self._getFileContent(self._calibrationFile, 9, 5))
         # cleanup again
         self._removeFile(self._calibrationFile)    
 
@@ -290,7 +290,7 @@ class HcalRingCalibrator(PandoraAnalysisBinary):
 """
 class PandoraMipScaleCalibrator(PandoraAnalysisBinary):
     def __init__(self):
-        PandoraAnalysisBinary.__init__("PandoraPFACalibrate_HadronicScale_ChiSquareMethod")
+        PandoraAnalysisBinary.__init__(self, "PandoraPFACalibrate_HadronicScale_ChiSquareMethod")
         
         # set default values
         self.setMuonEnergy(10)
@@ -320,9 +320,9 @@ class PandoraMipScaleCalibrator(PandoraAnalysisBinary):
         # run
         PandoraAnalysisBinary.run()
         # extract variables
-        self._ecalToGeVMip = float(getFileContent(self._calibrationFile, 8, 2))
-        self._hcalToGeVMip = float(getFileContent(self._calibrationFile, 16, 2))
-        self._muonToGeVMip = float(getFileContent(self._calibrationFile, 24, 2))
+        self._ecalToGeVMip = float(self._getFileContent(self._calibrationFile, 8, 2))
+        self._hcalToGeVMip = float(self._getFileContent(self._calibrationFile, 16, 2))
+        self._muonToGeVMip = float(self._getFileContent(self._calibrationFile, 24, 2))
         # cleanup again
         self._removeFile(self._calibrationFile)  
         
@@ -335,7 +335,7 @@ class PandoraMipScaleCalibrator(PandoraAnalysisBinary):
 """
 class PandoraEMScaleCalibrator(PandoraAnalysisBinary):
     def __init__(self):
-        PandoraAnalysisBinary.__init__("PandoraPFACalibrate_EMScale")
+        PandoraAnalysisBinary.__init__(self, "PandoraPFACalibrate_EMScale")
         
         # set default values
         self.setPhotonEnergy(10)
@@ -359,7 +359,7 @@ class PandoraEMScaleCalibrator(PandoraAnalysisBinary):
         # run
         PandoraAnalysisBinary.run()
         # extract variables
-        self._ecalEMMean = float(getFileContent(self._calibrationFile, 9, 3))
+        self._ecalEMMean = float(self._getFileContent(self._calibrationFile, 9, 3))
         # cleanup again
         self._removeFile(self._calibrationFile)  
 
@@ -372,7 +372,7 @@ class PandoraEMScaleCalibrator(PandoraAnalysisBinary):
 """
 class PandoraHadScaleCalibrator(PandoraAnalysisBinary):
     def __init__(self):
-        PandoraAnalysisBinary.__init__("PandoraPFACalibrate_HadronicScale_ChiSquareMethod")
+        PandoraAnalysisBinary.__init__(self, "PandoraPFACalibrate_HadronicScale_ChiSquareMethod")
         
         # set default values
         self.setKaon0LEnergy(10)
@@ -400,8 +400,8 @@ class PandoraHadScaleCalibrator(PandoraAnalysisBinary):
         # run
         PandoraAnalysisBinary.run()
         # extract variables
-        self._ecalToHadGeV = float(getFileContent(self._calibrationFile, 5, 2))
-        self._hcalToHadGeV = float(getFileContent(self._calibrationFile, 6, 2))
+        self._ecalToHadGeV = float(self._getFileContent(self._calibrationFile, 5, 2))
+        self._hcalToHadGeV = float(self._getFileContent(self._calibrationFile, 6, 2))
         # cleanup again
         self._removeFile(self._calibrationFile)  
 
@@ -414,37 +414,46 @@ class PandoraHadScaleCalibrator(PandoraAnalysisBinary):
 """
 class PandoraSoftCompCalibrator(PandoraAnalysisBinary):
     def __init__(self):
-        PandoraAnalysisBinary.__init__("PandoraPFACalibrate_SoftwareCompensation")
+        PandoraAnalysisBinary.__init__(self, "PandoraPFACalibrate_SoftwareCompensation")
         
         # set default values
         self._setOutputPath("-d", "./PandoraSoftComp_")
+        self._runWithTrueEnergy = False
         
         # outputs
         self._softCompWeights = []
 
     def setEnergies(self, energies):
-        if isinstance(energies, str)
+        if isinstance(energies, str):
             self._setArgument("-e", energies)
-        else if isinstance(energies, list)
+        elif isinstance(energies, list):
             self._setArgument("-e", ":".join(energies))
 
     def setRootFilePattern(self, pattern):
-        pass
+        self._setArgument("-f", pattern)
+
+    def setRootTreeName(self, tree):
+        self._setArgument("-t", tree)
     
-    def getEcalToHad(self):
+    def setSoftCompWeights(self):
         return self._ecalToHadGeV
     
-    def getHcalToHad(self):
-        return self._hcalToHadGeV
+    def setRunWithTrueEnergy(self, runWithTrue):
+        self._runWithTrueEnergy = runWithTrue
 
     def run(self):
         # cleanup file
         self._removeFile(self._calibrationFile)
-        # run
-        PandoraAnalysisBinary.run()
+        # last argument added on the fly ...
+        if self._runWithTrueEnergy:
+            self._setArgument("-g")
+        # run            
+        PandoraAnalysisBinary.run(self)
         # extract variables
-        self._ecalToHadGeV = float(getFileContent(self._calibrationFile, 5, 2))
-        self._hcalToHadGeV = float(getFileContent(self._calibrationFile, 6, 2))
+        self._softCompWeights  = []
+        for w in range(0, 9):
+            weight = float(self._getFileContent(self._calibrationFile, 8+w, 3))
+            self._softCompWeights.append(weight)
         # cleanup again
         self._removeFile(self._calibrationFile)  
         
