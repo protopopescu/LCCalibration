@@ -406,5 +406,48 @@ class PandoraHadScaleCalibrator(PandoraAnalysisBinary):
         self._removeFile(self._calibrationFile)  
 
 
+############################################################
+############################################################
+""" PandoraSoftCompCalibrator class
+    Implements the interface to the PandoraPFACalibrate_SoftwareCompensation binary
+    from LCPandoraAnalysis package
+"""
+class PandoraSoftCompCalibrator(PandoraAnalysisBinary):
+    def __init__(self):
+        PandoraAnalysisBinary.__init__("PandoraPFACalibrate_SoftwareCompensation")
+        
+        # set default values
+        self._setOutputPath("-d", "./PandoraSoftComp_")
+        
+        # outputs
+        self._softCompWeights = []
 
+    def setEnergies(self, energies):
+        if isinstance(energies, str)
+            self._setArgument("-e", energies)
+        else if isinstance(energies, list)
+            self._setArgument("-e", ":".join(energies))
+
+    def setRootFilePattern(self, pattern):
+        pass
+    
+    def getEcalToHad(self):
+        return self._ecalToHadGeV
+    
+    def getHcalToHad(self):
+        return self._hcalToHadGeV
+
+    def run(self):
+        # cleanup file
+        self._removeFile(self._calibrationFile)
+        # run
+        PandoraAnalysisBinary.run()
+        # extract variables
+        self._ecalToHadGeV = float(getFileContent(self._calibrationFile, 5, 2))
+        self._hcalToHadGeV = float(getFileContent(self._calibrationFile, 6, 2))
+        # cleanup again
+        self._removeFile(self._calibrationFile)  
+        
+        
+        
 #
