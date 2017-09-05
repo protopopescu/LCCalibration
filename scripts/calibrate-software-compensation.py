@@ -8,11 +8,9 @@ from shutil import copyfile
 import argparse
 from calibration.XmlTools import etree
 from calibration.Marlin import *
-from calibration.PandoraAnalysis import PandoraAnalysisBinary
+from calibration.PandoraAnalysis import PandoraSoftCompCalibrator
 import glob
 
-# try to get from env vars
-pathToPandoraAnalysis = os.environ["PANDORA_ANALYSIS_DIR"]
 
 def writeNewPandoraSettings(pandoraSettingsFile, rootFile):
     xmlParser = etree.XMLParser(remove_blank_text=True)
@@ -39,9 +37,7 @@ def writeNewPandoraSettings(pandoraSettingsFile, rootFile):
     fhandle, tmpPandoraXmlFileName = tempfile.mkstemp(suffix=".xml")
     pandoraXmlTree.write(tmpPandoraXmlFileName)
     
-    return tmpPandoraXmlFileName
-        
-        
+    return tmpPandoraXmlFileName    
         
 
 parser = argparse.ArgumentParser("Run (optionally) the reconstruction chain on single kaon0L particles and calibrate PandoraPFA software compensation weights:",
@@ -58,9 +54,6 @@ parser.add_argument("--maxRecordNumber", action="store", default=0,
 
 parser.add_argument("--pandoraSettingsFile", action="store",
                         help="The PandoraPFA xml settings file for software compensation", required = True)
-
-parser.add_argument("--calibrationOutputPath", action="store", default="./SoftComp_",
-                        help="The output path for the software compensation calibration file", required = False)
                         
 parser.add_argument("--energies", action="store",
                         help="The input mc energies for software compensation calibration", required = True)
@@ -73,6 +66,9 @@ parser.add_argument("--rootFilePattern", action="store",
 
 parser.add_argument("--runMarlin", action="store_true",
                         help="Whether to run marlin reconstruction before calibration of software compensation weights")
+
+parser.add_argument("--noMinimizer", action="store_true",
+                        help="Whether to run software compensation weights minimization")
                         
 parser.add_argument("--maxParallel", action="store", default=1,
                         help="The maximum number of marlin instance to run in parallel (process)")
@@ -81,6 +77,10 @@ parser.add_argument("--minimizeTrueEnergy", action="store_true",
                         help="Whether to use to mc energy in the software compensation minimizer program (or reconstructed energy)")
 
 parsed = parser.parse_args()
+
+if not parsed.runMarlin and parsed.noMinimizer:
+    parser.print_help()
+    parser.exit(status=1, message="Incoherent options: 'runMarlin' not set and 'noMinimizer' set. Nothing to run !\n")
 
 rootFilePattern = parsed.rootFilePattern
 if rootFilePattern.find("%{energy}") == -1 :
@@ -112,6 +112,9 @@ if parsed.runMarlin :
         rootFile = rootFilePattern.replace("%{energy}", str(energy))
         newPandoraXmlFileName = writeNewPandoraSettings(pandoraSettingsFile, rootFile)
         
+        index = rootFile.rfind(".root")
+        pfoAnalysisFile = rootFile[:index] + "_PfoAnalysis.root"
+        
         marlin = Marlin(steeringFile)
         marlin.setCompactFile(parsed.compactFile)
         gearFile = marlin.convertToGear(parsed.compactFile)
@@ -119,24 +122,22 @@ if parsed.runMarlin :
         marlin.setInputFiles(lcioFiles)
         marlin.setMaxRecordNumber(parsed.maxRecordNumber)
         marlin.setProcessorParameter("MyDDMarlinPandora", "PandoraSettingsXmlFile", str(newPandoraXmlFileName))
+        try:
+            marlin.setProcessorParameter("MyPfoAnalysis", "RootFile", str(pfoAnalysisFile))
+        except:
+            pass
         
         marlinMaster.addMarlinInstance(marlin)
 
     marlinMaster.run()
 
 
-softCompEnergies = ":".join(parsed.energies.split())
-    
-softwareCompensationCalibrator = PandoraAnalysisBinary(os.path.join(pathToPandoraAnalysis, "bin/PandoraPFACalibrate_SoftwareCompensation"))
-softwareCompensationCalibrator.addArgument("-d", parsed.calibrationOutputPath)
-softwareCompensationCalibrator.addArgument("-e", softCompEnergies)
-softwareCompensationCalibrator.addArgument("-f", parsed.rootFilePattern)
-softwareCompensationCalibrator.addArgument("-t", "SoftwareCompensationTrainingTree")
-
-if bool(parsed.minimizeTrueEnergy):
-    softwareCompensationCalibrator.addArgument("-g", "")
-    
-softwareCompensationCalibrator.run()
-
+if not parsed.noMinimizer :
+    softwareCompensationCalibrator = PandoraSoftCompCalibrator()
+    softwareCompensationCalibrator.setEnergies(parsed.energies)
+    softwareCompensationCalibrator.setRootFilePattern(parsed.rootFilePattern)
+    softwareCompensationCalibrator.setRootTreeName("SoftwareCompensationTrainingTree")
+    softwareCompensationCalibrator.setRunWithTrueEnergy(parsed.minimizeTrueEnergy)    
+    softwareCompensationCalibrator.run()
 
 #
