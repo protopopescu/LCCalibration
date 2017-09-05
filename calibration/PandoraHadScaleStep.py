@@ -43,11 +43,6 @@ class PandoraHadScaleStep(CalibrationStep) :
     #     return "Calculate the EcalToGeVMip, HcalToGeVMip and MuonToGeVMip that correspond to the mean reconstructed energy of mip calorimeter hit in the respective detectors"
 
     def readCmdLine(self, parsed) :
-        # setup ecal energy calibrator
-        self._hadScaleCalibrator = PandoraAnalysisBinary(os.path.join(parsed.pandoraAnalysis, "bin/PandoraPFACalibrate_HadronicScale_ChiSquareMethod"))
-        self._hadScaleCalibrator.addArgument("-b", '20')
-        self._hadScaleCalibrator.addArgument("-d", "./PandoraHadronicScale_ChiSquareMethod_")
-
         # setup marlin
         self._marlin = Marlin(parsed.steeringFile)
         gearFile = self._marlin.convertToGear(parsed.compactFile)
@@ -94,6 +89,8 @@ class PandoraHadScaleStep(CalibrationStep) :
         ecalToHadGeVEndcap = self._inputEcalToHadGeVEndcap
         hcalToHadGeV = self._inputHcalToHadGeV
         
+        hadScaleCalibrator = PandoraHadScale()
+        
         for iteration in range(self._maxNIterations) :
 
             # readjust iteration parameters
@@ -114,23 +111,21 @@ class PandoraHadScaleStep(CalibrationStep) :
             self._marlin.run()
 
             # ... and calibration script
-            removeFile("./PandoraHadronicScale_ChiSquareMethod_Calibration.txt")
-            self._hadScaleCalibrator.addArgument("-a", pfoAnalysisFile)
-            self._hadScaleCalibrator.run()
+            hadScaleCalibrator.setRootFile(pfoAnalysisFile)
+            hadScaleCalibrator.setKaon0LEnergy(20)
+            hadScaleCalibrator.run()
 
             if not ecalAccuracyReached :
-                newEcalKaon0LEnergy = getEcalToHadMean("./PandoraHadronicScale_ChiSquareMethod_Calibration.txt")    
+                newEcalKaon0LEnergy = hadScaleCalibrator.getEcalToHad()    
                 ecalRescaleFactor = 20. / newEcalKaon0LEnergy
                 ecalRescaleFactorCumul = ecalRescaleFactorCumul*ecalRescaleFactor
                 currentEcalPrecision = abs(1 - 1. / ecalRescaleFactor)
                 
             if not hcalAccuracyReached :
-                newHcalKaon0LEnergy = getHcalToHadMean("./PandoraHadronicScale_ChiSquareMethod_Calibration.txt")
+                newHcalKaon0LEnergy = hadScaleCalibrator.getHcalToHad()
                 hcalRescaleFactor = 20. / newHcalKaon0LEnergy
                 hcalRescaleFactorCumul = hcalRescaleFactorCumul*hcalRescaleFactor
                 currentHcalPrecision = abs(1 - 1. / hcalRescaleFactor)
-            
-            os.rename("./PandoraHadronicScale_ChiSquareMethod_Calibration.txt", "./PandoraHadronicScale_ChiSquareMethod_iter{0}_Calibration.txt".format(iteration))
 
             # write down iteration results
             self._writeIterationOutput(config, iteration, 

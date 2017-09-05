@@ -16,12 +16,12 @@ class MipScaleStep(CalibrationStep) :
     def __init__(self) :
         CalibrationStep.__init__(self, "MipScale")
         self._marlin = None
-        self._mipCalibrator = None
         self._pfoOutputFile = "./PfoAnalysis_" + self._name + ".root"
         self._hcalBarrelMip = 0.
         self._hcalEndcapMip = 0.
         self._hcalRingMip = 0.
         self._ecalMip = 0.
+        
         # set requirements
         self._requireMuonFile()
         self._requireCompactFile()
@@ -31,12 +31,6 @@ class MipScaleStep(CalibrationStep) :
         return "Calculate the mip values from SimCalorimeter collections in the muon lcio file. Outputs ecal mip, hcal barrel mip, hcal endcap mip and hcal ring mip values"
 
     def readCmdLine(self, parsed) :
-        # setup mip calibrator
-        self._mipCalibrator = PandoraAnalysisBinary(os.path.join(parsed.pandoraAnalysis, "bin/SimCaloHitEnergyDistribution"))
-        self._mipCalibrator.addArgument("-a", self._pfoOutputFile)
-        self._mipCalibrator.addArgument("-b", '10')
-        self._mipCalibrator.addArgument("-c", "./MipScale_")
-
         # setup marlin
         self._marlin = Marlin(parsed.steeringFile)
         gearFile = self._marlin.convertToGear(parsed.compactFile)
@@ -54,13 +48,14 @@ class MipScaleStep(CalibrationStep) :
         self._marlin.turnOffProcessorsExcept(["InitDD4hep", "MyPfoAnalysis"])
         self._marlin.run()
 
-        removeFile("./MipScale_Calibration.txt")
-        self._mipCalibrator.run()
-        self._hcalBarrelMip = getHcalBarrelMip("./MipScale_Calibration.txt")
-        self._hcalEndcapMip = getHcalEndcapMip("./MipScale_Calibration.txt")
-        self._hcalRingMip = getHcalRingMip("./MipScale_Calibration.txt")
-        self._ecalMip = getEcalMip("./MipScale_Calibration.txt")
-        removeFile("./MipScale_Calibration.txt")
+        mipCalibrator = MipCalibrator()
+        mipCalibrator.setRootFile(self._pfoOutputFile)
+        mipCalibrator.run()
+        
+        self._hcalBarrelMip = mipCalibrator.getHcalBarrelMip()
+        self._hcalEndcapMip = mipCalibrator.getHcalEndcapMip()
+        self._hcalRingMip = mipCalibrator.getHcalRingMip()
+        self._ecalMip = mipCalibrator.getEcalMip()
 
     def writeOutput(self, config) :
         # replace previous exports

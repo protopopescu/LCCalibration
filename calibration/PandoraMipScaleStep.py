@@ -15,7 +15,6 @@ class PandoraMipScaleStep(CalibrationStep) :
     def __init__(self) :
         CalibrationStep.__init__(self, "PandoraMipScale")
         self._marlin = None
-        self._mipScaleCalibrator = None
 
         self._pfoOutputFile = "./PfoAnalysis_" + self._name + ".root"
 
@@ -72,12 +71,14 @@ class PandoraMipScaleStep(CalibrationStep) :
     def run(self, config) :
         self._marlin.run()
 
-        removeFile("./PandoraMipScale_Calibration.txt")
-        self._mipScaleCalibrator.run()
-        self._outputEcalToGeVMip = getEcalToGeVMip("./PandoraMipScale_Calibration.txt")
-        self._outputHcalToGeVMip = getHcalToGeVMip("./PandoraMipScale_Calibration.txt")
-        self._outputMuonToGeVMip = getMuonToGeVMip("./PandoraMipScale_Calibration.txt")
-        removeFile("./PandoraMipScale_Calibration.txt")
+        mipScaleCalibrator = PandoraMipScaleCalibrator()
+        mipScaleCalibrator.setMuonEnergy(10)
+        mipScaleCalibrator.setRootFile(self._pfoOutputFile)
+        mipScaleCalibrator.run()
+
+        self._outputEcalToGeVMip = mipScaleCalibrator.getEcalToGeVMip()
+        self._outputHcalToGeVMip = mipScaleCalibrator.getHcalToGeVMip()
+        self._outputMuonToGeVMip = mipScaleCalibrator.getMuonToGeVMip()
 
 
     def writeOutput(self, config) :

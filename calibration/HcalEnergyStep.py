@@ -12,8 +12,6 @@ class HcalEnergyStep(CalibrationStep) :
     def __init__(self) :
         CalibrationStep.__init__(self, "HcalEnergy")
         self._marlin = None
-        self._hcalEnergyCalibrator = None
-        self._hcalRingEnergyCalibrator = None
 
         self._maxNIterations = 5
         self._energyScaleAccuracy = 0.01
@@ -46,13 +44,6 @@ class HcalEnergyStep(CalibrationStep) :
 
 
     def readCmdLine(self, parsed) :
-        # setup ecal energy calibrator
-        self._hcalEnergyCalibrator = PandoraAnalysisBinary(os.path.join(parsed.pandoraAnalysis, "bin/HCalDigitisation_ContainedEvents"))
-        self._hcalEnergyCalibrator.addArgument("-b", '20')
-
-        self._hcalRingEnergyCalibrator = PandoraAnalysisBinary(os.path.join(parsed.pandoraAnalysis, "bin/HCalDigitisation_DirectionCorrectionDistribution"))
-        self._hcalRingEnergyCalibrator.addArgument('-b', '20')
-
         # setup marlin
         self._marlin = Marlin(parsed.steeringFile)
         gearFile = self._marlin.convertToGear(parsed.compactFile)
@@ -63,7 +54,7 @@ class HcalEnergyStep(CalibrationStep) :
 
         self._maxNIterations = int(parsed.maxNIterations)
         self._energyScaleAccuracy = float(parsed.hcalCalibrationAccuracy)
-        self._inputHcalRingGeometryFactor = float(parsed.hcalRingGeometryFactor)
+        self._inputHcalRingGeometryFactor = self._getGeometry().getHcalGeometryFactor()
 
         self._inputMinCosThetaBarrel, self._inputMaxCosThetaBarrel = self._getGeometry().getHcalBarrelCosThetaRange()
         self._inputMinCosThetaEndcap, self._inputMaxCosThetaEndcap = self._getGeometry().getHcalEndcapCosThetaRange()
@@ -112,6 +103,8 @@ class HcalEnergyStep(CalibrationStep) :
         endcapFactor = self._inputHcalEndcapFactor
 
         pfoAnalysisFile = ""
+        
+        hcalEnergyCalibrator = HcalCalibrator()
 
         for iteration in range(self._maxNIterations) :
 
@@ -135,35 +128,29 @@ class HcalEnergyStep(CalibrationStep) :
 
             # run calibration for barrel
             if not barrelAccuracyReached:
-                self._hcalEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
-                self._hcalEnergyCalibrator.addArgument("-d", "./HCalDigit_Barrel_")
-                self._hcalEnergyCalibrator.addArgument("-g", "Barrel")
-                self._hcalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaBarrel)
-                self._hcalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaBarrel)
-                self._hcalEnergyCalibrator.run()
+                hcalEnergyCalibrator.setRootFile(pfoAnalysisFile)
+                hcalEnergyCalibrator.setKaon0LEnergy(20)
+                hcalEnergyCalibrator.setDetectorRegion("Barrel")
+                hcalEnergyCalibrator.setCosThetaRange(self._inputMinCosThetaBarrel, self._inputMaxCosThetaBarrel)
+                hcalEnergyCalibrator.run()
                 
-                barrelRescaleFactor = getHcalRescalingFactor("./HCalDigit_Barrel_Calibration.txt", 20)
+                newBarrelKaon0LEnergy = hcalEnergyCalibrator.getHcalDigiMean()
+                barrelRescaleFactor = 20 / newBarrelKaon0LEnergy
                 barrelRescaleFactorCumul = barrelRescaleFactorCumul*barrelRescaleFactor
-                barrelCurrentPrecision = abs(1 - 1. / barrelRescaleFactor)
-                newBarrelKaon0LEnergy = getHcalDigiMean("./HCalDigit_Barrel_Calibration.txt")
-                
-                os.rename("./HCalDigit_Barrel_Calibration.txt", "./HCalDigit_Barrel_iter{0}_Calibration.txt".format(iteration))
+                barrelCurrentPrecision = abs(1 - 1. / barrelRescaleFactor)                
 
             # run calibration for endcap
             if not endcapAccuracyReached:
-                self._hcalEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
-                self._hcalEnergyCalibrator.addArgument("-d", "./HCalDigit_EndCap_")
-                self._hcalEnergyCalibrator.addArgument("-g", "EndCap")
-                self._hcalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaEndcap)
-                self._hcalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaEndcap)
-                self._hcalEnergyCalibrator.run()
+                hcalEnergyCalibrator.setRootFile(pfoAnalysisFile)
+                hcalEnergyCalibrator.setKaon0LEnergy(20)
+                hcalEnergyCalibrator.setDetectorRegion("EndCap")
+                hcalEnergyCalibrator.setCosThetaRange(self._inputMinCosThetaEndcap, self._inputMaxCosThetaEndcap)
+                hcalEnergyCalibrator.run()
                 
-                endcapRescaleFactor = getHcalRescalingFactor("./HCalDigit_EndCap_Calibration.txt", 20)
+                newEndcapKaon0LEnergy = hcalEnergyCalibrator.getHcalDigiMean()
+                endcapRescaleFactor = 20 / newEndcapKaon0LEnergy
                 endcapRescaleFactorCumul = endcapRescaleFactorCumul*endcapRescaleFactor
                 endcapCurrentPrecision = abs(1 - 1. / endcapRescaleFactor)
-                newEndcapKaon0LEnergy = getHcalDigiMean("./HCalDigit_EndCap_Calibration.txt")
-
-                os.rename("./HCalDigit_EndCap_Calibration.txt", "./HCalDigit_EndCap_iter{0}_Calibration.txt".format(iteration))
 
             self._logger.info("=============================================")
             self._logger.info("======= Barrel output for iteration {0} =======".format(iteration))
@@ -209,16 +196,14 @@ class HcalEnergyStep(CalibrationStep) :
         if not barrelAccuracyReached or not endcapAccuracyReached :
             raise RuntimeError("{0}: Couldn't reach the user accuracy ({1})".format(self._name, self._energyScaleAccuracy))
 
-        removeFile("./HCalDigit_Ring_Calibration.txt")
-        self._hcalRingEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
-        self._hcalRingEnergyCalibrator.addArgument("-b", '20')
-        self._hcalRingEnergyCalibrator.addArgument("-c", "./HCalDigit_Ring_")
-        self._hcalRingEnergyCalibrator.run()
+        hcalRingCalibrator = HcalRingCalibrator()
+        hcalRingCalibrator.setRootFile(pfoAnalysisFile)
+        hcalRingCalibrator.setKaon0LEnergy(20)
+        hcalRingCalibrator.run()
 
-        directionCorrectionEndcap = getMeanDirCorrHcalEndcap("./HCalDigit_Ring_Calibration.txt")
-        directionCorrectionRing = getMeanDirCorrHcalRing("./HCalDigit_Ring_Calibration.txt")
+        directionCorrectionEndcap = hcalRingCalibrator.getEndcapMeanDirectionCorrection()
+        directionCorrectionRing = hcalRingCalibrator.getRingMeanDirectionCorrection()
         directionCorrectionRatio = directionCorrectionEndcap / directionCorrectionRing
-        removeFile("./HCalDigit_Ring_Calibration.txt")
 
         # compute hcal ring factor
         mipRatio = self._hcalEndcapMip / self._hcalRingMip

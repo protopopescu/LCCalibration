@@ -12,8 +12,6 @@ class EcalEnergyStep(CalibrationStep) :
     def __init__(self) :
         CalibrationStep.__init__(self, "EcalEnergy")
         self._marlin = None
-        self._ecalEnergyCalibrator = None
-        self._ecalRingEnergyCalibrator = None
 
         self._maxNIterations = 5
         self._energyScaleAccuracy = 0.01
@@ -49,14 +47,6 @@ class EcalEnergyStep(CalibrationStep) :
         return "Calculate the constants related to the energy deposit in a ecal cell (unit GeV). Outputs the ecalFactors values"
 
     def readCmdLine(self, parsed) :
-        # setup ecal energy calibrator
-        self._ecalEnergyCalibrator = PandoraAnalysisBinary(os.path.join(parsed.pandoraAnalysis, "bin/ECalDigitisation_ContainedEvents"))
-        self._ecalEnergyCalibrator.addArgument("-b", '10')
-        self._ecalEnergyCalibrator.addArgument("-d", "./ECalDigit_")
-
-        self._ecalRingEnergyCalibrator = PandoraAnalysisBinary(os.path.join(parsed.pandoraAnalysis, "bin/ECalDigitisation_DirectionCorrectionDistribution"))
-        self._ecalRingEnergyCalibrator.addArgument('-b', '10')
-
         # setup marlin
         self._marlin = Marlin(parsed.steeringFile)
         gearFile = self._marlin.convertToGear(parsed.compactFile)
@@ -67,7 +57,7 @@ class EcalEnergyStep(CalibrationStep) :
 
         self._maxNIterations = int(parsed.maxNIterations)
         self._energyScaleAccuracy = float(parsed.ecalCalibrationAccuracy)
-        self._inputEcalRingGeometryFactor = float(parsed.ecalRingGeometryFactor)
+        self._inputEcalRingGeometryFactor = self._getGeometry().getEcalGeometryFactor()
 
         self._inputMinCosThetaBarrel, self._inputMaxCosThetaBarrel = self._getGeometry().getEcalBarrelCosThetaRange()
         self._inputMinCosThetaEndcap, self._inputMaxCosThetaEndcap = self._getGeometry().getEcalEndcapCosThetaRange()
@@ -119,6 +109,8 @@ class EcalEnergyStep(CalibrationStep) :
         ecalEndcapFactor2 = self._inputEcalEndcapFactor2
 
         pfoAnalysisFile = ""
+        
+        ecalCalibrator = EcalCalibrator()
 
         for iteration in range(self._maxNIterations) :
 
@@ -133,47 +125,35 @@ class EcalEnergyStep(CalibrationStep) :
 
             pfoAnalysisFile = "./PfoAnalysis_{0}_iter{1}.root".format(self._name, iteration)
 
-            # run marlin ...
+            # run marlin 
             self._marlin.setProcessorParameter("MyEcalBarrelReco", "calibration_factorsMipGev", "{0} {1}".format(ecalBarrelFactor1, ecalBarrelFactor2))
             self._marlin.setProcessorParameter("MyEcalEndcapReco", "calibration_factorsMipGev", "{0} {1}".format(ecalEndcapFactor1, ecalEndcapFactor2))
             self._marlin.setProcessorParameter("MyPfoAnalysis"   , "RootFile", pfoAnalysisFile)
             self._marlin.run()
 
-            # ... and calibration script
-            removeFile("./ECalDigit_Barrel_Calibration.txt")
-            removeFile("./ECalDigit_EndCap_Calibration.txt")
-
             # run calibration for barrel
             if not barrelAccuracyReached:
-                self._ecalEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
-                self._ecalEnergyCalibrator.addArgument("-d", "./ECalDigit_Barrel_")
-                self._ecalEnergyCalibrator.addArgument("-g", "Barrel")
-                self._ecalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaBarrel)
-                self._ecalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaBarrel)
-                self._ecalEnergyCalibrator.run()
-                            
-                barrelRescaleFactor = getEcalRescalingFactor("./ECalDigit_Barrel_Calibration.txt")
+                ecalCalibrator.setRootFile(pfoAnalysisFile)
+                ecalCalibrator.setDetectorRegion("Barrel")
+                ecalCalibrator.setCosThetaRange(self._inputMinCosThetaBarrel, self._inputMaxCosThetaBarrel)
+                ecalCalibrator.run()
+                
+                newBarrelPhotonEnergy = ecalCalibrator.getEcalDigiMean()
+                barrelRescaleFactor = 10. / newBarrelPhotonEnergy
                 barrelRescaleFactorCumul = barrelRescaleFactorCumul*barrelRescaleFactor
                 barrelCurrentPrecision = abs(1 - 1. / barrelRescaleFactor)
-                newBarrelPhotonEnergy = getEcalDigiMean("./ECalDigit_Barrel_Calibration.txt")
-                
-                os.rename("./ECalDigit_Barrel_Calibration.txt", "./ECalDigit_Barrel_iter{0}_Calibration.txt".format(iteration))
 
             # run calibration for endcap
             if not endcapAccuracyReached:
-                self._ecalEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
-                self._ecalEnergyCalibrator.addArgument("-d", "./ECalDigit_EndCap_")
-                self._ecalEnergyCalibrator.addArgument("-g", "EndCap")
-                self._ecalEnergyCalibrator.addArgument("-i", self._inputMinCosThetaEndcap)
-                self._ecalEnergyCalibrator.addArgument("-j", self._inputMaxCosThetaEndcap)
-                self._ecalEnergyCalibrator.run()
+                ecalCalibrator.setRootFile(pfoAnalysisFile)
+                ecalCalibrator.setDetectorRegion("EndCap")
+                ecalCalibrator.setCosThetaRange(self._inputMinCosThetaBarrel, self._inputMaxCosThetaBarrel)
+                ecalCalibrator.run()
                                 
-                endcapRescaleFactor = getEcalRescalingFactor("./ECalDigit_EndCap_Calibration.txt")
+                newEndcapPhotonEnergy = ecalCalibrator.getEcalDigiMean()
+                endcapRescaleFactor = 10 / newEndcapPhotonEnergy
                 endcapRescaleFactorCumul = endcapRescaleFactorCumul*endcapRescaleFactor
                 endcapCurrentPrecision = abs(1 - 1. / endcapRescaleFactor)
-                newEndcapPhotonEnergy = getEcalDigiMean("./ECalDigit_EndCap_Calibration.txt")
-                
-                os.rename("./ECalDigit_EndCap_Calibration.txt", "./ECalDigit_EndCap_iter{0}_Calibration.txt".format(iteration))
             
             self._logger.info("=============================================")
             self._logger.info("======= Barrel output for iteration {0} =======".format(iteration))
@@ -225,16 +205,13 @@ class EcalEnergyStep(CalibrationStep) :
 
         self._logger.info("{0}: ecal energy accuracy reached !".format(self._name))
 
-        removeFile("./ECalDigit_Ring_Calibration.txt")
-        self._ecalRingEnergyCalibrator.addArgument("-a", pfoAnalysisFile)
-        self._ecalRingEnergyCalibrator.addArgument("-b", '10')
-        self._ecalRingEnergyCalibrator.addArgument("-c", "./ECalDigit_Ring_")
-        self._ecalRingEnergyCalibrator.run()
+        ecalRingCalibrator = EcalRingCalibrator()
+        ecalRingCalibrator.setKaon0LEnergy(20)
+        ecalRingCalibrator.setRootFile(pfoAnalysisFile)
 
-        directionCorrectionEndcap = getMeanDirCorrEcalEndcap("./ECalDigit_Ring_Calibration.txt")
-        directionCorrectionRing = getMeanDirCorrEcalRing("./ECalDigit_Ring_Calibration.txt")
+        directionCorrectionEndcap = ecalRingCalibrator.getEndcapMeanDirectionCorrection()
+        directionCorrectionRing = ecalRingCalibrator.getRingMeanDirectionCorrection()
         directionCorrectionRatio = directionCorrectionEndcap / directionCorrectionRing
-        removeFile("./ECalDigit_Ring_Calibration.txt")
 
         # compute hcal ring factor
         # FIXME Do we have to compute this or not ?

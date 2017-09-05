@@ -15,7 +15,6 @@ class PandoraEMScaleStep(CalibrationStep) :
     def __init__(self) :
         CalibrationStep.__init__(self, "PandoraEMScale")
         self._marlin = None
-        self._emScaleCalibrator = None
 
         self._maxNIterations = 5
         self._energyScaleAccuracy = 0.01
@@ -39,11 +38,6 @@ class PandoraEMScaleStep(CalibrationStep) :
     #     return "Calculate the EcalToGeVMip, HcalToGeVMip and MuonToGeVMip that correspond to the mean reconstructed energy of mip calorimeter hit in the respective detectors"
 
     def readCmdLine(self, parsed) :
-        # setup ecal energy calibrator
-        self._emScaleCalibrator = PandoraAnalysisBinary(os.path.join(parsed.pandoraAnalysis, "bin/PandoraPFACalibrate_EMScale"))
-        self._emScaleCalibrator.addArgument("-b", '10')
-        self._emScaleCalibrator.addArgument("-d", "./PandoraEMScale_")
-
         # setup marlin
         self._marlin = Marlin(parsed.steeringFile)
         gearFile = self._marlin.convertToGear(parsed.compactFile)
@@ -78,6 +72,8 @@ class PandoraEMScaleStep(CalibrationStep) :
 
         ecalToEMGeV = self._inputEcalToEMGeV
         hcalToEMGeV = self._inputHcalToEMGeV
+        
+        emScaleCalibrator = PandoraEMScaleCalibrator()
 
         for iteration in range(self._maxNIterations) :
 
@@ -93,15 +89,14 @@ class PandoraEMScaleStep(CalibrationStep) :
             self._marlin.run()
 
             # ... and calibration script
-            removeFile("./PandoraEMScale_Calibration.txt")
-            self._emScaleCalibrator.addArgument("-a", pfoAnalysisFile)
-            self._emScaleCalibrator.run()
+            emScaleCalibrator.setRootFile(pfoAnalysisFile)
+            emScaleCalibrator.setPhotonEnergy(10)
+            emScaleCalibrator.run()
 
-            newPhotonEnergy = getEcalToEMMean("./PandoraEMScale_Calibration.txt")
+            newPhotonEnergy = emScaleCalibrator.getEcalToEMMean()
             calibrationRescaleFactor = 10. / newPhotonEnergy
             calibrationRescaleFactorCumul = calibrationRescaleFactorCumul*calibrationRescaleFactor
             currentPrecision = abs(1 - 1. / calibrationRescaleFactor)
-            os.rename("./PandoraEMScale_Calibration.txt", "./PandoraEMScale_iter{0}_Calibration.txt".format(iteration))
 
             # write down iteration results
             self._writeIterationOutput(config, iteration, {"precision" : currentPrecision, "rescale" : calibrationRescaleFactor, "newPhotonEnergy" : newPhotonEnergy})
