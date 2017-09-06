@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-"""
+""" Run the Marlin reconstruction for kaon0L needed for calibrating the software compensation (SC) weights.
+    Run the SC weights minimizer on root file output from the PandoraPFA SC training algorithm.
+    @author Remi Ete, DESY
 """
 import os
 import sys
