@@ -1,4 +1,16 @@
+#!/usr/bin/python
 
+""" Runs in parallel 3 ddsim simulation for calibration purpose :
+      - single 10 GeV photon
+      - single 20 GeV kaon0L
+      - single 10 GeV muon
+    Note that to have uniform calibration, the particles must generated 
+    with a uniform or cos(theta) distribution. You can use the
+    steering/ddsim-steering-template.py steering file as template file
+    Note that this script is not designed to generate samples for software
+    compensation calibration purpose
+    @author Remi Ete, DESY
+"""
 
 from calibration.DDSimCalibration import DDSimCalibration
 import os
