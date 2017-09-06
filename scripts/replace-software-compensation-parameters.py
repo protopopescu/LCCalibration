@@ -1,7 +1,14 @@
 #!/usr/bin/python
 
+""" Replace the software compensation (SC) weights in the PandoraPFA xml file.
+    Note that the following xml structure :
+        <SoftwareCompensation>
+          <SoftwareCompensationWeights> ... </SoftwareCompensationWeights>
+        </SoftwareCompensation>
+    has to be present in the PandoraPFA xml file before running this script
+    @author Remi Ete, DESY
 """
-"""
+
 import os
 from tempfile import mkstemp
 import sys
