@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
+""" Extract, from Marlin steering file, parameters that will be used for running the calibration chain
+    @author Remi Ete, DESY
 """
-"""
+
 import os
 import sys
 from shutil import copyfile
@@ -20,19 +22,31 @@ def createCalibrationParameter(tree, processor, name):
     element.text = param
     return element
 
-marlinXmlFile = ""
-outputFile = ""
-
 parser = argparse.ArgumentParser("Extract Marlin steering file parameters for calibration purpose:",
                                      formatter_class=argparse.RawTextHelpFormatter)
 
-parser.add_argument("--steeringFile", action="store", default=marlinXmlFile,
+parser.add_argument("--parameterFile", action="store",
+                        help="A python file containing the parameter list to extract from Marlin xml file", required = True)
+
+parser.add_argument("--steeringFile", action="store",
                         help="The Marlin steering file", required = True)
 
-parser.add_argument("--outputFile", action="store", default=outputFile,
+parser.add_argument("--outputFile", action="store",
                         help="The XML output calibration file", required = True)
 
 parsed = parser.parse_args()
+
+userParameters = []
+
+try:
+    execfile(parsed.parameterFile)
+    userParameters = list(calibrationParameters)
+except NameError as e:
+    print "Couldn't find user parameters in input python file. Definition of 'calibrationParameter' variable is required !"
+    raise e
+except:
+    raise RuntimeError("Error while import user python file !")
+    
 
 xmlParser = etree.XMLParser(remove_blank_text=True)
 xmlTree = etree.parse(parsed.steeringFile, xmlParser)
@@ -41,41 +55,16 @@ rootOutput = etree.Element("calibration")
 inputElement = etree.Element("input")
 rootOutput.append(inputElement)
 
-# calo hit digitizer
-inputElement.append(createCalibrationParameter(xmlTree, "MyEcalBarrelDigi", "calibration_mip"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyEcalEndcapDigi", "calibration_mip"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyEcalRingDigi", "calibration_mip"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyHcalBarrelDigi", "calibration_mip"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyHcalEndcapDigi", "calibration_mip"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyHcalRingDigi", "calibration_mip"))
-
-# calo hit reconstruction
-inputElement.append(createCalibrationParameter(xmlTree, "MyEcalBarrelReco", "calibration_factorsMipGev"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyEcalEndcapReco", "calibration_factorsMipGev"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyEcalRingReco", "calibration_factorsMipGev"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyHcalBarrelReco", "calibration_factorsMipGev"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyHcalEndcapReco", "calibration_factorsMipGev"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyHcalRingReco", "calibration_factorsMipGev"))
-
-# muon calibration
-inputElement.append(createCalibrationParameter(xmlTree, "MySimpleMuonDigi", "CalibrMUON"))
-
-# PandoraPFA constants
-inputElement.append(createCalibrationParameter(xmlTree, "MyDDMarlinPandora", "ECalToMipCalibration"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyDDMarlinPandora", "HCalToMipCalibration"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyDDMarlinPandora", "MuonToMipCalibration"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyDDMarlinPandora", "ECalToEMGeVCalibration"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyDDMarlinPandora", "HCalToEMGeVCalibration"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyDDMarlinPandora", "ECalToHadGeVCalibrationBarrel"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyDDMarlinPandora", "ECalToHadGeVCalibrationEndCap"))
-inputElement.append(createCalibrationParameter(xmlTree, "MyDDMarlinPandora", "HCalToHadGeVCalibration"))
+for param in userParameters:
+    processor = param[0]
+    parameter = param[1]
+    try:
+        inputElement.append(createCalibrationParameter(xmlTree, processor, parameter))
+    except RuntimeError as e:
+        print "!!WARNING!! Processor parameter '{0}/{1}' not found in Marlin xml file. Skipping ...".format(processor, parameter)
 
 # write to output file
 outputTree = etree.ElementTree(rootOutput)
 outputTree.write(parsed.outputFile, pretty_print=True)
-
-
-
-
 
 #
