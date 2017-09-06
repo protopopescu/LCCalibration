@@ -1,7 +1,14 @@
 #!/usr/bin/python
 
+""" Replace Marlin XML parameters by the parameter output from the calibration chain
+    Note that for replacing the parameters, the xml file is not regenerated.
+    By doing so, we avoid xml reformating by the lxml library that will gives
+    a high number of GIT diffs when comparing before and after parameter replacement.
+    Instead, the script is replacing the full line from the original Marlin xml file
+    by a new one with the same indent and a new <parameter> xml element instead.
+    @author Remi Ete, DESY
 """
-"""
+
 import os
 from tempfile import mkstemp
 import sys
