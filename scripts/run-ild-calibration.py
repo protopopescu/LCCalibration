@@ -6,7 +6,7 @@
      - ILD_l4_v02 
      - ILD_s4_v02
      
-    @author : Remi Ete, DESY
+    @author Remi Ete, DESY
 """
 
 from calibration.CalibrationManager import CalibrationManager
