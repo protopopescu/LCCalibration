@@ -1,3 +1,9 @@
+#!/usr/bin/python
+
+""" Utility script that prints the cos theta ranges used for ecal/hcal barrel/endcap
+    event selection while calibrating
+    @author Remi Ete, DESY
+"""
 
 from calibration.GeometryInterface import *
 import argparse
