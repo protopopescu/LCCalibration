@@ -137,9 +137,10 @@ if parsed.runMarlin :
 if not parsed.noMinimizer :
     softwareCompensationCalibrator = PandoraSoftCompCalibrator()
     softwareCompensationCalibrator.setEnergies(parsed.energies)
+    softwareCompensationCalibrator.setDeleteOutputFile(False)
     softwareCompensationCalibrator.setRootFilePattern(parsed.rootFilePattern)
     softwareCompensationCalibrator.setRootTreeName("SoftwareCompensationTrainingTree")
-    softwareCompensationCalibrator.setRunWithTrueEnergy(parsed.minimizeTrueEnergy)    
+    softwareCompensationCalibrator.setRunWithTrueEnergy(parsed.minimizeTrueEnergy)
     softwareCompensationCalibrator.run()
 
 #
