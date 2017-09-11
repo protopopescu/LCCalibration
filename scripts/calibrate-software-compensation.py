@@ -57,7 +57,7 @@ parser.add_argument("--maxRecordNumber", action="store", default=0,
 parser.add_argument("--pandoraSettingsFile", action="store",
                         help="The PandoraPFA xml settings file for software compensation", required = True)
                         
-parser.add_argument("--energies", action="store",
+parser.add_argument("--energies", action="store", nargs='+',
                         help="The input mc energies for software compensation calibration", required = True)
 
 parser.add_argument("--lcioFilePattern", action="store",
@@ -88,11 +88,11 @@ rootFilePattern = parsed.rootFilePattern
 if rootFilePattern.find("%{energy}") == -1 :
     raise RuntimeError("File pattern '{0}' : couldn't find '%{energy}' tag !".format(rootFilePattern))
 
+energyList = parsed.energies
+    
 if parsed.runMarlin :
     marlinMaster = ParallelMarlin()
     marlinMaster.setMaxNParallelInstances(int(parsed.maxParallel))
-
-    energyList = parsed.energies.split()
 
     lcioFilePattern = parsed.lcioFilePattern
     if lcioFilePattern.find("%{energy}") == -1 :
