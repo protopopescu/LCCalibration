@@ -425,8 +425,10 @@ class PandoraSoftCompCalibrator(PandoraAnalysisBinary):
 
     def setEnergies(self, energies):
         if isinstance(energies, str):
+            print "energies : type is str"
             self._setArgument("-e", energies)
         elif isinstance(energies, list):
+            print "energies : type is list"
             self._setArgument("-e", ":".join(energies))
 
     def setRootFilePattern(self, pattern):
