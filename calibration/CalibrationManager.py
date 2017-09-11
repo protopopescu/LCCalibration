@@ -70,13 +70,7 @@ class CalibrationManager(object) :
                                 help="The maximum number of events to process", required = False)
         parser.add_argument("--skipNEvents", action="store", default=0,
                                 help="The number of events to skip", required = False)
-    
-    # TODO Continue this argument parsing 
-    # TODO Refactor in the different steps
-    # TODO Adapt the python main
-    # TODO Refactor for geometry factors
-    # TODO Refactoring for logging
-    # TODO Add a software compensation step + custom arg parsing
+
     
     def _getAdditionalArgs(self, parser, requiredArgs):
         parser.add_argument("--compactFile", action="store",
