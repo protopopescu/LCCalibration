@@ -435,8 +435,8 @@ class PandoraSoftCompCalibrator(PandoraAnalysisBinary):
     def setRootTreeName(self, tree):
         self._setArgument("-t", tree)
     
-    def setSoftCompWeights(self):
-        return self._ecalToHadGeV
+    def getSoftCompWeights(self):
+        return self._softCompWeights
     
     def setRunWithTrueEnergy(self, runWithTrue):
         self._runWithTrueEnergy = runWithTrue
