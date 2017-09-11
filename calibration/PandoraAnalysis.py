@@ -14,6 +14,7 @@ class PandoraAnalysisBinary(object) :
         self._arguments = {}
         self._calibrationFile = ""
         self._outputPath = ""
+        self._deleteOutputFile = True
 
     def _createProcessArgs(self) :
         args = [self._executable]
@@ -46,6 +47,9 @@ class PandoraAnalysisBinary(object) :
         self._outputPath = path
         self._calibrationFile = path + "Calibration.txt"
         self._setArgument(arg, self._outputPath)
+    
+    def setDeleteOutputFile(self, deleteFile):
+        self._deleteOutputFile = deleteFile
 
     def run(self) :
         args = self._createProcessArgs()
@@ -103,7 +107,8 @@ class MipCalibrator(PandoraAnalysisBinary):
         self._hcalRingMip = float(self._getFileContent(self._calibrationFile, 9, 5))
         self._ecalMip = float(self._getFileContent(self._calibrationFile, 10, 4))
         # cleanup again
-        self._removeFile(self._calibrationFile)
+        if self._deleteOutputFile:
+            self._removeFile(self._calibrationFile)
         
 ############################################################
 ############################################################
@@ -147,7 +152,8 @@ class EcalCalibrator(PandoraAnalysisBinary):
         # extract variables
         self._ecalDigiMean = float(self._getFileContent(self._calibrationFile, 11, 4))
         # cleanup again
-        self._removeFile(self._calibrationFile)
+        if self._deleteOutputFile:
+            self._removeFile(self._calibrationFile)
 
 
 
@@ -192,7 +198,8 @@ class EcalRingCalibrator(PandoraAnalysisBinary):
         self._endcapMeanDirectionCorrection = float(self._getFileContent(self._calibrationFile, 4, 5))
         self._ringMeanDirectionCorrection = float(self._getFileContent(self._calibrationFile, 9, 5))
         # cleanup again
-        self._removeFile(self._calibrationFile)
+        if self._deleteOutputFile:
+            self._removeFile(self._calibrationFile)
     
 
 
@@ -238,7 +245,8 @@ class HcalCalibrator(PandoraAnalysisBinary):
         # extract variables
         self._hcalDigiMean = float(self._getFileContent(self._calibrationFile, 9, 5))
         # cleanup again
-        self._removeFile(self._calibrationFile)
+        if self._deleteOutputFile:
+            self._removeFile(self._calibrationFile)
         
 
 ############################################################
@@ -280,7 +288,8 @@ class HcalRingCalibrator(PandoraAnalysisBinary):
         self._endcapMeanDirectionCorrection = float(self._getFileContent(self._calibrationFile, 4, 5))
         self._ringMeanDirectionCorrection = float(self._getFileContent(self._calibrationFile, 9, 5))
         # cleanup again
-        self._removeFile(self._calibrationFile)    
+        if self._deleteOutputFile:
+            self._removeFile(self._calibrationFile)    
 
 ############################################################
 ############################################################
@@ -324,7 +333,8 @@ class PandoraMipScaleCalibrator(PandoraAnalysisBinary):
         self._hcalToGeVMip = float(self._getFileContent(self._calibrationFile, 16, 2))
         self._muonToGeVMip = float(self._getFileContent(self._calibrationFile, 24, 2))
         # cleanup again
-        self._removeFile(self._calibrationFile)  
+        if self._deleteOutputFile:
+            self._removeFile(self._calibrationFile)  
         
 
 ############################################################
@@ -361,7 +371,8 @@ class PandoraEMScaleCalibrator(PandoraAnalysisBinary):
         # extract variables
         self._ecalEMMean = float(self._getFileContent(self._calibrationFile, 9, 3))
         # cleanup again
-        self._removeFile(self._calibrationFile)  
+        if self._deleteOutputFile:
+            self._removeFile(self._calibrationFile)  
 
 
 ############################################################
@@ -403,7 +414,8 @@ class PandoraHadScaleCalibrator(PandoraAnalysisBinary):
         self._ecalToHadGeV = float(self._getFileContent(self._calibrationFile, 5, 2))
         self._hcalToHadGeV = float(self._getFileContent(self._calibrationFile, 6, 2))
         # cleanup again
-        self._removeFile(self._calibrationFile)  
+        if self._deleteOutputFile:
+            self._removeFile(self._calibrationFile)  
 
 
 ############################################################
@@ -455,7 +467,8 @@ class PandoraSoftCompCalibrator(PandoraAnalysisBinary):
             weight = float(self._getFileContent(self._calibrationFile, 8+w, 3))
             self._softCompWeights.append(weight)
         # cleanup again
-        self._removeFile(self._calibrationFile)  
+        if self._deleteOutputFile:
+            self._removeFile(self._calibrationFile)  
         
         
         
