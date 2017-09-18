@@ -10,36 +10,9 @@ from shutil import copyfile
 import argparse
 from calibration.XmlTools import etree
 from calibration.Marlin import *
+from calibration.PandoraXML import *
 from calibration.PandoraAnalysis import PandoraSoftCompCalibrator
 import glob
-
-
-def writeNewPandoraSettings(pandoraSettingsFile, rootFile):
-    xmlParser = etree.XMLParser(remove_blank_text=True)
-    pandoraXmlTree = etree.parse(pandoraSettingsFile, xmlParser)
-    elementList = pandoraXmlTree.xpath("//pandora/algorithm[@type='TrainingSoftwareCompensation']")
-
-    if len(elementList) == 0:
-        raise RuntimeError("Pandora steering file '{0}' doesn't seem to contain any TrainingSoftwareCompensation algorithm !".format(pandoraSettingsFile))
-    
-    softCompAlgorithm = elementList[0]
-    
-    rootOutputElement = softCompAlgorithm.find("MyRootFileName")
-    if rootOutputElement is None:
-        rootOutputElement = etree.Element("MyRootFileName")
-        softCompAlgorithm.append(rootOutputElement)
-    rootOutputElement.text = str(rootFile)
-    
-    treeNameElement = softCompAlgorithm.find("SoftCompTrainingTreeName")
-    if treeNameElement is None:
-        treeNameElement = etree.Element("SoftCompTrainingTreeName")
-        softCompAlgorithm.append(treeNameElement)
-    treeNameElement.text = "SoftwareCompensationTrainingTree"
-    
-    fhandle, tmpPandoraXmlFileName = tempfile.mkstemp(suffix=".xml")
-    pandoraXmlTree.write(tmpPandoraXmlFileName)
-    
-    return tmpPandoraXmlFileName    
         
 
 parser = argparse.ArgumentParser("Run (optionally) the reconstruction chain on single kaon0L particles and calibrate PandoraPFA software compensation weights:",
@@ -99,7 +72,8 @@ if parsed.runMarlin :
         raise RuntimeError("File pattern '{0}' : couldn't find '%{energy}' tag !".format(lcioFilePattern))
 
     steeringFile = parsed.steeringFile
-    pandoraSettingsFile = parsed.pandoraSettingsFile
+    pandora = PandoraSettings(parsed.pandoraSettingsFile)
+    pandora.setRemoveEnergyCorrections(True)
         
     # loop over energies and create marlin instance to run in parallel
     for energy in energyList:
@@ -112,7 +86,9 @@ if parsed.runMarlin :
         
         rootFilePattern = parsed.rootFilePattern
         rootFile = rootFilePattern.replace("%{energy}", str(energy))
-        newPandoraXmlFileName = writeNewPandoraSettings(pandoraSettingsFile, rootFile)
+        
+        pandora.setSoftCompTrainingSettings(rootFile, "SoftwareCompensationTrainingTree")
+        newPandoraXmlFileName = pandora.generateNewXmlFile()
         
         index = rootFile.rfind(".root")
         pfoAnalysisFile = rootFile[:index] + "_PfoAnalysis.root"
