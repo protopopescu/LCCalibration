@@ -6,6 +6,7 @@ from calibration.CalibrationStep import CalibrationStep
 from calibration.Marlin import Marlin
 from calibration.PandoraAnalysis import *
 from calibration.FileTools import *
+from calibration.PandoraXML import *
 import os, sys
 from calibration.XmlTools import etree
 from subprocess import call
@@ -48,6 +49,13 @@ class PandoraEMScaleStep(CalibrationStep) :
 
         self._maxNIterations = int(parsed.maxNIterations)
         self._energyScaleAccuracy = float(parsed.ecalCalibrationAccuracy)
+        
+        # setup pandora settings
+        pandoraSettings = self._marlin.getProcessorParameter("MyDDMarlinPandora", "PandoraSettingsXmlFile")
+        pandora = PandoraXML(pandoraSettings)
+        pandora.setRemoveEnergyCorrections(True)
+        newPandoraSettings = pandora.generateNewXmlFile()
+        self._marlin.setProcessorParameter("MyDDMarlinPandora", "PandoraSettingsXmlFile", newPandoraSettings)
 
     def init(self, config) :
 
