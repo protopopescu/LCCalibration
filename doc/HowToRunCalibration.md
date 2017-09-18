@@ -152,3 +152,61 @@ The first step (step 0) uses the simulated muon sample to find the different pea
 
 
 #
+
+
+-----------
+
+
+# LCCalibration documentation
+- author : Remi Ete, DESY
+- Contact : remi.ete@desy.de
+- Last revision : 09/2017
+
+
+
+## Introduction
+Introduce software : purpose, framework, global things to know
+
+
+
+## Simulation samples for calibration
+### Running ddsim
+Explain how to run ddsim to get the correct simulated files
+
+
+
+## Running the ILD calibration
+### The working principle
+Explain the working principle
+### The ILD calibration steps
+- MipScaleStep : calibrating the mip scale in calorimeters using muons
+- EcalEnergyStep : calibration of photons in Ecal
+- HcalEnergyStep : calibration of kaon0L in Hcal
+- PandoraMipScaleStep : Pandora mip scale using muons
+- PandoraEMScaleStep : Pandora electromagnetic scale in Ecal and Hcal using photons
+- PandoraHadScaleStep : Pandora hadronic scale in Ecal and Hcal using kaon0L
+- Pandora software compensation tunning
+### Things to know in ILD calibration
+List things to know in ILD calibration
+
+
+
+## Using calibrated parameters
+### Replacing Marlin parameters
+Explain how to replace calibration parameters into Marlin steering file
+### Replacing Pandora software compensation settings
+Explain how to replace calibration parameters into Pandora steering file
+
+
+
+
+## Writing your own calibration
+### The calibration parameters
+Explain how to write a python file with calibration parameters
+### Writing a calibration step
+Present the CalibrationStep class and developper API
+### Running your calibration
+Explain how to plug a user calibration step and run the program
+
+
+
