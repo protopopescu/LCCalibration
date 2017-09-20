@@ -6,9 +6,12 @@ import subprocess
 
 
 class MarlinXML(object):
+    gearConversionPlugin = "default"
+    
     def __init__(self, steeringFile=None):
         self._steeringFile = steeringFile
         self._xmlTree = None
+        
 
     def setSteeringFile(self, steeringFile, load=False):
         self._steeringFile = steeringFile
@@ -151,7 +154,7 @@ class MarlinXML(object):
         if os.path.isfile(gearFile) and not force:
             return gearFile
 
-        args = ['convertToGear', 'default', compactFile, gearFile]
+        args = ['convertToGear', gearConversionPlugin, compactFile, gearFile]
         process = subprocess.Popen(args = args)
         if process.wait() :
             raise RuntimeError("Couldn't convert compact file to gear file")
