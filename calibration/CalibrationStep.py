@@ -11,6 +11,7 @@ class CalibrationStep(object) :
         self._logger = logging.getLogger(self._name)
         self._manager = None
         self._requiredArgs = set()
+        self._stepOutputsToLoad = list()
 
     def setManager(self, mgr) :
         self._manager = mgr
@@ -35,6 +36,15 @@ class CalibrationStep(object) :
     
     def requiredArgs(self):
         return self._requiredArgs
+    
+    """ The (optional) steps output to load before processing this step
+    """
+    def setLoadStepOutputs(self, steps):
+        self._stepOutputsToLoad = list(steps)
+        
+    def _loadStepOutputs(self, config):    
+        for step in self._stepOutputsToLoad:
+            self._marlin.loadStepOutputParameters(config, step)
 
     def _cleanupElement(self, tree) :
         elts = tree.xpath("//step[@name='{0}']".format(self._name))
