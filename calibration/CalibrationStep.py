@@ -12,6 +12,9 @@ class CalibrationStep(object) :
         self._manager = None
         self._requiredArgs = set()
         self._stepOutputsToLoad = list()
+        self._pfoAnalysisProcessor =  "MyPfoAnalysis"
+        self._marlinPandoraProcessor = "MyDDMarlinPandora"
+        self._runProcessors = list()
 
     def setManager(self, mgr) :
         self._manager = mgr
@@ -41,6 +44,19 @@ class CalibrationStep(object) :
     """
     def setLoadStepOutputs(self, steps):
         self._stepOutputsToLoad = list(steps)
+    
+    """ Set the pfo analysis processor name in the reco chain
+    """
+    def setPfoAnalysisProcessor(self, pfoAnalysis):
+        self._pfoAnalysisProcessor = str(pfoAnalysis)
+
+    """ Set the processor list to run only
+    """
+    def setRunProcessors(self, processors):
+        self._runProcessors = list(processors)
+    
+    def setMarlinPandoraProcessor(self, processor):
+        self._marlinPandoraProcessor = str(processor)
         
     def _loadStepOutputs(self, config):    
         for step in self._stepOutputsToLoad:
@@ -160,5 +176,4 @@ class CalibrationStep(object) :
     def _requireMuonFile(self):
         self._requiredArgs.add("lcioMuonFile")
     
-
 #
