@@ -122,7 +122,7 @@ class EcalCalibrator(PandoraAnalysisBinary):
         
         # set default values
         self.setPhotonEnergy(10)
-        self._setOutputPath("-c", "./EcalEnergyCalibration_")
+        self._setOutputPath("-d", "./EcalEnergyCalibration_")
         self.setCosThetaRange(0, 1)
         
         # outputs
@@ -215,7 +215,7 @@ class HcalCalibrator(PandoraAnalysisBinary):
         
         # set default values
         self.setKaon0LEnergy(20)
-        self._setOutputPath("-c", "./HcalEnergyCalibration_")
+        self._setOutputPath("-d", "./HcalEnergyCalibration_")
         self.setCosThetaRange(0, 1)
         
         # outputs
@@ -294,12 +294,12 @@ class HcalRingCalibrator(PandoraAnalysisBinary):
 ############################################################
 ############################################################
 """ PandoraMipScaleCalibrator class
-    Implements the interface to the PandoraPFACalibrate_HadronicScale_ChiSquareMethod binary
+    Implements the interface to the PandoraPFACalibrate_MipResponse binary
     from LCPandoraAnalysis package
 """
 class PandoraMipScaleCalibrator(PandoraAnalysisBinary):
     def __init__(self):
-        PandoraAnalysisBinary.__init__(self, "PandoraPFACalibrate_HadronicScale_ChiSquareMethod")
+        PandoraAnalysisBinary.__init__(self, "PandoraPFACalibrate_MipResponse")
         
         # set default values
         self.setMuonEnergy(10)
