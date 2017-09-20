@@ -100,7 +100,7 @@ class MipCalibrator(PandoraAnalysisBinary):
         # cleanup file
         self._removeFile(self._calibrationFile)
         # run binary
-        PandoraAnalysisBinary.run()
+        super(MipCalibrator, self).run()
         # extract variables
         self._hcalBarrelMip = float(self._getFileContent(self._calibrationFile, 7, 5))
         self._hcalEndcapMip = float(self._getFileContent(self._calibrationFile, 8, 5))
@@ -148,7 +148,7 @@ class EcalCalibrator(PandoraAnalysisBinary):
         # cleanup file
         self._removeFile(self._calibrationFile)
         # run
-        PandoraAnalysisBinary.run()
+        super(EcalCalibrator, self).run()
         # extract variables
         self._ecalDigiMean = float(self._getFileContent(self._calibrationFile, 11, 4))
         # cleanup again
@@ -193,7 +193,7 @@ class EcalRingCalibrator(PandoraAnalysisBinary):
         # cleanup file
         self._removeFile(self._calibrationFile)
         # run
-        PandoraAnalysisBinary.run()
+        super(EcalRingCalibrator, self).run()
         # extract variables
         self._endcapMeanDirectionCorrection = float(self._getFileContent(self._calibrationFile, 4, 5))
         self._ringMeanDirectionCorrection = float(self._getFileContent(self._calibrationFile, 9, 5))
@@ -241,7 +241,7 @@ class HcalCalibrator(PandoraAnalysisBinary):
         # cleanup file
         self._removeFile(self._calibrationFile)
         # run
-        PandoraAnalysisBinary.run()
+        super(HcalCalibrator, self).run()
         # extract variables
         self._hcalDigiMean = float(self._getFileContent(self._calibrationFile, 9, 5))
         # cleanup again
@@ -283,7 +283,7 @@ class HcalRingCalibrator(PandoraAnalysisBinary):
         # cleanup file
         self._removeFile(self._calibrationFile)
         # run
-        PandoraAnalysisBinary.run()
+        super(HcalRingCalibrator, self).run()
         # extract variables
         self._endcapMeanDirectionCorrection = float(self._getFileContent(self._calibrationFile, 4, 5))
         self._ringMeanDirectionCorrection = float(self._getFileContent(self._calibrationFile, 9, 5))
@@ -327,7 +327,7 @@ class PandoraMipScaleCalibrator(PandoraAnalysisBinary):
         # cleanup file
         self._removeFile(self._calibrationFile)
         # run
-        PandoraAnalysisBinary.run()
+        super(PandoraMipScaleCalibrator, self).run()
         # extract variables
         self._ecalToGeVMip = float(self._getFileContent(self._calibrationFile, 8, 2))
         self._hcalToGeVMip = float(self._getFileContent(self._calibrationFile, 16, 2))
@@ -367,7 +367,7 @@ class PandoraEMScaleCalibrator(PandoraAnalysisBinary):
         # cleanup file
         self._removeFile(self._calibrationFile)
         # run
-        PandoraAnalysisBinary.run()
+        super(PandoraEMScaleCalibrator, self).run()
         # extract variables
         self._ecalEMMean = float(self._getFileContent(self._calibrationFile, 9, 3))
         # cleanup again
@@ -409,7 +409,7 @@ class PandoraHadScaleCalibrator(PandoraAnalysisBinary):
         # cleanup file
         self._removeFile(self._calibrationFile)
         # run
-        PandoraAnalysisBinary.run()
+        super(PandoraHadScaleCalibrator, self).run()
         # extract variables
         self._ecalToHadGeV = float(self._getFileContent(self._calibrationFile, 5, 2))
         self._hcalToHadGeV = float(self._getFileContent(self._calibrationFile, 6, 2))
@@ -460,7 +460,7 @@ class PandoraSoftCompCalibrator(PandoraAnalysisBinary):
         if self._runWithTrueEnergy:
             self._setArgument("-g")
         # run            
-        PandoraAnalysisBinary.run(self)
+        super(PandoraSoftCompCalibrator, self).run()
         # extract variables
         self._softCompWeights  = []
         for w in range(0, 9):
