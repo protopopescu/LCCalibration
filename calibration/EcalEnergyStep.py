@@ -29,7 +29,6 @@ class EcalEnergyStep(CalibrationStep) :
         
         self._runProcessors = []
         self._pfoAnalysisProcessor = "MyPfoAnalysis"
-        self._loadStepOutputs = []
         self._runRingCalibration = True
         
         # command line requirement
@@ -48,11 +47,6 @@ class EcalEnergyStep(CalibrationStep) :
     """
     def setPfoAnalysisProcessor(self, pfoAnalysis):
         self._pfoAnalysisProcessor = str(pfoAnalysis)
-    
-    """ The (optional) steps output to load before processing this step
-    """
-    def setLoadStepOutputs(self, steps):
-        self._loadStepOutputs = list(steps)
     
     """ Whether to run the ecal ring calibration
     """
@@ -81,7 +75,7 @@ class EcalEnergyStep(CalibrationStep) :
 
     """ Read the command line arguments
     """
-    def readCmdLine(self, parsed) :
+    def readCmdLine(self, parsed):
         # setup marlin
         self._marlin = Marlin(parsed.steeringFile)
         gearFile = self._marlin.convertToGear(parsed.compactFile)
@@ -102,9 +96,7 @@ class EcalEnergyStep(CalibrationStep) :
     def init(self, config) :
         self._cleanupElement(config)
         self._marlin.loadInputParameters(config)
-        
-        for step in self._loadStepOutputs:
-            self._marlin.loadStepOutputParameters(config, step)
+        self._loadStepOutputs(config)
         
         if len(self._runProcessors):
             self._marlin.turnOffProcessorsExcept(self._runProcessors)
