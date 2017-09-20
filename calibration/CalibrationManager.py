@@ -167,12 +167,13 @@ class CalibrationManager(object) :
             for step in self._steps[self._startStep:self._endStep+1] :
                 step.init(self._xmlTree)
                 step.run(self._xmlTree)
-                step.writeOutput(self._outputXmlFile)
+                step.writeOutput(self._xmlTree)
         except RuntimeError as e:
             self._logger.error("Caught exception while running: {0}".format(str(e)))
             self._badRun = True
             self._runException = e
-            self.writeXml(None)
+        
+        self.writeXml(None)
 
     def writeXml(self, xmlFile=None) :
 
