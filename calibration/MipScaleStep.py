@@ -10,7 +10,7 @@ from calibration.XmlTools import etree
 from subprocess import call
 
 
-"""
+""" Base class for mip scale calibration
 """
 class MipScaleStep(CalibrationStep) :
     def __init__(self) :
@@ -22,14 +22,37 @@ class MipScaleStep(CalibrationStep) :
         self._hcalRingMip = 0.
         self._ecalMip = 0.
         
+        self._runProcessors = []
+        self._pfoAnalysisProcessor = "MyPfoAnalysis"
+        self._loadStepOutputs = []
+        
         # set requirements
         self._requireMuonFile()
         self._requireCompactFile()
         self._requireSteeringFile()
+    
+    """ Set the processor list to run only
+    """
+    def setRunProcessors(self, processors):
+        self._runProcessors = list(processors)
+    
+    """ Set the pfo analysis processor name in the reco chain
+    """
+    def setPfoAnalysisProcessor(self, pfoAnalysis):
+        self._pfoAnalysisProcessor = str(pfoAnalysis)
+    
+    """ The (optional) steps output to load before processing this step
+    """
+    def setLoadStepOutputs(self, steps):
+        self._loadStepOutputs = list(steps)
 
+    """ Get the step description
+    """
     def description(self) :
         return "Calculate the mip values from SimCalorimeter collections in the muon lcio file. Outputs ecal mip, hcal barrel mip, hcal endcap mip and hcal ring mip values"
 
+    """ Read command line parsing
+    """
     def readCmdLine(self, parsed) :
         # setup marlin
         self._marlin = Marlin(parsed.steeringFile)
@@ -38,14 +61,23 @@ class MipScaleStep(CalibrationStep) :
         self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(parsed.maxRecordNumber)
         self._marlin.setInputFiles(self._extractFileList(parsed.lcioMuonFile, "slcio"))
-        self._marlin.setPfoAnalysisOutput(self._pfoOutputFile)
+        self._marlin.setProcessorParameter(self._pfoAnalysisProcessor, "RootFile", self._pfoOutputFile)
 
+    """ Initialize the step
+    """
     def init(self, config) :
         self._cleanupElement(config)
         self._marlin.loadInputParameters(config)
+        
+        for step in self._loadStepOutputs:
+            self._marlin.loadStepOutputParameters(config, step)
 
+    """ Run the calibration step
+    """
     def run(self, config) :
-        self._marlin.turnOffProcessorsExcept(["InitDD4hep", "MyPfoAnalysis"])
+        if len(self._runProcessors):
+            self._marlin.turnOffProcessorsExcept(self._runProcessors)
+            
         self._marlin.run()
 
         mipCalibrator = MipCalibrator()
@@ -57,15 +89,80 @@ class MipScaleStep(CalibrationStep) :
         self._hcalRingMip = mipCalibrator.getHcalRingMip()
         self._ecalMip = mipCalibrator.getEcalMip()
 
+    """ Write step output (must be overriden in daughter classes)
+    """ 
     def writeOutput(self, config) :
+        raise RuntimeError("MipScaleStep.writeOutput: method not implemented !")
+
+
+################################################################################
+""" Mip scale calibration step using the barrel/endcap/ring split processors
+"""
+class SplitDigiMipScaleStep(MipScaleStep):
+    def __init__(self) :
+        MipScaleStep.__init__(self)
+        self._ecalDigiNames = ["MyEcalBarrelDigi", "MyEcalEndcapDigi", "MyEcalRingDigi"]
+        self._hcalDigiNames = ["MyHcalBarrelDigi", "MyHcalEndcapDigi", "MyHcalRingDigi"]
+    
+    """ Set the ecal digitizer names. Set None to disable a processor output 
+    """
+    def setEcalDigiNames(self, barrelDigi, endcapDigi, ringDigi):
+        self._ecalDigiNames[0] = barrelDigi if isinstance(barrelDigi, str) else None
+        self._ecalDigiNames[1] = endcapDigi if isinstance(endcapDigi, str) else None
+        self._ecalDigiNames[2] = ringDigi if isinstance(ringDigi, str) else None
+    
+    """ Set the hcal digitizer names. Set None to disable a processor output 
+    """
+    def setHcalDigiNames(self, barrelDigi, endcapDigi, ringDigi):
+        self._hcalDigiNames[0] = barrelDigi if isinstance(barrelDigi, str) else None
+        self._hcalDigiNames[1] = endcapDigi if isinstance(endcapDigi, str) else None
+        self._hcalDigiNames[2] = ringDigi if isinstance(ringDigi, str) else None
+    
+    """ Write calibration step output
+    """ 
+    def writeOutput(self, config):
         # replace previous exports
         output = self._getXMLStepOutput(config, create=True)
-
-        self._writeProcessorParameter(output, "MyEcalBarrelDigi", "calibration_mip", self._ecalMip)
-        self._writeProcessorParameter(output, "MyEcalEndcapDigi", "calibration_mip", self._ecalMip)
-        self._writeProcessorParameter(output, "MyEcalRingDigi",   "calibration_mip", self._ecalMip)
-        self._writeProcessorParameter(output, "MyHcalBarrelDigi", "calibration_mip", self._hcalBarrelMip)
-        self._writeProcessorParameter(output, "MyHcalEndcapDigi", "calibration_mip", self._hcalEndcapMip)
-        self._writeProcessorParameter(output, "MyHcalRingDigi",   "calibration_mip", self._hcalRingMip)
+        
+        if self._ecalDigiNames[0]:
+            self._writeProcessorParameter(output, self._ecalDigiNames[0], "calibration_mip", self._ecalMip)
+        
+        if self._ecalDigiNames[1]:
+            self._writeProcessorParameter(output, self._ecalDigiNames[1], "calibration_mip", self._ecalMip)
+        
+        if self._ecalDigiNames[2]:
+            self._writeProcessorParameter(output, self._ecalDigiNames[2], "calibration_mip", self._ecalMip)
+        
+        if self._hcalDigiNames[0]:
+            self._writeProcessorParameter(output, self._hcalDigiNames[0], "calibration_mip", self._hcalBarrelMip)
+        
+        if self._hcalDigiNames[1]:
+            self._writeProcessorParameter(output, self._hcalDigiNames[1], "calibration_mip", self._hcalEndcapMip)
+        
+        if self._hcalDigiNames[2]:
+            self._writeProcessorParameter(output, self._hcalDigiNames[2], "calibration_mip", self._hcalRingMip)
+            
+            
+################################################################################
+""" Mip scale calibration step based on ILDCaloDigi processor
+"""
+class ILDCaloDigiMipScaleStep(MipScaleStep):
+    def __init__(self) :
+        MipScaleStep.__init__(self)
+        self._ildCaloDigiName = "MyDDCaloDigi"
+    
+    """ Set the ILDCaloDigi processor name
+    """
+    def setILDCaloDigiName(self, name):
+        self._ildCaloDigiName = str(name)
+    
+    """ Write step output
+    """
+    def writeOutput(self, config):
+        # replace previous exports
+        output = self._getXMLStepOutput(config, create=True)
+        
+        self._writeProcessorParameter(output, self._ildCaloDigiName, "CalibECALMIP", self._ecalMip)
+        self._writeProcessorParameter(output, self._ildCaloDigiName, "CalibHCALMIP", (self._hcalBarrelMip + self._hcalEndcapMip)/2.)
 
 #
