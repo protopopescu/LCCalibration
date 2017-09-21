@@ -22,29 +22,10 @@ class MipScaleStep(CalibrationStep) :
         self._hcalRingMip = 0.
         self._ecalMip = 0.
         
-        self._runProcessors = []
-        self._pfoAnalysisProcessor = "MyPfoAnalysis"
-        self._loadStepOutputs = []
-        
         # set requirements
         self._requireMuonFile()
         self._requireCompactFile()
         self._requireSteeringFile()
-    
-    """ Set the processor list to run only
-    """
-    def setRunProcessors(self, processors):
-        self._runProcessors = list(processors)
-    
-    """ Set the pfo analysis processor name in the reco chain
-    """
-    def setPfoAnalysisProcessor(self, pfoAnalysis):
-        self._pfoAnalysisProcessor = str(pfoAnalysis)
-    
-    """ The (optional) steps output to load before processing this step
-    """
-    def setLoadStepOutputs(self, steps):
-        self._loadStepOutputs = list(steps)
 
     """ Get the step description
     """
@@ -68,13 +49,14 @@ class MipScaleStep(CalibrationStep) :
     def init(self, config) :
         self._cleanupElement(config)
         self._marlin.loadInputParameters(config)
-        
-        for step in self._loadStepOutputs:
-            self._marlin.loadStepOutputParameters(config, step)
+        self._loadStepOutputs(config)
 
     """ Run the calibration step
     """
     def run(self, config) :
+        self._marlin.loadInputParameters(config)
+        self._loadStepOutputs(config)
+                
         if len(self._runProcessors):
             self._marlin.turnOffProcessorsExcept(self._runProcessors)
             
