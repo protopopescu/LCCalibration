@@ -15,7 +15,7 @@ from calibration.PandoraAnalysis import PandoraSoftCompCalibrator
 import glob
         
 
-parser = argparse.ArgumentParser("Run (optionally) the reconstruction chain on single kaon0L particles and calibrate PandoraPFA software compensation weights:",
+parser = argparse.ArgumentParser("Run the reconstruction chain on single kaon0L particles and calibrate PandoraPFA software compensation weights:",
                                      formatter_class=argparse.RawTextHelpFormatter)
 
 parser.add_argument("--compactFile", action="store",
@@ -48,8 +48,8 @@ parser.add_argument("--noMinimizer", action="store_true",
 parser.add_argument("--maxParallel", action="store", default=1,
                         help="The maximum number of marlin instance to run in parallel (process)")
 
-parser.add_argument("--minimizeTrueEnergy", action="store_true",
-                        help="Whether to use to mc energy in the software compensation minimizer program (or reconstructed energy)")
+parser.add_argument("--minimizeClusterEnergy", action="store_true",
+                        help="Whether to use to cluster energy in the software compensation minimizer program (default: mc energy)")
 
 parsed = parser.parse_args()
 
@@ -116,7 +116,7 @@ if not parsed.noMinimizer :
     softwareCompensationCalibrator.setDeleteOutputFile(False)
     softwareCompensationCalibrator.setRootFilePattern(parsed.rootFilePattern)
     softwareCompensationCalibrator.setRootTreeName("SoftwareCompensationTrainingTree")
-    softwareCompensationCalibrator.setRunWithTrueEnergy(parsed.minimizeTrueEnergy)
+    softwareCompensationCalibrator.setRunWithClusterEnergy(parsed.minimizeClusterEnergy)
     softwareCompensationCalibrator.run()
 
 #

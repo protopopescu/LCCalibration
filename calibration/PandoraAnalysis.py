@@ -430,7 +430,7 @@ class PandoraSoftCompCalibrator(PandoraAnalysisBinary):
         
         # set default values
         self._setOutputPath("-d", "./PandoraSoftComp_")
-        self._runWithTrueEnergy = False
+        self._runWithClusterEnergy = False
         
         # outputs
         self._softCompWeights = []
@@ -450,14 +450,14 @@ class PandoraSoftCompCalibrator(PandoraAnalysisBinary):
     def getSoftCompWeights(self):
         return self._softCompWeights
     
-    def setRunWithTrueEnergy(self, runWithTrue):
-        self._runWithTrueEnergy = runWithTrue
+    def setRunWithClusterEnergy(self, runWithCluster):
+        self._runWithClusterEnergy = runWithCluster
 
     def run(self):
         # cleanup file
         self._removeFile(self._calibrationFile)
         # last argument added on the fly ...
-        if self._runWithTrueEnergy:
+        if self._runWithClusterEnergy:
             self._setArgument("-g")
         # run            
         super(PandoraSoftCompCalibrator, self).run()
