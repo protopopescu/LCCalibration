@@ -12,18 +12,18 @@ calibrationParameters = []
 # calo hit digitization
 calibrationParameters.append( ("MyEcalBarrelDigi", "calibration_mip") )
 calibrationParameters.append( ("MyEcalEndcapDigi", "calibration_mip") )
-calibrationParameters.append( ("MyEcalRingDigi", "calibration_mip") )
+calibrationParameters.append( ("MyEcalRingDigi",   "calibration_mip") )
 calibrationParameters.append( ("MyHcalBarrelDigi", "calibration_mip") )
 calibrationParameters.append( ("MyHcalEndcapDigi", "calibration_mip") )
-calibrationParameters.append( ("MyHcalRingDigi", "calibration_mip") )
+calibrationParameters.append( ("MyHcalRingDigi",   "calibration_mip") )
 
 # calo hit reconstruction
 calibrationParameters.append( ("MyEcalBarrelReco", "calibration_factorsMipGev") )
 calibrationParameters.append( ("MyEcalEndcapReco", "calibration_factorsMipGev") )
-calibrationParameters.append( ("MyEcalRingReco", "calibration_factorsMipGev") )
+calibrationParameters.append( ("MyEcalRingReco",   "calibration_factorsMipGev") )
 calibrationParameters.append( ("MyHcalBarrelReco", "calibration_factorsMipGev") )
 calibrationParameters.append( ("MyHcalEndcapReco", "calibration_factorsMipGev") )
-calibrationParameters.append( ("MyHcalRingReco", "calibration_factorsMipGev") )
+calibrationParameters.append( ("MyHcalRingReco",   "calibration_factorsMipGev") )
 
 # muon calibration
 calibrationParameters.append( ("MySimpleMuonDigi", "CalibrMUON") )
@@ -37,3 +37,6 @@ calibrationParameters.append( ("MyDDMarlinPandora", "HCalToEMGeVCalibration") )
 calibrationParameters.append( ("MyDDMarlinPandora", "ECalToHadGeVCalibrationBarrel") )
 calibrationParameters.append( ("MyDDMarlinPandora", "ECalToHadGeVCalibrationEndCap") )
 calibrationParameters.append( ("MyDDMarlinPandora", "HCalToHadGeVCalibration") )
+
+
+#
