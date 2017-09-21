@@ -35,8 +35,8 @@ class PandoraEMScaleStep(CalibrationStep) :
         self._requirePhotonFile()
         self._requireECalAccuracy()
 
-    # def description(self):
-    #     return "Calculate the EcalToGeVMip, HcalToGeVMip and MuonToGeVMip that correspond to the mean reconstructed energy of mip calorimeter hit in the respective detectors"
+    def description(self):
+        return "Calibrate the electromagnetic scale of the ecal and the hcal. Outputs the constants ECalToEMGeVCalibration and HCalToEMGeVCalibration"
 
     def readCmdLine(self, parsed) :
         # setup marlin

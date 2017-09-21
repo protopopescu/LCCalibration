@@ -40,8 +40,8 @@ class PandoraHadScaleStep(CalibrationStep) :
         self._requireHCalAccuracy()
         self._requireECalAccuracy()
 
-    # def description(self):
-    #     return "Calculate the EcalToGeVMip, HcalToGeVMip and MuonToGeVMip that correspond to the mean reconstructed energy of mip calorimeter hit in the respective detectors"
+    def description(self):
+        return "Calibrate the hadronic scale of the ecal and the hcal. Outputs the constants ECalToHadGeVCalibrationBarrel, ECalToHadGeVCalibrationEndCap and HCalToHadGeVCalibration"
 
     def readCmdLine(self, parsed) :
         # setup marlin
