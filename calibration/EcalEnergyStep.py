@@ -27,8 +27,6 @@ class EcalEnergyStep(CalibrationStep) :
         self._outputEcalEndcapFactors = None
         self._outputEcalRingFactors = None
         
-        self._runProcessors = []
-        self._pfoAnalysisProcessor = "MyPfoAnalysis"
         self._runRingCalibration = True
         
         # command line requirement
@@ -37,16 +35,6 @@ class EcalEnergyStep(CalibrationStep) :
         self._requireIterations()
         self._requirePhotonFile()
         self._requireECalAccuracy()
-
-    """ Set the processor list to run only
-    """
-    def setRunProcessors(self, processors):
-        self._runProcessors = list(processors)
-        
-    """ Set the pfo analysis processor name in the reco chain
-    """
-    def setPfoAnalysisProcessor(self, pfoAnalysis):
-        self._pfoAnalysisProcessor = str(pfoAnalysis)
     
     """ Whether to run the ecal ring calibration
     """
