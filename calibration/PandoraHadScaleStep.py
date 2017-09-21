@@ -57,29 +57,22 @@ class PandoraHadScaleStep(CalibrationStep) :
         self._hcalEnergyScaleAccuracy = float(parsed.hcalCalibrationAccuracy)
         
         # setup pandora settings
-        pandoraSettings = self._marlin.getProcessorParameter("MyDDMarlinPandora", "PandoraSettingsXmlFile")
+        pandoraSettings = self._marlin.getProcessorParameter(self._marlinPandoraProcessor, "PandoraSettingsXmlFile")
         pandora = PandoraXML(pandoraSettings)
         pandora.setRemoveEnergyCorrections(True)
         newPandoraSettings = pandora.generateNewXmlFile()
-        self._marlin.setProcessorParameter("MyDDMarlinPandora", "PandoraSettingsXmlFile", newPandoraSettings)
+        self._marlin.setProcessorParameter(self._marlinPandoraProcessor, "PandoraSettingsXmlFile", newPandoraSettings)
 
     def init(self, config) :
 
         self._cleanupElement(config)
         self._marlin.loadInputParameters(config)
-        self._marlin.loadStepOutputParameters(config, "MipScale")
-        self._marlin.loadStepOutputParameters(config, "EcalEnergy")
-        self._marlin.loadStepOutputParameters(config, "HcalEnergy")
-        self._marlin.loadStepOutputParameters(config, "PandoraMipScale")
-        self._marlin.loadStepOutputParameters(config, "PandoraEMScale")
-
-        self._inputEcalToHadGeVBarrel = float(self._marlin.getProcessorParameter("MyDDMarlinPandora", "ECalToHadGeVCalibrationBarrel"))
-        self._inputEcalToHadGeVEndcap = float(self._marlin.getProcessorParameter("MyDDMarlinPandora", "ECalToHadGeVCalibrationEndCap"))
-        self._inputHcalToHadGeV = float(self._marlin.getProcessorParameter("MyDDMarlinPandora", "HCalToHadGeVCalibration"))
-
+        self._loadStepOutputs(config)
+        
+        if len(self._runProcessors):
+            self._marlin.turnOffProcessorsExcept(self._runProcessors)
 
     def run(self, config) :
-
         # loop variables
         currentEcalPrecision = 0.
         currentHcalPrecision = 0.
@@ -93,9 +86,9 @@ class PandoraHadScaleStep(CalibrationStep) :
         ecalAccuracyReached = False
         hcalAccuracyReached = False
 
-        ecalToHadGeVBarrel = self._inputEcalToHadGeVBarrel
-        ecalToHadGeVEndcap = self._inputEcalToHadGeVEndcap
-        hcalToHadGeV = self._inputHcalToHadGeV
+        ecalToHadGeVBarrel = float(self._marlin.getProcessorParameter(self._marlinPandoraProcessor, "ECalToHadGeVCalibrationBarrel"))
+        ecalToHadGeVEndcap = float(self._marlin.getProcessorParameter(self._marlinPandoraProcessor, "ECalToHadGeVCalibrationEndCap"))
+        hcalToHadGeV = float(self._marlin.getProcessorParameter(self._marlinPandoraProcessor, "HCalToHadGeVCalibration"))
         
         hadScaleCalibrator = PandoraHadScale()
         
@@ -112,10 +105,10 @@ class PandoraHadScaleStep(CalibrationStep) :
             pfoAnalysisFile = "./PfoAnalysis_{0}_iter{1}.root".format(self._name, iteration)
 
             # run marlin ...
-            self._marlin.setProcessorParameter("MyDDMarlinPandora", "ECalToHadGeVCalibrationBarrel", str(ecalToHadGeVBarrel))
-            self._marlin.setProcessorParameter("MyDDMarlinPandora", "ECalToHadGeVCalibrationEndCap", str(ecalToHadGeVEndcap))
-            self._marlin.setProcessorParameter("MyDDMarlinPandora", "HCalToHadGeVCalibration", str(hcalToHadGeV))
-            self._marlin.setProcessorParameter("MyPfoAnalysis"   ,  "RootFile", pfoAnalysisFile)
+            self._marlin.setProcessorParameter(self._marlinPandoraProcessor, "ECalToHadGeVCalibrationBarrel", str(ecalToHadGeVBarrel))
+            self._marlin.setProcessorParameter(self._marlinPandoraProcessor, "ECalToHadGeVCalibrationEndCap", str(ecalToHadGeVEndcap))
+            self._marlin.setProcessorParameter(self._marlinPandoraProcessor, "HCalToHadGeVCalibration", str(hcalToHadGeV))
+            self._marlin.setProcessorParameter(self._pfoAnalysisProcessor  , "RootFile", pfoAnalysisFile)
             self._marlin.run()
 
             # ... and calibration script
@@ -163,11 +156,10 @@ class PandoraHadScaleStep(CalibrationStep) :
 
 
     def writeOutput(self, config) :
-            
         output = self._getXMLStepOutput(config, create=True)
-        self._writeProcessorParameter(output, "MyDDMarlinPandora", "ECalToHadGeVCalibrationBarrel", self._outputEcalToHadGeVBarrel)
-        self._writeProcessorParameter(output, "MyDDMarlinPandora", "ECalToHadGeVCalibrationEndCap", self._outputEcalToHadGeVEndcap)
-        self._writeProcessorParameter(output, "MyDDMarlinPandora", "HCalToHadGeVCalibration", self._outputHcalToHadGeV)
+        self._writeProcessorParameter(output, self._marlinPandoraProcessor, "ECalToHadGeVCalibrationBarrel", self._outputEcalToHadGeVBarrel)
+        self._writeProcessorParameter(output, self._marlinPandoraProcessor, "ECalToHadGeVCalibrationEndCap", self._outputEcalToHadGeVEndcap)
+        self._writeProcessorParameter(output, self._marlinPandoraProcessor, "HCalToHadGeVCalibration", self._outputHcalToHadGeV)
 
 
 
