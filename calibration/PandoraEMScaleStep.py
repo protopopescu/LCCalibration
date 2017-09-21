@@ -2,7 +2,7 @@
 
 
 
-from calibration.CalibrationStep import CalibrationStep
+from calibration.CalibrationStep import *
 from calibration.Marlin import Marlin
 from calibration.PandoraAnalysis import *
 from calibration.FileTools import *
@@ -51,23 +51,23 @@ class PandoraEMScaleStep(CalibrationStep) :
         self._energyScaleAccuracy = float(parsed.ecalCalibrationAccuracy)
         
         # setup pandora settings
-        pandoraSettings = self._marlin.getProcessorParameter("MyDDMarlinPandora", "PandoraSettingsXmlFile")
+        pandoraSettings = self._marlin.getProcessorParameter(self._marlinPandoraProcessor, "PandoraSettingsXmlFile")
         pandora = PandoraXML(pandoraSettings)
         pandora.setRemoveEnergyCorrections(True)
         newPandoraSettings = pandora.generateNewXmlFile()
-        self._marlin.setProcessorParameter("MyDDMarlinPandora", "PandoraSettingsXmlFile", newPandoraSettings)
+        self._marlin.setProcessorParameter(self._marlinPandoraProcessor, "PandoraSettingsXmlFile", newPandoraSettings)
 
     def init(self, config) :
 
         self._cleanupElement(config)
         self._marlin.loadInputParameters(config)
-        self._marlin.loadStepOutputParameters(config, "MipScale")
-        self._marlin.loadStepOutputParameters(config, "EcalEnergy")
-        self._marlin.loadStepOutputParameters(config, "HcalEnergy")
-        self._marlin.loadStepOutputParameters(config, "PandoraMipScale")
+        self._loadStepOutputs(config)
+        
+        if len(self._runProcessors):
+            self._marlin.turnOffProcessorsExcept(self._runProcessors)
 
-        self._inputEcalToEMGeV = float(self._marlin.getProcessorParameter("MyDDMarlinPandora", "ECalToEMGeVCalibration"))
-        self._inputHcalToEMGeV = float(self._marlin.getProcessorParameter("MyDDMarlinPandora", "HCalToEMGeVCalibration"))
+        self._inputEcalToEMGeV = float(self._marlin.getProcessorParameter(self._marlinPandoraProcessor, "ECalToEMGeVCalibration"))
+        self._inputHcalToEMGeV = float(self._marlin.getProcessorParameter(self._marlinPandoraProcessor, "HCalToEMGeVCalibration"))
 
 
     def run(self, config) :
@@ -91,9 +91,9 @@ class PandoraEMScaleStep(CalibrationStep) :
             pfoAnalysisFile = "./PfoAnalysis_{0}_iter{1}.root".format(self._name, iteration)
 
             # run marlin ...
-            self._marlin.setProcessorParameter("MyDDMarlinPandora", "ECalToEMGeVCalibration", str(ecalToEMGeV))
-            self._marlin.setProcessorParameter("MyDDMarlinPandora", "HCalToEMGeVCalibration", str(hcalToEMGeV))
-            self._marlin.setProcessorParameter("MyPfoAnalysis"   ,  "RootFile", pfoAnalysisFile)
+            self._marlin.setProcessorParameter(self._marlinPandoraProcessor, "ECalToEMGeVCalibration", str(ecalToEMGeV))
+            self._marlin.setProcessorParameter(self._marlinPandoraProcessor, "HCalToEMGeVCalibration", str(hcalToEMGeV))
+            self._marlin.setProcessorParameter(self._pfoAnalysisProcessor  , "RootFile", pfoAnalysisFile)
             self._marlin.run()
 
             # ... and calibration script
@@ -127,8 +127,8 @@ class PandoraEMScaleStep(CalibrationStep) :
     def writeOutput(self, config) :
 
         output = self._getXMLStepOutput(config, create=True)
-        self._writeProcessorParameter(output, "MyDDMarlinPandora", "ECalToEMGeVCalibration", self._outputEcalToEMGeV)
-        self._writeProcessorParameter(output, "MyDDMarlinPandora", "HCalToEMGeVCalibration", self._outputHcalToEMGeV)
+        self._writeProcessorParameter(output, self._marlinPandoraProcessor, "ECalToEMGeVCalibration", self._outputEcalToEMGeV)
+        self._writeProcessorParameter(output, self._marlinPandoraProcessor, "HCalToEMGeVCalibration", self._outputHcalToEMGeV)
 
 
 
