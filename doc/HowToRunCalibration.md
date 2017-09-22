@@ -157,10 +157,13 @@ This will produced a XML file called "*calibration-ild.xml*", with the following
 
 This file is used as an interface between the user and the different calibration steps performed all along your calibration. The calibration constants will be written in this file each time you process a new calibration step.
 
-Before going ahead, make sure you have initialized the ILCSoft environment :
+Before going ahead, make sure you have initialized the ILCSoft and LCCalibration environments :
 
 ```shell
 source /path/to/ilcsoft/init_ilcsoft.sh
+# you have to be in the root directory to source the init.sh file
+cd /path/to/LCCalibration
+source init.sh
 ``` 
 
 and you have all steering files in the correct location. 
