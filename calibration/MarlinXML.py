@@ -76,6 +76,8 @@ class MarlinXML(object):
             raise RuntimeError("MarlinXML.getProcessorParameter: Steering file not loaded, couldn't get parameter")
 
         element = self._xmlTree.xpath("//marlin/processor[@name='{0}']/parameter[@name='{1}']".format(processor, parameter))
+        element.extend(self._xmlTree.xpath("//marlin/group/processor[@name='{0}']/parameter[@name='{1}']".format(processor, parameter)))
+        
         if element:
             element = element[0]
         else:
