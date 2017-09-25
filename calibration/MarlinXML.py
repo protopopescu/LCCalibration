@@ -195,6 +195,14 @@ class MarlinXML(object):
         if process.wait() :
             raise RuntimeError("Couldn't convert compact file to gear file")
         return gearFile
+    
+    def _getExecuteProcessors(self, element):
+        processors = element.findall("processor")
+        ifelements = element.findall("if")
+        for elt in ifelements:
+            processors.extend( self._getExecuteProcessors(elt) )
+        return processors
+        
 
     """ Turn off the target list of processors
         This method removes entries in the <execute> marlin xml element
@@ -206,7 +214,8 @@ class MarlinXML(object):
         if not self._xmlTree:
             raise RuntimeError("MarlinXML.turnOffProcessors: Steering file not loaded, couldn't turn off processors")
 
-        registeredProcessors = self._xmlTree.xpath("//marlin/execute/processor")
+        execute = self._xmlTree.xpath("//marlin/execute")[0]
+        registeredProcessors = self._getExecuteProcessors(execute)
         processorsToRemove = []
 
         for regProcessor in registeredProcessors:
@@ -231,7 +240,8 @@ class MarlinXML(object):
         if not self._xmlTree:
             raise RuntimeError("MarlinXML.turnOffProcessorsExcept: Steering file not loaded, couldn't turn off processors")
 
-        registeredProcessors = self._xmlTree.xpath("//marlin/execute/processor")
+        execute = self._xmlTree.xpath("//marlin/execute")[0]
+        registeredProcessors = self._getExecuteProcessors(execute)
         processorsToRemove = []
 
         for regProcessor in registeredProcessors:
