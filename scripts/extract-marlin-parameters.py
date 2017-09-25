@@ -12,6 +12,7 @@ from calibration.XmlTools import etree
 
 def getProcessorParameter(tree, processor, name):
     elt = tree.xpath("//marlin/processor[@name='{0}']/parameter[@name='{1}']".format(processor, name))
+    elt.extend( tree.xpath("//marlin/group/processor[@name='{0}']/parameter[@name='{1}']".format(processor, name)) )
     if not elt:
         raise RuntimeError("Parameter '{0}' for processor '{1}' not found in xml file".format(name, processor))
     return elt[0].text
