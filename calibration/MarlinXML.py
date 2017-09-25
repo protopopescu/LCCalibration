@@ -26,6 +26,39 @@ class MarlinXML(object):
 
         xmlParser = etree.XMLParser(remove_blank_text=True)
         self._xmlTree = etree.parse(self._steeringFile, xmlParser)
+        
+        # process include elements
+        self._processIncludes(self._xmlTree.getroot())
+        
+    def _processIncludes(self, element):
+        childs = list(element.getchildren())
+        for child in childs:
+            if child.tag == "include":
+                print "toto"
+                ref = child.get("ref")
+                if not ref.endswith(".xml"):
+                    raise etree.ParseError("Invalid include element !")
+                finclude = ""
+                if os.path.isabs(ref):
+                    finclude = ref
+                else:
+                    fpath = os.path.dirname(self._steeringFile)
+                    finclude = os.path.join(fpath, ref)
+                    
+                print "{0}".format(finclude)
+                # parse the include file
+                xmlParser = etree.XMLParser(remove_blank_text=True)
+                xmlTree = etree.parse(finclude, xmlParser)
+                # add all elements
+                addnext = child
+                for subelt in xmlTree.iter():
+                    addnext.addnext(subelt)
+                    addnext = subelt
+                    # remove include element from parent element
+                element.remove(child)
+            else:
+                print "element {0} not an include".format(child.tag)
+                self._processIncludes(child)
 
     """ Load processor parameters from a calibration xml tree
         Usage : loadParameter(xmlTree, "//input")
