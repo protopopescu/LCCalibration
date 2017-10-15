@@ -3,9 +3,9 @@
 """ Implementation of standard calibration procedure for ILD models with current
     ILDConfig and Marlin reconstruction chain.
     Script used for calibrating ILD models such as :
-     - ILD_l4_v02 
+     - ILD_l4_v02
      - ILD_s4_v02
-     
+
     @author Remi Ete, DESY
 """
 
@@ -17,6 +17,7 @@ from calibration.HcalEnergyStep import *
 from calibration.PandoraMipScaleStep import *
 from calibration.PandoraEMScaleStep import *
 from calibration.PandoraHadScaleStep import *
+from calibration.PandoraSoftCompStep import *
 
 
 if __name__ == "__main__":
@@ -26,9 +27,30 @@ if __name__ == "__main__":
     runEcalRingCalibration = True
     runHcalRingCalibration = True
     stepNames = []
-    
+
     # Create the calibration manager and configure it
     manager = CalibrationManager()
+
+    # Add custom cmd line arguments for PandoraPFA software compensation step
+    parser = manager.getArgParser()
+
+    parser.add_argument("--energies", action="store", nargs='+',
+                            help="The input mc energies for software compensation calibration", required = True)
+
+    parser.add_argument("--lcioFilePattern", action="store",
+                            help="The LCIO input file pattern for soft comp. Must contains '%%{energy}' string to match energy to file. Example : 'File_%%{energy}GeV*.slcio'", required = True)
+    #
+    parser.add_argument("--rootFilePattern", action="store",
+                            help="The root input/output file pattern for soft comp. Must contains '%%{energy}' string to match energy to file. Example : 'SoftComp_%%{energy}GeV*.root'", required = True)
+
+    parser.add_argument("--runMarlin", action="store_true",
+                            help="Whether to run marlin reconstruction before calibration of software compensation weights")
+
+    parser.add_argument("--runMinimizer", action="store_true",
+                            help="Whether to run software compensation weights minimization")
+
+    parser.add_argument("--maxParallel", action="store", default=1,
+                            help="The maximum number of marlin instance to run in parallel (process) for soft comp")
 
     # mip scale for all detectors
     mipScaleStep = SplitDigiMipScaleStep()
@@ -58,7 +80,7 @@ if __name__ == "__main__":
     ecalEnergyStep.setMarlinPandoraProcessor(pandoraProcessor)
     ecalEnergyStep.setRunEcalRingCalibration(runEcalRingCalibration)
     manager.addStep( ecalEnergyStep )
-    
+
     # Hcal calibration
     hcalEnergyStep = SplitRecoHcalEnergyStep()
     hcalEnergyStep.setLoadStepOutputs(list(stepNames))
@@ -96,7 +118,7 @@ if __name__ == "__main__":
     pandoraMipScaleStep.setPfoAnalysisProcessor(pfoAnalysisProcessor)
     pandoraMipScaleStep.setMarlinPandoraProcessor(pandoraProcessor)
     manager.addStep( pandoraMipScaleStep )
-    
+
     # Pandora EM scale calibration
     pandoraEMScaleStep = PandoraEMScaleStep()
     pandoraEMScaleStep.setLoadStepOutputs(list(stepNames))
@@ -104,7 +126,7 @@ if __name__ == "__main__":
     pandoraEMScaleStep.setPfoAnalysisProcessor(pfoAnalysisProcessor)
     pandoraEMScaleStep.setMarlinPandoraProcessor(pandoraProcessor)
     manager.addStep( pandoraEMScaleStep )
-        
+
     # Pandora hadronic scale calibration
     pandoraHadScaleStep = PandoraHadScaleStep()
     pandoraHadScaleStep.setLoadStepOutputs(list(stepNames))
@@ -112,6 +134,13 @@ if __name__ == "__main__":
     pandoraHadScaleStep.setPfoAnalysisProcessor(pfoAnalysisProcessor)
     pandoraHadScaleStep.setMarlinPandoraProcessor(pandoraProcessor)
     manager.addStep( pandoraHadScaleStep )
+
+    pandoraSoftCompStep = PandoraSoftCompStep()
+    pandoraSoftCompStep.setLoadStepOutputs(list(stepNames))
+    stepNames.append(pandoraHadScaleStep.name())
+    pandoraSoftCompStep.setPfoAnalysisProcessor(pfoAnalysisProcessor)
+    pandoraSoftCompStep.setMarlinPandoraProcessor(pandoraProcessor)
+    manager.addStep( pandoraSoftCompStep )
 
     manager.run()
 
