@@ -73,10 +73,13 @@ energy=$4
 
 source /afs/desy.de/project/ilcsoft/sw/x86_64_gcc49_sl6/${ilcsoft}/init_ilcsoft.sh
 
-outputFile=ddsim-s${ilcsoft}-G${detector}-P${particle}-E${energy}-ILDCalibration.slcio
-compactFile=$lcgeo_DIR/ILD/compact/${detector}/${detector}.xml
 outputDirectory=/nfs/dust/ilc/group/ild/calibration/ddsim
+outputFile=${outputDirectory}/ddsim-s${ilcsoft}-G${detector}-P${particle}-E${energy}-ILDCalibration.slcio
+compactFile=$lcgeo_DIR/ILD/compact/${detector}/${detector}.xml
 steeringFile=./steering/ddsim-steering-template.py
+
+# Make sure the output directory exists
+mkdir -p ${outputDirectory}
 
 ddsim --compactFile ${compactFile} \
   --steeringFile ${steeringFile} \
@@ -91,7 +94,3 @@ ddsim --compactFile ${compactFile} \
   --gun.phiMax 3.1415 \
   --gun.thetaMin 0 \
   --gun.thetaMax 3.1415
-
-# Save output
-mkdir -p ${outputDirectory}
-mv ${outputFile} ${outputDirectory}
