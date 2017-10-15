@@ -76,7 +76,7 @@ source /afs/desy.de/project/ilcsoft/sw/x86_64_gcc49_sl6/${ilcsoft}/init_ilcsoft.
 outputFile=ddsim-s${ilcsoft}-G${detector}-P${particle}-E${energy}-ILDCalibration.slcio
 compactFile=$lcgeo_DIR/ILD/compact/${detector}/${detector}.xml
 outputDirectory=/nfs/dust/ilc/group/ild/calibration/ddsim
-steeringFile=$LCCALIBRATION_DIR/steering/ddsim-steering-template.py
+steeringFile=./steering/ddsim-steering-template.py
 
 ddsim --compactFile ${compactFile} \
   --steeringFile ${steeringFile} \
