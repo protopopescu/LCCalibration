@@ -37,6 +37,7 @@ calibrationParameters.append( ("MyDDMarlinPandora", "HCalToEMGeVCalibration") )
 calibrationParameters.append( ("MyDDMarlinPandora", "ECalToHadGeVCalibrationBarrel") )
 calibrationParameters.append( ("MyDDMarlinPandora", "ECalToHadGeVCalibrationEndCap") )
 calibrationParameters.append( ("MyDDMarlinPandora", "HCalToHadGeVCalibration") )
+calibrationParameters.append( ("MyDDMarlinPandora", "SoftwareCompensationWeights") )
 
 
 #
