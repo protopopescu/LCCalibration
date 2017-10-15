@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # Create the calibration manager and configure it
     manager = CalibrationManager()
 
-    # Add custom cmd line arguments for PandoraPFA software compensation step
+    # Add custom cmd line arguments for PandoraPFA software compensation
     parser = manager.getArgParser()
 
     parser.add_argument("--energies", action="store", nargs='+',
