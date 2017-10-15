@@ -1,0 +1,17 @@
+#!/bin/bash
+
+ilcsoft=$1
+detector=$2
+script=$LCCALIBRATION_DIR/nafhh/ddsim/run-single-particle
+
+# submit photon sim
+qsub ${script} ${ilcsoft} ${detector} gamma 10
+
+# submit muon sim
+qsub ${script} ${ilcsoft} ${detector} mu- 10
+
+# submit kaon0L sim
+for energy in 10 20 30 40 50 60 70 80 90
+do
+  qsub ${script} ${ilcsoft} ${detector} kaon0L ${energy}
+done
