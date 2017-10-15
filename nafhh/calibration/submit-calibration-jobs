@@ -1,0 +1,9 @@
+#!/bin/bash
+
+ilcsoft=$1
+ildconfig=$2
+detector=$3
+script=$LCCALIBRATION_DIR/nafhh/calibration/run-calibration
+
+# submit photon sim
+qsub ${script} ${ilcsoft} ${ildconfig} ${detector}
