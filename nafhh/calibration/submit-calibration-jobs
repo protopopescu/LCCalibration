@@ -5,5 +5,5 @@ ildconfig=$2
 detector=$3
 script=$LCCALIBRATION_DIR/nafhh/calibration/run-calibration
 
-# submit photon sim
+# submit calibration job
 qsub ${script} ${ilcsoft} ${ildconfig} ${detector}
