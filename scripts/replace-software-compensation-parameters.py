@@ -14,7 +14,7 @@ from tempfile import mkstemp
 import sys
 from shutil import move
 import argparse
-from calibration.XmlTools import etree
+from calibration.XmlTools import *
 from calibration.FileTools import *
 
 def whitespacePrefix(line):
@@ -48,7 +48,7 @@ softwareCompensationWeightsStr = " ".join(softwareCompensationWeights)
 print "Software compensation weights : {0}".format(softwareCompensationWeightsStr)
 
 # open pandora xml file
-xmlParser = etree.XMLParser(remove_blank_text=True)
+xmlParser = createXMLParser()
 pandoraXmlTree = etree.parse(parsed.pandoraSettings, xmlParser)
 
 # open pandora xml as raw file to replace just the needed lines

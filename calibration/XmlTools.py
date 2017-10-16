@@ -29,3 +29,9 @@ except ImportError:
                         print("running with cElementTree")
                     except ImportError:
                         print("Failed to import ElementTree from any known place")
+
+def createXMLParser():
+    if etree.LXML_VERSION >= (3, 2, 1, 0):
+        return etree.XMLParser(remove_blank_text=True)
+    else :
+        return etree.XMLParser()

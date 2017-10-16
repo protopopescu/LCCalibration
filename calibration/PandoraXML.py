@@ -1,6 +1,6 @@
 
 
-from calibration.XmlTools import etree
+from calibration.XmlTools import *
 import os
 import subprocess
 import tempfile
@@ -90,7 +90,7 @@ class PandoraXML(object) :
     """ Load the pandora xml file
     """ 
     def _loadXmlFile(self) :
-        xmlParser = etree.XMLParser(remove_blank_text=True)
+        xmlParser = createXMLParser()
         self._fileName = self._fileName.strip()
         self._xmlTree = etree.parse(self._fileName, xmlParser)
         

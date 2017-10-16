@@ -8,7 +8,7 @@ import os
 import sys
 from shutil import copyfile
 import argparse
-from calibration.XmlTools import etree
+from calibration.XmlTools import *
 
 def getProcessorParameter(tree, processor, name):
     elt = tree.xpath("//marlin/processor[@name='{0}']/parameter[@name='{1}']".format(processor, name))
@@ -49,7 +49,7 @@ except:
     raise RuntimeError("Error while import user python file !")
     
 
-xmlParser = etree.XMLParser(remove_blank_text=True)
+xmlParser = createXMLParser()
 xmlTree = etree.parse(parsed.steeringFile, xmlParser)
 
 rootOutput = etree.Element("calibration")

@@ -2,14 +2,14 @@
 
 from math import *
 import os
-from calibration.XmlTools import etree
+from calibration.XmlTools import *
 import subprocess
 
 class GeometryInterface(object) :
     def __init__(self, compactFile):
         self._compactFile = compactFile
         self._gearFile = self._convertToGear(self._compactFile)
-        parser = etree.XMLParser(remove_blank_text=True)
+        parser = createXMLParser()
         self._xmlTree = etree.parse(self._gearFile, parser)
     
     """ Convert the compact file to gear file using 'convertToGear' binary

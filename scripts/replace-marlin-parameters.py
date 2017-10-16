@@ -14,7 +14,7 @@ from tempfile import mkstemp
 import sys
 from shutil import move
 import argparse
-from calibration.XmlTools import etree
+from calibration.XmlTools import *
 
 """ Helper function to get a specific xml element given a processor name and a parameter name
 """
@@ -53,7 +53,7 @@ parsed = parser.parse_args()
 outputFile = parsed.steeringFile if not parsed.newSteeringFile else parsed.newSteeringFile
 
 # open calibration and marlin xml files
-xmlParser = etree.XMLParser(remove_blank_text=True)
+xmlParser = createXMLParser()
 marlinXmlTree = etree.parse(parsed.steeringFile, xmlParser)
 calibrationXmlTree = etree.parse(parsed.inputFile, xmlParser)
 

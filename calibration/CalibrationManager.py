@@ -6,7 +6,7 @@ from calibration.PandoraAnalysis import *
 from calibration.FileTools import *
 from calibration.GeometryInterface import GeometryInterface
 import os, sys
-from calibration.XmlTools import etree
+from calibration.XmlTools import *
 import argparse
 import logging
 
@@ -150,7 +150,7 @@ class CalibrationManager(object) :
         
         self._xmlFile = parsed.inputCalibrationFile
         self._outputXmlFile = parsed.outputCalibrationFile if parsed.outputCalibrationFile else parsed.inputCalibrationFile
-        parser = etree.XMLParser(remove_blank_text=True)
+        parser = createXMLParser()
         self._xmlTree = etree.parse(self._xmlFile, parser)
         self._geometry = GeometryInterface(parsed.compactFile)
             

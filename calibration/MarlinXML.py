@@ -1,6 +1,6 @@
 
 import os
-from calibration.XmlTools import etree
+from calibration.XmlTools import *
 import tempfile
 import subprocess
 
@@ -24,7 +24,7 @@ class MarlinXML(object):
         if not self._steeringFile:
             raise RuntimeError("MarlinXML.loadSteeringfile: steering file not set !")
 
-        xmlParser = etree.XMLParser(remove_blank_text=True)
+        xmlParser = createXMLParser()
         self._xmlTree = etree.parse(self._steeringFile, xmlParser)
         
         # process include elements
