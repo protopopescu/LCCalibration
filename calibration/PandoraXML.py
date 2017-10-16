@@ -91,6 +91,7 @@ class PandoraXML(object) :
     """ 
     def _loadXmlFile(self) :
         xmlParser = etree.XMLParser(remove_blank_text=True)
+        self._fileName = self._fileName.strip()
         self._xmlTree = etree.parse(self._fileName, xmlParser)
         
     """ Remove the energy correction settings from the xml tree
