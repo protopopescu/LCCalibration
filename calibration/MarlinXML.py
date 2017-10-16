@@ -34,7 +34,6 @@ class MarlinXML(object):
         childs = list(element.getchildren())
         for child in childs:
             if child.tag == "include":
-                print "toto"
                 ref = child.get("ref")
                 if not ref.endswith(".xml"):
                     raise etree.ParseError("Invalid include element !")
@@ -57,7 +56,6 @@ class MarlinXML(object):
                     # remove include element from parent element
                 element.remove(child)
             else:
-                print "element {0} not an include".format(child.tag)
                 self._processIncludes(child)
 
     """ Load processor parameters from a calibration xml tree
