@@ -69,10 +69,14 @@ ilcsoft=$1
 ildconfig=$2
 detector=$3
 
+source /afs/desy.de/project/ilcsoft/sw/x86_64_gcc49_sl6/${ilcsoft}/init_ilcsoft.sh
+
 #ildconfig_DIR=/afs/desy.de/project/ilcsoft/sw/ILDConfig/${ildconfig}
 ildconfig_DIR=/nfs/dust/ilc/group/ild/calibration/ILDConfig/${ildconfig}
 outputDirectory=/nfs/dust/ilc/group/ild/calibration/calibration
+checkPlotsOutputDirectory=${outputDirectory}/checkPlots-s${ilcsoft}-G${detector}
 calibrationFile=${outputDirectory}/calibration-s${ilcsoft}-G${detector}-ILDCalibration.xml
+outputSteeringFile=bbudsc_3evt_stdreco_dd4hep-s${ilcsoft}-G${detector}-calibrated.xml
 compactFile=$lcgeo_DIR/ILD/compact/${detector}/${detector}.xml
 photonFile=/nfs/dust/ilc/group/ild/calibration/ddsim/ddsim-s${ilcsoft}-G${detector}-Pgamma-E10-ILDCalibration.slcio
 muonFile=/nfs/dust/ilc/group/ild/calibration/ddsim/ddsim-s${ilcsoft}-G${detector}-Pmu--E10-ILDCalibration.slcio
@@ -113,16 +117,57 @@ python ${LCCalibration_DIR}/scripts/run-ild-calibration.py \
   --lcioKaon0LFile ${kaon0LFile} \
   --endStep 5
 
-# Run software compensation calibration
-# python ${LCCalibration_DIR}/scripts/run-ild-calibration.py \
-#   --calibrationFile ${calibrationFile} \
-#   --compactFile ${compactFile} \
-#   --steeringFile bbudsc_3evt_stdreco_dd4hep.xml \
-#   --energies ${softCompEnergies} \
-#   --lcioFilePattern ${softCompLcioFiles} \
-#   --rootFilePattern ${softCompRootFiles} \
-#   --runMarlin \
-#   --runMinimizer \
-#   --maxParallel 4
+python ${LCCalibration_DIR}/scripts/replace-marlin-parameters.py \
+  --steeringFile bbudsc_3evt_stdreco_dd4hep.xml \
+  --inputFile ${calibrationFile} \
+  --newSteeringFile ${outputDirectory}/${outputSteeringFile}
+
+########################################
+# Save output files for further analysis
+mkdir -p ${checkPlotsOutputDirectory}
+
+# All root files first
+mv PfoAnalysis_MipScale.root ${checkPlotsOutputDirectory}
+mv PfoAnalysis_EcalEnergy_iter*.root ${checkPlotsOutputDirectory}
+mv PfoAnalysis_HcalEnergy_iter*.root ${checkPlotsOutputDirectory}
+mv PfoAnalysis_MipScale.root ${checkPlotsOutputDirectory}
+mv PfoAnalysis_PandoraEMScale_iter*.root ${checkPlotsOutputDirectory}
+mv PfoAnalysis_PandoraHadScale_iter*.root ${checkPlotsOutputDirectory}
+
+# Check plots from mip scale step
+mv SimCaloHitEnergyDistribution_Direction_Corrected_SimCalorimeterHit_Energy_Distribution_ECal_10_GeV_Muons.C ${checkPlotsOutputDirectory}
+mv SimCaloHitEnergyDistribution_Direction_Corrected_SimCalorimeterHit_Energy_Distribution_ECal_10_GeV_Muons.png ${checkPlotsOutputDirectory}
+mv SimCaloHitEnergyDistribution_Direction_Corrected_SimCalorimeterHit_Energy_Distribution_HCal_10_GeV_Muons.C ${checkPlotsOutputDirectory}
+mv SimCaloHitEnergyDistribution_Direction_Corrected_SimCalorimeterHit_Energy_Distribution_HCal_10_GeV_Muons.png ${checkPlotsOutputDirectory}
+
+# Check plots from ecal energy step
+mv EcalEnergyCalibration_Calorimeter_Hit_Energies_ECal_Barrel_Digitisation.C ${checkPlotsOutputDirectory}
+mv EcalEnergyCalibration_Calorimeter_Hit_Energies_ECal_Barrel_Digitisation.png ${checkPlotsOutputDirectory}
+mv EcalEnergyCalibration_Calorimeter_Hit_Energies_ECal_EndCap_Digitisation.C ${checkPlotsOutputDirectory}
+mv EcalEnergyCalibration_Calorimeter_Hit_Energies_ECal_EndCap_Digitisation.png ${checkPlotsOutputDirectory}
+
+# Check plots from hcal energy step
+mv HcalEnergyCalibration_Calorimeter_Hit_Energies_HCal_Barrel_Digitisation.C ${checkPlotsOutputDirectory}
+mv HcalEnergyCalibration_Calorimeter_Hit_Energies_HCal_Barrel_Digitisation.png ${checkPlotsOutputDirectory}
+mv HcalEnergyCalibration_Calorimeter_Hit_Energies_HCal_EndCap_Digitisation.C ${checkPlotsOutputDirectory}
+mv HcalEnergyCalibration_Calorimeter_Hit_Energies_HCal_EndCap_Digitisation.png ${checkPlotsOutputDirectory}
+mv HcalRingEnergyCalibration_Direction_Correction_Distribution_HCal_20_GeV_KaonL.C ${checkPlotsOutputDirectory}
+mv HcalRingEnergyCalibration_Direction_Correction_Distribution_HCal_20_GeV_KaonL.png ${checkPlotsOutputDirectory}
+
+# Check plots from PandoraPFA mip scale step
+mv PandoraMipScale_GeVToMIP_Calibration_10_GeV_Muons_ECal.C ${checkPlotsOutputDirectory}
+mv PandoraMipScale_GeVToMIP_Calibration_10_GeV_Muons_ECal.png ${checkPlotsOutputDirectory}
+mv PandoraMipScale_GeVToMIP_Calibration_10_GeV_Muons_HCal.C ${checkPlotsOutputDirectory}
+mv PandoraMipScale_GeVToMIP_Calibration_10_GeV_Muons_HCal.png ${checkPlotsOutputDirectory}
+mv PandoraMipScale_GeVToMIP_Calibration_10_GeV_Muons_Muon_Chamber.C ${checkPlotsOutputDirectory}
+mv PandoraMipScale_GeVToMIP_Calibration_10_GeV_Muons_Muon_Chamber.png ${checkPlotsOutputDirectory}
+
+# Check plots from PandoraPFA EM scale step
+mv PandoraEMScale_PandoraPFA_Calibration_Electromagnetic_Energy_Scale_10_GeV_Photons.C ${checkPlotsOutputDirectory}
+mv PandoraEMScale_PandoraPFA_Calibration_Electromagnetic_Energy_Scale_10_GeV_Photons.png ${checkPlotsOutputDirectory}
+
+# Check plots from PandoraPFA Hadronic scale step
+mv PandoraHadScale_PandoraPFA_Calibration_Hadronic_Energy_Scale_Chi_Sqaured_Method_20_GeV_KaonL.C ${checkPlotsOutputDirectory}
+mv PandoraHadScale_PandoraPFA_Calibration_Hadronic_Energy_Scale_Chi_Sqaured_Method_20_GeV_KaonL.png ${checkPlotsOutputDirectory}
 
 #
