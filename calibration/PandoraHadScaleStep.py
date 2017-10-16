@@ -90,7 +90,7 @@ class PandoraHadScaleStep(CalibrationStep) :
         ecalToHadGeVEndcap = float(self._marlin.getProcessorParameter(self._marlinPandoraProcessor, "ECalToHadGeVCalibrationEndCap"))
         hcalToHadGeV = float(self._marlin.getProcessorParameter(self._marlinPandoraProcessor, "HCalToHadGeVCalibration"))
         
-        hadScaleCalibrator = PandoraHadScale()
+        hadScaleCalibrator = PandoraHadScaleCalibrator()
         
         for iteration in range(self._maxNIterations) :
 
