@@ -102,6 +102,10 @@ python ${LCCalibration_DIR}/scripts/run-ild-calibration.py \
   --startStep 6 \
   --endStep 6
 
+python ${LCCalibration_DIR}/scripts/replace-marlin-parameters.py \
+  --steeringFile ${outputDirectory}/${outputSteeringFile} \
+  --inputFile ${calibrationFile}
+
 ########################################
 # Save output files for further analysis
 mkdir -p ${checkPlotsOutputDirectory}
