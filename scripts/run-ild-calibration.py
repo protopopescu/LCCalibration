@@ -35,13 +35,13 @@ if __name__ == "__main__":
     parser = manager.getArgParser()
 
     parser.add_argument("--energies", action="store", nargs='+',
-                            help="The input mc energies for software compensation calibration", required = True)
+                            help="The input mc energies for software compensation calibration", required = False)
 
     parser.add_argument("--lcioFilePattern", action="store",
-                            help="The LCIO input file pattern for soft comp. Must contains '%%{energy}' string to match energy to file. Example : 'File_%%{energy}GeV*.slcio'", required = True)
+                            help="The LCIO input file pattern for soft comp. Must contains '%%{energy}' string to match energy to file. Example : 'File_%%{energy}GeV*.slcio'", required = False)
     #
     parser.add_argument("--rootFilePattern", action="store",
-                            help="The root input/output file pattern for soft comp. Must contains '%%{energy}' string to match energy to file. Example : 'SoftComp_%%{energy}GeV*.root'", required = True)
+                            help="The root input/output file pattern for soft comp. Must contains '%%{energy}' string to match energy to file. Example : 'SoftComp_%%{energy}GeV*.root'", required = False)
 
     parser.add_argument("--runMarlin", action="store_true",
                             help="Whether to run marlin reconstruction before calibration of software compensation weights")
