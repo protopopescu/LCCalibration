@@ -101,7 +101,7 @@ python ${LCCalibration_DIR}/scripts/extract-marlin-parameters.py \
   --steeringFile bbudsc_3evt_stdreco_dd4hep.xml \
   --outputFile ${calibrationFile}
 
-# Run the full calibration
+# Run calibration
 python ${LCCalibration_DIR}/scripts/run-ild-calibration.py \
   --calibrationFile ${calibrationFile} \
   --compactFile ${compactFile} \
@@ -110,12 +110,18 @@ python ${LCCalibration_DIR}/scripts/run-ild-calibration.py \
   --hcalCalibrationAccuracy 0.01 \
   --lcioPhotonFile ${photonFile} \
   --lcioMuonFile ${muonFile} \
-  --lcioKaon0LFile ${kaon0LFile} \
-  --energies ${softCompEnergies} \
-  --lcioFilePattern ${softCompLcioFiles} \
-  --rootFilePattern ${softCompRootFiles} \
-  --runMarlin \
-  --runMinimizer \
-  --maxParallel 4
+  --lcioKaon0LFile ${kaon0LFile}
+
+# Run software compensation calibration
+# python ${LCCalibration_DIR}/scripts/run-ild-calibration.py \
+#   --calibrationFile ${calibrationFile} \
+#   --compactFile ${compactFile} \
+#   --steeringFile bbudsc_3evt_stdreco_dd4hep.xml \
+#   --energies ${softCompEnergies} \
+#   --lcioFilePattern ${softCompLcioFiles} \
+#   --rootFilePattern ${softCompRootFiles} \
+#   --runMarlin \
+#   --runMinimizer \
+#   --maxParallel 4
 
 #
