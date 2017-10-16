@@ -1,0 +1,108 @@
+#!/bin/bash
+#
+#(make sure the right shell will be used)
+#$ -S /bin/bash
+#
+#execute the job from the current directory and not relative to your home directory
+#$ -cwd
+
+# sld6 for bird on NAF2
+#$ -l arch=amd64
+#$ -l os=sld6
+
+#$ -l h_rt=23:59:00
+#$ -l h_vmem=4G
+
+#set the email address
+##$ -M <user>@desy.de
+#
+#send email when job aborts or when job ends
+##$ -m ae
+
+echo "############################################################################"
+echo "                             System information"
+echo "                             =================="
+
+echo "Host:"
+hostname -f
+
+echo "CPU(s):"
+cat /proc/cpuinfo | grep "model name" | cut -b 14-
+
+echo "RAM:"
+cat /proc/meminfo | grep "MemTotal" | cut -b 10-
+
+echo "Swap:"
+cat /proc/meminfo | grep "SwapTotal" | cut -b 11-
+
+echo "############################################################################"
+echo "Group:      ${GROUP}"
+
+echo "Hosttype:   ${HOSTTYPE}"
+
+echo "JobID:      ${JOB_ID}"
+
+echo "JobName:    ${JOB_NAME}"
+
+echo "Job_Script: ${JOB_SCRIPT}"
+
+echo "User:       ${LOGNAME}"
+
+echo "Queue:      ${QUEUE}"
+
+echo "Shell:      ${SHELL}"
+
+echo "TMP:        ${TMP}"
+
+echo "TMPDIR:     ${TMPDIR}"
+
+echo "User:       ${USER}"
+
+echo "Working_DIR:${PWD}"
+
+echo "############################################################################"
+echo
+echo "############################################################################"
+echo
+
+ilcsoft=$1
+ildconfig=$2
+detector=$3
+energy=$4
+
+source /afs/desy.de/project/ilcsoft/sw/x86_64_gcc49_sl6/${ilcsoft}/init_ilcsoft.sh
+
+ildconfig_DIR=/nfs/dust/ilc/group/ild/calibration/ILDConfig/${ildconfig}
+outputDirectory=/nfs/dust/ilc/group/ild/calibration/calibration
+calibrationFile=${outputDirectory}/calibration-s${ilcsoft}-G${detector}-ILDCalibration.xml
+compactFile=$lcgeo_DIR/ILD/compact/${detector}/${detector}.xml
+inputSteeringFile=${outputDirectory}/bbudsc_3evt_stdreco_dd4hep-s${ilcsoft}-G${detector}-calibrated.xml
+
+softCompLcioFiles=/nfs/dust/ilc/group/ild/calibration/ddsim/ddsim-s${ilcsoft}-G${detector}-Pkaon0L-E%energy-ILDCalibration.slcio
+softCompRootFiles=/nfs/dust/ilc/group/ild/calibration/calibration/SoftwareCompensation-s${ilcsoft}-G${detector}-Pkaon0L-E%energy-ILDCalibration.root
+
+runDirectory="calibration_${JOB_ID}"
+LCCalibration_DIR=$PWD
+
+# Create run directory based on job id
+mkdir -p ${runDirectory}
+cd ${runDirectory}
+
+# Copy all scripts from ildconfig in run directory
+cp -r ${ildconfig_DIR}/StandardConfig/lcgeo_current/* .
+
+# Run software compensation calibration: root file producer only (single energy point mode)
+python ${LCCalibration_DIR}/scripts/run-ild-calibration.py \
+  --calibrationFile ${calibrationFile} \
+  --compactFile ${compactFile} \
+  --steeringFile ${inputSteeringFile} \
+  --energies ${energy} \
+  --lcioFilePattern ${softCompLcioFiles} \
+  --rootFilePattern ${softCompRootFiles} \
+  --runMarlin \
+  --maxParallel 1 \
+  --startStep 6 \
+  --endStep 6
+
+
+#
