@@ -103,7 +103,7 @@ python ${LCCalibration_DIR}/scripts/extract-marlin-parameters.py \
 
 # Run calibration
 python ${LCCalibration_DIR}/scripts/run-ild-calibration.py \
-  --calibrationFile ${calibrationFile} \
+  --inputCalibrationFile ${calibrationFile} \
   --compactFile ${compactFile} \
   --steeringFile bbudsc_3evt_stdreco_dd4hep.xml \
   --ecalCalibrationAccuracy 0.01 \
