@@ -85,9 +85,6 @@ compactFile=$lcgeo_DIR/ILD/compact/${detector}/${detector}.xml
 photonFile=/nfs/dust/ilc/group/ild/calibration/ddsim/ddsim-s${ilcsoft}-G${detector}-Pgamma-E10-ILDCalibration.slcio
 muonFile=/nfs/dust/ilc/group/ild/calibration/ddsim/ddsim-s${ilcsoft}-G${detector}-Pmu--E10-ILDCalibration.slcio
 kaon0LFile=/nfs/dust/ilc/group/ild/calibration/ddsim/ddsim-s${ilcsoft}-G${detector}-Pkaon0L-E20-ILDCalibration.slcio
-softCompLcioFiles=/nfs/dust/ilc/group/ild/calibration/ddsim/ddsim-s${ilcsoft}-G${detector}-Pkaon0L-E%energy-ILDCalibration.slcio
-softCompRootFiles=/nfs/dust/ilc/group/ild/calibration/ddsim/ddsim-s${ilcsoft}-G${detector}-Pkaon0L-E%energy-ILDCalibration.root
-softCompEnergies="10 20 30 40 50 60 70 80 90"
 runDirectory="calibration_${JOB_ID}"
 LCCalibration_DIR=$PWD
 
