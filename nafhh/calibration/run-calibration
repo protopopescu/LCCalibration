@@ -72,6 +72,7 @@ ildconfig=$2
 detector=$3
 
 source /afs/desy.de/project/ilcsoft/sw/x86_64_gcc49_sl6/${ilcsoft}/init_ilcsoft.sh
+source ./init.sh
 
 #ildconfig_DIR=/afs/desy.de/project/ilcsoft/sw/ILDConfig/${ildconfig}
 ildconfig_DIR=/nfs/dust/ilc/group/ild/calibration/ILDConfig/${ildconfig}
