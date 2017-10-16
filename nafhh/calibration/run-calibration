@@ -69,6 +69,8 @@ ilcsoft=$1
 ildconfig=$2
 detector=$3
 
+#ildconfig_DIR=/afs/desy.de/project/ilcsoft/sw/ILDConfig/${ildconfig}
+ildconfig_DIR=/nfs/dust/ilc/group/ild/calibration/ILDConfig/${ildconfig}
 outputDirectory=/nfs/dust/ilc/group/ild/calibration/calibration
 calibrationFile=${outputDirectory}/calibration-s${ilcsoft}-G${detector}-P${particle}-E${energy}-ILDCalibration.xml
 compactFile=$lcgeo_DIR/ILD/compact/${detector}/${detector}.xml
@@ -86,7 +88,7 @@ mkdir -p ${runDirectory}
 cd ${runDirectory}
 
 # Copy all scripts from ildconfig in run directory
-cp -r /afs/desy.de/project/ilcsoft/sw/ILDConfig/${ildconfig} .
+cp -r ${ildconfig_DIR} .
 
 # Run calibration scripts
 # Extract calibration parameters from Marlin steering file
