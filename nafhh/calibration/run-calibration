@@ -92,6 +92,8 @@ cp -r ${ildconfig_DIR} .
 
 # Run calibration scripts
 # Extract calibration parameters from Marlin steering file
+mv ${calibrationFile} ${calibrationFile}.bck
+
 python ${LCCalibration_DIR}/scripts/extract-marlin-parameters.py \
   --parameterFile ${LCCalibration_DIR}/steering/ild-calibration-parameters.py \
   --steeringFile bbudsc_3evt_stdreco_dd4hep.xml \
