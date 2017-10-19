@@ -70,11 +70,12 @@ ilcsoft=$1
 detector=$2
 particle=$3
 energy=$4
+split=$5
 
 source /afs/desy.de/project/ilcsoft/sw/x86_64_gcc49_sl6/${ilcsoft}/init_ilcsoft.sh
 
 outputDirectory=/nfs/dust/ilc/group/ild/calibration/ddsim
-outputFile=${outputDirectory}/ddsim-s${ilcsoft}-G${detector}-P${particle}-E${energy}-ILDCalibration.slcio
+outputFile=${outputDirectory}/ddsim-s${ilcsoft}-G${detector}-P${particle}-E${energy}-ILDCalibration_${split}.slcio
 compactFile=$lcgeo_DIR/ILD/compact/${detector}/${detector}.xml
 steeringFile=./steering/ddsim-steering-template.py
 
@@ -84,7 +85,7 @@ mkdir -p ${outputDirectory}
 ddsim --compactFile ${compactFile} \
   --steeringFile ${steeringFile} \
   --outputFile ${outputFile} \
-  --numberOfEvents 20000 \
+  --numberOfEvents 2000 \
   --physicsList QGSP_BERT \
   --enableGun \
   --gun.particle ${particle} \
