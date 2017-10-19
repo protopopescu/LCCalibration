@@ -71,7 +71,9 @@ detector=$3
 energy=$4
 split=$5
 
+export PYTHONPATH=/usr/lib64/python2.6/site-packages/lxml:$PYTHONPATH
 source /afs/desy.de/project/ilcsoft/sw/x86_64_gcc49_sl6/${ilcsoft}/init_ilcsoft.sh
+source ./init.sh
 
 ildconfig_DIR=/nfs/dust/ilc/group/ild/calibration/ILDConfig/${ildconfig}
 outputDirectory=/nfs/dust/ilc/group/ild/calibration/calibration
