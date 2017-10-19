@@ -96,7 +96,7 @@ cp -r ${ildconfig_DIR}/StandardConfig/lcgeo_current/* .
 
 # Run software compensation calibration: root file producer only (single energy point mode)
 python ${LCCalibration_DIR}/scripts/run-ild-calibration.py \
-  --calibrationFile ${calibrationFile} \
+  --inputCalibrationFile ${calibrationFile} \
   --compactFile ${compactFile} \
   --steeringFile ${inputSteeringFile} \
   --energies ${energy} \
