@@ -3,7 +3,7 @@
 
 
 from calibration.CalibrationStep import *
-from calibration.Marlin import Marlin
+from calibration.Marlin import *
 from calibration.MarlinXML import MarlinXML
 from calibration.PandoraAnalysis import *
 from calibration.FileTools import *
@@ -44,7 +44,7 @@ class PandoraSoftCompStep(CalibrationStep) :
 
         if not self._runMinimizer and not self._runMarlin:
             raise RuntimeError("Incoherent options: 'runMarlin' and 'runMinimizer' both set to False. Nothing to run !")
-        
+
         # setup marlin
         if self._runMarlin:
             self._marlin = ParallelMarlin()
@@ -60,11 +60,11 @@ class PandoraSoftCompStep(CalibrationStep) :
             pandoraSettings = marlinXml.getProcessorParameter(self._marlinPandoraProcessor, "PandoraSettingsXmlFile")
             pandora = PandoraXML(pandoraSettings)
             pandora.setRemoveEnergyCorrections(True)
-                        
+
             for energy in parsed.energies:
                 rootFilePattern = parsed.rootFilePattern
                 rootFile = rootFilePattern.replace("%{energy}", str(energy))
-                
+
                 lcioFilePattern = parsed.lcioFilePattern
                 lcioFilesPattern = lcioFilePattern.replace("%{energy}", str(energy))
                 lcioFiles = glob.glob(lcioFilesPattern)
@@ -111,7 +111,7 @@ class PandoraSoftCompStep(CalibrationStep) :
         # run marlin
         if self._runMarlin:
             self._marlin.run()
-        
+
         # run calibration
         if self._runMinimizer:
             self._calibrator.run()
