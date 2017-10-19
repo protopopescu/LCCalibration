@@ -4,6 +4,7 @@
 
 from calibration.CalibrationStep import *
 from calibration.Marlin import Marlin
+from calibration.MarlinXML import MarlinXML
 from calibration.PandoraAnalysis import *
 from calibration.FileTools import *
 from calibration.PandoraXML import *
@@ -43,59 +44,62 @@ class PandoraSoftCompStep(CalibrationStep) :
 
         if not self._runMinimizer and not self._runMarlin:
             raise RuntimeError("Incoherent options: 'runMarlin' and 'runMinimizer' both set to False. Nothing to run !")
-
+        
         # setup marlin
-        self._marlin = ParallelMarlin()
-        self._marlin.setMaxNParallelInstances(int(parsed.maxParallel))
+        if self._runMarlin:
+            self._marlin = ParallelMarlin()
+            self._marlin.setMaxNParallelInstances(int(parsed.maxParallel))
 
-        energyList = parsed.energies
-
-        lcioFilePattern = parsed.lcioFilePattern
-        if lcioFilePattern.find("%{energy}") == -1 :
-            raise RuntimeError("File pattern '{0}' : couldn't find '%{energy}' tag !".format(lcioFilePattern))
-
-        steeringFile = parsed.steeringFile
-        pandora = PandoraSettings(parsed.pandoraSettingsFile)
-        pandora.setRemoveEnergyCorrections(True)
-
-        for energy in energyList:
             lcioFilePattern = parsed.lcioFilePattern
-            lcioFilesPattern = lcioFilePattern.replace("%{energy}", str(energy))
-            lcioFiles = glob.glob(lcioFilesPattern)
+            if lcioFilePattern.find("%{energy}") == -1 :
+                raise RuntimeError("File pattern '{0}' : couldn't find '%{energy}' tag !".format(lcioFilePattern))
 
-            if len(lcioFiles) == 0:
-                raise RuntimeError("File pattern '{0}' for energy {1}: no file found !".format(lcioFilesPattern, energy))
+            steeringFile = parsed.steeringFile
+            marlinXml = MarlinXML()
+            marlinXml.setSteeringFile(steeringFile, load=True)
+            pandoraSettings = marlinXml.getProcessorParameter(self._marlinPandoraProcessor, "PandoraSettingsXmlFile")
+            pandora = PandoraXML(pandoraSettings)
+            pandora.setRemoveEnergyCorrections(True)
+                        
+            for energy in parsed.energies:
+                rootFilePattern = parsed.rootFilePattern
+                rootFile = rootFilePattern.replace("%{energy}", str(energy))
+                
+                lcioFilePattern = parsed.lcioFilePattern
+                lcioFilesPattern = lcioFilePattern.replace("%{energy}", str(energy))
+                lcioFiles = glob.glob(lcioFilesPattern)
 
-            rootFilePattern = parsed.rootFilePattern
-            rootFile = rootFilePattern.replace("%{energy}", str(energy))
+                if len(lcioFiles) == 0:
+                    raise RuntimeError("File pattern '{0}' for energy {1}: no file found !".format(lcioFilesPattern, energy))
 
-            pandora.setSoftCompTrainingSettings(rootFile, "SoftwareCompensationTrainingTree")
-            newPandoraXmlFileName = pandora.generateNewXmlFile()
+                pandora.setSoftCompTrainingSettings(rootFile, "SoftwareCompensationTrainingTree")
+                newPandoraXmlFileName = pandora.generateNewXmlFile()
 
-            index = rootFile.rfind(".root")
-            pfoAnalysisFile = rootFile[:index] + "_PfoAnalysis.root"
+                index = rootFile.rfind(".root")
+                pfoAnalysisFile = rootFile[:index] + "_PfoAnalysis.root"
 
-            marlin = Marlin(steeringFile)
-            marlin.setCompactFile(parsed.compactFile)
-            gearFile = marlin.convertToGear(parsed.compactFile)
-            marlin.setGearFile(gearFile)
-            marlin.setInputFiles(lcioFiles)
-            marlin.setMaxRecordNumber(parsed.maxRecordNumber)
-            marlin.setProcessorParameter(self._marlinPandoraProcessor, "PandoraSettingsXmlFile", str(newPandoraXmlFileName))
+                marlin = Marlin(steeringFile)
+                marlin.setCompactFile(parsed.compactFile)
+                gearFile = marlin.convertToGear(parsed.compactFile)
+                marlin.setGearFile(gearFile)
+                marlin.setInputFiles(lcioFiles)
+                marlin.setMaxRecordNumber(parsed.maxRecordNumber)
+                marlin.setProcessorParameter(self._marlinPandoraProcessor, "PandoraSettingsXmlFile", str(newPandoraXmlFileName))
 
-            try:
-                marlin.setProcessorParameter(self._pfoAnalysisProcessor, "RootFile", str(pfoAnalysisFile))
-            except:
-                pass
+                try:
+                    marlin.setProcessorParameter(self._pfoAnalysisProcessor, "RootFile", str(pfoAnalysisFile))
+                except:
+                    pass
 
-            self._marlin.addMarlinInstance(marlin)
+                self._marlin.addMarlinInstance(marlin)
 
-        self._calibrator = PandoraSoftCompCalibrator()
-        self._calibrator.setEnergies(parsed.energies)
-        self._calibrator.setDeleteOutputFile(False)
-        self._calibrator.setRootFilePattern(parsed.rootFilePattern)
-        self._calibrator.setRootTreeName("SoftwareCompensationTrainingTree")
-        self._calibrator.setRunWithClusterEnergy(False)
+        if self._runMinimizer:
+            self._calibrator = PandoraSoftCompCalibrator()
+            self._calibrator.setEnergies(parsed.energies)
+            self._calibrator.setDeleteOutputFile(False)
+            self._calibrator.setRootFilePattern(parsed.rootFilePattern)
+            self._calibrator.setRootTreeName("SoftwareCompensationTrainingTree")
+            self._calibrator.setRunWithClusterEnergy(False)
 
     def init(self, config) :
         self._cleanupElement(config)
@@ -104,17 +108,20 @@ class PandoraSoftCompStep(CalibrationStep) :
 
     def run(self, config) :
 
-        # run marlin and calibrator
-        self._marlin.run()
-        self._calibrator.run()
-
-        weights = self._calibrator.getSoftCompWeights()
-        self._outputSoftCompWeights = " ".join([str(w) for w in weights])
+        # run marlin
+        if self._runMarlin:
+            self._marlin.run()
+        
+        # run calibration
+        if self._runMinimizer:
+            self._calibrator.run()
+            weights = self._calibrator.getSoftCompWeights()
+            self._outputSoftCompWeights = " ".join([str(w) for w in weights])
 
     def writeOutput(self, config) :
-
-        output = self._getXMLStepOutput(config, create=True)
-        self._writeProcessorParameter(output, self._marlinPandoraProcessor, "SoftwareCompensationWeights", self._outputSoftCompWeights)
+        if self._runMinimizer:
+            output = self._getXMLStepOutput(config, create=True)
+            self._writeProcessorParameter(output, self._marlinPandoraProcessor, "SoftwareCompensationWeights", self._outputSoftCompWeights)
 
 
 
