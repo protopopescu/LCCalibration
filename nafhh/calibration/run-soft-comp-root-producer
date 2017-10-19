@@ -81,8 +81,8 @@ calibrationFile=${outputDirectory}/calibration-s${ilcsoft}-G${detector}-ILDCalib
 compactFile=$lcgeo_DIR/ILD/compact/${detector}/${detector}.xml
 inputSteeringFile=${outputDirectory}/bbudsc_3evt_stdreco_dd4hep-s${ilcsoft}-G${detector}-calibrated.xml
 
-softCompLcioFiles=/nfs/dust/ilc/group/ild/calibration/ddsim/ddsim-s${ilcsoft}-G${detector}-Pkaon0L-E%energy-ILDCalibration_${split}.slcio
-softCompRootFiles=/nfs/dust/ilc/group/ild/calibration/calibration/SoftwareCompensation-s${ilcsoft}-G${detector}-Pkaon0L-E%energy-ILDCalibration_${split}.root
+softCompLcioFiles=/nfs/dust/ilc/group/ild/calibration/ddsim/ddsim-s${ilcsoft}-G${detector}-Pkaon0L-E%{energy}-ILDCalibration_${split}.slcio
+softCompRootFiles=/nfs/dust/ilc/group/ild/calibration/calibration/SoftwareCompensation-s${ilcsoft}-G${detector}-Pkaon0L-E%{energy}-ILDCalibration_${split}.root
 
 runDirectory="calibration_${JOB_ID}"
 LCCalibration_DIR=$PWD
