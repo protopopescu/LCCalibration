@@ -146,7 +146,7 @@ mkdir -p ${checkPlotsOutputDirectory}
 mv PfoAnalysis_MipScale.root ${checkPlotsOutputDirectory}
 mv PfoAnalysis_EcalEnergy_iter*.root ${checkPlotsOutputDirectory}
 mv PfoAnalysis_HcalEnergy_iter*.root ${checkPlotsOutputDirectory}
-mv PfoAnalysis_MipScale.root ${checkPlotsOutputDirectory}
+mv PfoAnalysis_PandoraMipScale.root ${checkPlotsOutputDirectory}
 mv PfoAnalysis_PandoraEMScale_iter*.root ${checkPlotsOutputDirectory}
 mv PfoAnalysis_PandoraHadScale_iter*.root ${checkPlotsOutputDirectory}
 
