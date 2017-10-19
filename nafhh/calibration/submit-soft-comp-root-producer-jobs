@@ -8,5 +8,8 @@ script=$LCCALIBRATION_DIR/nafhh/calibration/run-soft-comp-root-producer
 # submit software compensation jobs: root file producer only
 for energy in 10 20 30 40 50 60 70 80 90
 do
-  qsub ${script} ${ilcsoft} ${ildconfig} ${detector} ${energy}
+  for split in {0..9}
+  do
+    qsub ${script} ${ilcsoft} ${ildconfig} ${detector} ${energy} ${split}
+  done
 done
