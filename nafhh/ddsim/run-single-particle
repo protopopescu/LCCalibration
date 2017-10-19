@@ -88,7 +88,7 @@ ddsim --compactFile ${compactFile} \
   --physicsList QGSP_BERT \
   --enableGun \
   --gun.particle ${particle} \
-  --gun.energy 10000 \
+  --gun.energy ${energy}000 \
   --gun.distribution uniform \
   --gun.phiMin 0 \
   --gun.phiMax 3.1415 \
