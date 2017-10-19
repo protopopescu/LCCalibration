@@ -5,10 +5,16 @@ detector=$2
 script=$LCCALIBRATION_DIR/nafhh/ddsim/run-single-particle
 
 # submit photon sim
-qsub ${script} ${ilcsoft} ${detector} gamma 10
+for split in 0 1 2 3 4 5 6 7 8 9
+do
+  qsub ${script} ${ilcsoft} ${detector} gamma 10 ${split}
+done
 
 # submit muon sim
-qsub ${script} ${ilcsoft} ${detector} mu- 10
+for split in 0 1 2 3 4 5 6 7 8 9
+do
+  qsub ${script} ${ilcsoft} ${detector} mu- 10 ${split}
+done
 
 # submit kaon0L sim
 for energy in 10 20 30 40 50 60 70 80 90
