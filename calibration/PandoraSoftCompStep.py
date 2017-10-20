@@ -108,14 +108,22 @@ class PandoraSoftCompStep(CalibrationStep) :
             self._loadStepOutputs(config)
 
     def run(self, config) :
-
         # run marlin
         if self._runMarlin:
+            print "================================================="
+            print "{0} step: running Marlin !!!".format(self.name())
+            print "================================================="
             self._marlin.run()
 
         # run calibration
         if self._runMinimizer:
+            print "================================================="
+            print "{0} step: running minimizer !!!".format(self.name())
+            print "================================================="
             self._calibrator.run()
+            print "================================================="
+            print "{0} step: minimizer done !!!".format(self.name())
+            print "================================================="
             weights = self._calibrator.getSoftCompWeights()
             self._outputSoftCompWeights = " ".join([str(w) for w in weights])
 
