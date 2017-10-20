@@ -103,8 +103,9 @@ class PandoraSoftCompStep(CalibrationStep) :
 
     def init(self, config) :
         self._cleanupElement(config)
-        self._marlin.loadInputParameters(config)
-        self._loadStepOutputs(config)
+        if self._runMarlin:
+            self._marlin.loadInputParameters(config)
+            self._loadStepOutputs(config)
 
     def run(self, config) :
 
