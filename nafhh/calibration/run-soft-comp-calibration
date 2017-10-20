@@ -111,7 +111,6 @@ python ${LCCalibration_DIR}/scripts/run-ild-calibration.py \
   --energies 10 20 30 40 50 60 70 80 90 \
   --rootFilePattern ${softCompRootFiles} \
   --runMinimizer \
-  --energies ${energies} \
   --startStep 6 \
   --endStep 6
 
