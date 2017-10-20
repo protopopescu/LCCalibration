@@ -1,9 +1,8 @@
 #!/bin/bash
 
 ilcsoft=$1
-ildconfig=$2
-detector=$3
+detector=$2
 script=$LCCALIBRATION_DIR/nafhh/calibration/run-soft-comp-calibration
 
 # submit calibration job
-qsub ${script} ${ilcsoft} ${ildconfig} ${detector}
+qsub ${script} ${ilcsoft} ${detector}
