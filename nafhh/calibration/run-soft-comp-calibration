@@ -93,8 +93,8 @@ cd ${runDirectory}
 for energy in ${softCompEnergies}
 do
   hadd \
-  /nfs/dust/ilc/group/ild/calibration/calibration/SoftwareCompensation-s${ilcsoft}-G${detector}-Pkaon0L-E${energy}-ILDCalibration_*.root \
-  SoftwareCompensation-s${ilcsoft}-G${detector}-Pkaon0L-E${energy}-ILDCalibration_combined.root
+  SoftwareCompensation-s${ilcsoft}-G${detector}-Pkaon0L-E${energy}-ILDCalibration_combined.root \
+  /nfs/dust/ilc/group/ild/calibration/calibration/SoftwareCompensation-s${ilcsoft}-G${detector}-Pkaon0L-E${energy}-ILDCalibration_*.root  
 done
 
 # Run calibration scripts
