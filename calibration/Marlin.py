@@ -30,7 +30,7 @@ class Marlin(object) :
     """
     def loadStepOutputParameters(self, xmlTree, stepName):
         self._marlinXML.loadStepOutputParameters(xmlTree, stepName)
-    
+
     """ Load input parameters
     """
     def loadInputParameters(self, xmlTree):
@@ -116,13 +116,13 @@ class Marlin(object) :
         print "Wrote marlin xml file in " + tmpSteeringFile
         args.append(tmpSteeringFile)
         return args
-    
+
     """ Turn off the target list of processors
         This method removes entries in the <execute> marlin xml element
     """
     def turnOffProcessors(self, processors) :
         self._marlinXML.turnOffProcessors(processors)
-    
+
     """ Turn off all processors except the ones ine the spcified list
         This method removes entries in the <execute> marlin xml element
     """
@@ -135,39 +135,58 @@ class Marlin(object) :
 """ ParallelMarlin class.
 
     Run multiple instances of marlin in parallel (process)
-    Use setMaxNParallelInstances(n) to decide how many instance 
+    Use setMaxNParallelInstances(n) to decide how many instance
     can be run in parallel, addMarlinInstance(marlin) to add a marlin
     instance and run() to process
-""" 
+"""
 class ParallelMarlin(object):
     def __init__(self):
         self._marlinInstances = []
         self._maxNParallelInstances = 3
-    
+
+    """ Load processor parameters from a xml tree
+        Usage : loadParameter(xmlTree, "//input")
+    """
+    def loadParameters(self, xmlTree, path):
+        for m in self._marlinInstances:
+            m.loadParameters(xmlTree, path)
+
+    """ Load step output parameters
+    """
+    def loadStepOutputParameters(self, xmlTree, stepName):
+        for m in self._marlinInstances:
+            m.loadStepOutputParameters(xmlTree, stepName)
+
+    """ Load input parameters
+    """
+    def loadInputParameters(self, xmlTree):
+        for m in self._marlinInstances:
+            m.loadInputParameters(xmlTree)
+
     """ Add a marlin instance to run in parallel
     """
     def addMarlinInstance(self, marlin):
         if isinstance(marlin, Marlin):
             self._marlinInstances.append(marlin)
-    
+
     """ Set the maximum number of concurrent marlin instance to run
     """
     def setMaxNParallelInstances(self, maxInstances):
         if maxInstances > 0 :
             self._maxNParallelInstances = maxInstances
-    
+
     """ Run the registered marlin concurrently
-    """ 
+    """
     def run(self):
         marlinQueue = list(self._marlinInstances)
         runningMarlinInstances = {}
         marlinEndStatus = {m : None for m in marlinQueue}
 
         while 1:
-            
+
             if len(marlinQueue) == 0 and len(runningMarlinInstances) == 0:
                 break
-            
+
             if len(runningMarlinInstances) < self._maxNParallelInstances and len(marlinQueue):
                 marlin = marlinQueue.pop(0)
                 args = marlin.createProcessArgs()
@@ -175,20 +194,20 @@ class ParallelMarlin(object):
                 runningMarlinInstances[process] = marlin
             else:
                 time.sleep(1)
-            
+
             for proc, marlin in runningMarlinInstances.items():
                 status = proc.poll()
                 if status is not None :
                     marlinEndStatus[marlin] = status
                     del runningMarlinInstances[proc]
-        
+
         print "ParallelMarlin ended with the following status ({0} instances):".format(len(marlinEndStatus))
         for marlin, status in marlinEndStatus.items():
             print "  -> {0} ended with status {1}".format(marlin, status)
-                     
-                
-        
-        
-        
-        
+
+
+
+
+
+
 #
