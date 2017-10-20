@@ -3,7 +3,7 @@
 ilcsoft=$1
 ildconfig=$2
 detector=$3
-script=$LCCALIBRATION_DIR/nafhh/calibration/run-calibration
+script=$LCCALIBRATION_DIR/nafhh/calibration/run-soft-comp-calibration
 
 # submit calibration job
 qsub ${script} ${ilcsoft} ${ildconfig} ${detector}
