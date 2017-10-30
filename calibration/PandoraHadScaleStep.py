@@ -21,6 +21,7 @@ class PandoraHadScaleStep(CalibrationStep) :
         self._maxNIterations = 5
         self._ecalEnergyScaleAccuracy = 0.01
         self._hcalEnergyScaleAccuracy = 0.01
+        self._kaon0LEnergy = 0
 
         # step input
         self._inputEcalToHadGeVBarrel = None
@@ -55,6 +56,7 @@ class PandoraHadScaleStep(CalibrationStep) :
         self._maxNIterations = int(parsed.maxNIterations)
         self._ecalEnergyScaleAccuracy = float(parsed.ecalCalibrationAccuracy)
         self._hcalEnergyScaleAccuracy = float(parsed.hcalCalibrationAccuracy)
+        self._kaon0LEnergy = parsed.kaon0LEnergy
         
         # setup pandora settings
         pandoraSettings = self._marlin.getProcessorParameter(self._marlinPandoraProcessor, "PandoraSettingsXmlFile")
@@ -91,6 +93,7 @@ class PandoraHadScaleStep(CalibrationStep) :
         hcalToHadGeV = float(self._marlin.getProcessorParameter(self._marlinPandoraProcessor, "HCalToHadGeVCalibration"))
         
         hadScaleCalibrator = PandoraHadScaleCalibrator()
+        hadScaleCalibrator.setKaon0LEnergy(self._kaon0LEnergy)
         
         for iteration in range(self._maxNIterations) :
 
@@ -113,18 +116,17 @@ class PandoraHadScaleStep(CalibrationStep) :
 
             # ... and calibration script
             hadScaleCalibrator.setRootFile(pfoAnalysisFile)
-            hadScaleCalibrator.setKaon0LEnergy(20)
             hadScaleCalibrator.run()
 
             if not ecalAccuracyReached :
                 newEcalKaon0LEnergy = hadScaleCalibrator.getEcalToHad()    
-                ecalRescaleFactor = 20. / newEcalKaon0LEnergy
+                ecalRescaleFactor = float(self._kaon0LEnergy) / newEcalKaon0LEnergy
                 ecalRescaleFactorCumul = ecalRescaleFactorCumul*ecalRescaleFactor
                 currentEcalPrecision = abs(1 - 1. / ecalRescaleFactor)
                 
             if not hcalAccuracyReached :
                 newHcalKaon0LEnergy = hadScaleCalibrator.getHcalToHad()
-                hcalRescaleFactor = 20. / newHcalKaon0LEnergy
+                hcalRescaleFactor = float(self._kaon0LEnergy) / newHcalKaon0LEnergy
                 hcalRescaleFactorCumul = hcalRescaleFactorCumul*hcalRescaleFactor
                 currentHcalPrecision = abs(1 - 1. / hcalRescaleFactor)
 
