@@ -21,6 +21,7 @@ class MipScaleStep(CalibrationStep) :
         self._hcalEndcapMip = 0.
         self._hcalRingMip = 0.
         self._ecalMip = 0.
+        self._muonEnergy = 0
         
         # set requirements
         self._requireMuonFile()
@@ -43,6 +44,7 @@ class MipScaleStep(CalibrationStep) :
         self._marlin.setMaxRecordNumber(parsed.maxRecordNumber)
         self._marlin.setInputFiles(self._extractFileList(parsed.lcioMuonFile, "slcio"))
         self._marlin.setProcessorParameter(self._pfoAnalysisProcessor, "RootFile", self._pfoOutputFile)
+        self._muonEnergy = parsed.muonEnergy
 
     """ Initialize the step
     """
@@ -64,6 +66,7 @@ class MipScaleStep(CalibrationStep) :
 
         mipCalibrator = MipCalibrator()
         mipCalibrator.setRootFile(self._pfoOutputFile)
+        mipCalibrator.setMuonEnergy(self._muonEnergy)
         mipCalibrator.run()
         
         self._hcalBarrelMip = mipCalibrator.getHcalBarrelMip()

@@ -89,6 +89,12 @@ class CalibrationManager(object) :
                                 help="The lcio input file containing kaon0L to process", required = ("lcioKaon0LFile" in requiredArgs))
         parser.add_argument("--lcioMuonFile", action="store", nargs='+',
                                 help="The lcio input file containing muons to process", required = ("lcioMuonFile" in requiredArgs))
+        parser.add_argument("--photonEnergy", action="store", default=10,
+                                help="The input photon energy (unit GeV)", required = False)
+        parser.add_argument("--kaon0LEnergy", action="store", default=20,
+                                help="The input kaon0L energy (unit GeV)", required = False)
+        parser.add_argument("--muonEnergy", action="store", default=10,
+                                help="The input muon energy (unit GeV)", required = False)
                                 
     def getGeometry(self) :
         return self._geometry
