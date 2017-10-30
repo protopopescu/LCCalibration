@@ -192,15 +192,22 @@ usage: Calibration runner: [-h]
                            [--outputCalibrationFile OUTPUTCALIBRATIONFILE]
                            [--startStep STARTSTEP] [--endStep ENDSTEP]
                            [--maxRecordNumber MAXRECORDNUMBER]
-                           [--skipNEvents SKIPNEVENTS] --compactFile
-                           COMPACTFILE --steeringFile STEERINGFILE
-                           [--maxNIterations MAXNITERATIONS]
+                           [--skipNEvents SKIPNEVENTS]
+                           [--energies ENERGIES [ENERGIES ...]]
+                           [--lcioFilePattern LCIOFILEPATTERN]
+                           [--rootFilePattern ROOTFILEPATTERN] [--runMarlin]
+                           [--runMinimizer] [--maxParallel MAXPARALLEL]
+                           --compactFile COMPACTFILE --steeringFile
+                           STEERINGFILE [--maxNIterations MAXNITERATIONS]
                            --ecalCalibrationAccuracy ECALCALIBRATIONACCURACY
                            --hcalCalibrationAccuracy HCALCALIBRATIONACCURACY
                            --lcioPhotonFile LCIOPHOTONFILE
                            [LCIOPHOTONFILE ...] --lcioKaon0LFile
                            LCIOKAON0LFILE [LCIOKAON0LFILE ...] --lcioMuonFile
                            LCIOMUONFILE [LCIOMUONFILE ...]
+                           [--photonEnergy PHOTONENERGY]
+                           [--kaon0LEnergy KAON0LENERGY]
+                           [--muonEnergy MUONENERGY]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -219,6 +226,16 @@ optional arguments:
                         The maximum number of events to process
   --skipNEvents SKIPNEVENTS
                         The number of events to skip
+  --energies ENERGIES [ENERGIES ...]
+                        The input mc energies for software compensation calibration
+  --lcioFilePattern LCIOFILEPATTERN
+                        The LCIO input file pattern for soft comp. Must contains '%{energy}' string to match energy to file. Example : 'File_%{energy}GeV*.slcio'
+  --rootFilePattern ROOTFILEPATTERN
+                        The root input/output file pattern for soft comp. Must contains '%{energy}' string to match energy to file. Example : 'SoftComp_%{energy}GeV*.root'
+  --runMarlin           Whether to run marlin reconstruction before calibration of software compensation weights
+  --runMinimizer        Whether to run software compensation weights minimization
+  --maxParallel MAXPARALLEL
+                        The maximum number of marlin instance to run in parallel (process) for soft comp
   --compactFile COMPACTFILE
                         The compact XML file
   --steeringFile STEERINGFILE
@@ -235,6 +252,12 @@ optional arguments:
                         The lcio input file containing kaon0L to process
   --lcioMuonFile LCIOMUONFILE [LCIOMUONFILE ...]
                         The lcio input file containing muons to process
+  --photonEnergy PHOTONENERGY
+                        The input photon energy (unit GeV)
+  --kaon0LEnergy KAON0LENERGY
+                        The input kaon0L energy (unit GeV)
+  --muonEnergy MUONENERGY
+                        The input muon energy (unit GeV)
 ```
 
 The first interesting option you may want to use is the --showSteps option. It shows which calibration steps are registered and prints their descriptions, i.e :
