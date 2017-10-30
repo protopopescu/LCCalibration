@@ -337,11 +337,11 @@ Your now ready to run your reconstruction with a (re-)calibrated steering file.
 
 ## Calibrating the software compensation (SC) weights
 
-**WARNING** : to calibrate the SC weights, you must have run a full calibration and merged your constants in your marlin steering file before.
+**WARNING** : to calibrate the SC weights, you must have run a full calibration until this step.
 
 To produce the simulation samples for SC, please refer to the corresponding section at the beginning of this document.
 
-The calibration of the SC weights in performed as a separate step as it is quite long to process. Indeed, you must have produced the lcio files with *ddsim* for different energy points. For the following examples, we suppose that you have created a directory called "*sc_data*" containing the simulation samples for SC tuning :
+The calibration of the SC weights in performed as an additional step as it is quite long to process. Indeed, you must have produced the lcio files with *ddsim* for different energy points. For the following examples, we suppose that you have created a directory called "*sc_data*" containing the simulation samples for SC tuning :
 
 ```shell
 $ ls ./sc_data/
@@ -356,50 +356,32 @@ ddsim-kaon0L-80GeV-SCCalibration.slcio
 ddsim-kaon0L-90GeV-SCCalibration.slcio
 ```
 
-A specific python script has been designed to run the SC weights calibration. It can be found in the script directory and is called *calibrate-software-compensation.py*.
+The software compensation calibration is implemented as a calibration and thus can be run using the same calibration script. For the ILD detector, use the *run-ild-calibration.py* script.
 
-Here is the help printout :
+Use the help printout :
 
 ```shell
 $ python scripts/calibrate-software-compensation.py --help
-usage: Run the reconstruction chain on single kaon0L particles and calibrate PandoraPFA software compensation weights:
-       [-h] --compactFile COMPACTFILE --steeringFile STEERINGFILE
-       [--maxRecordNumber MAXRECORDNUMBER] --pandoraSettingsFile
-       PANDORASETTINGSFILE --energies ENERGIES [ENERGIES ...]
-       --lcioFilePattern LCIOFILEPATTERN --rootFilePattern ROOTFILEPATTERN
-       [--runMarlin] [--noMinimizer] [--maxParallel MAXPARALLEL]
-       [--minimizeClusterEnergy]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --compactFile COMPACTFILE
-                        The compact XML file
-  --steeringFile STEERINGFILE
-                        The Marlin steering file
-  --maxRecordNumber MAXRECORDNUMBER
-                        The maximum number of events to process
-  --pandoraSettingsFile PANDORASETTINGSFILE
-                        The PandoraPFA xml settings file for software compensation
+  ...
   --energies ENERGIES [ENERGIES ...]
                         The input mc energies for software compensation calibration
   --lcioFilePattern LCIOFILEPATTERN
-                        The LCIO input file pattern. Must contains '%{energy}' string to match energy to file. Example : 'File_%{energy}GeV*.slcio'
+                        The LCIO input file pattern for soft comp. Must contains '%{energy}' string to match energy to file. Example : 'File_%{energy}GeV*.slcio'
   --rootFilePattern ROOTFILEPATTERN
-                        The root input/output file pattern. Must contains '%{energy}' string to match energy to file. Example : 'SoftComp_%{energy}GeV*.root'
+                        The root input/output file pattern for soft comp. Must contains '%{energy}' string to match energy to file. Example : 'SoftComp_%{energy}GeV*.root'
   --runMarlin           Whether to run marlin reconstruction before calibration of software compensation weights
-  --noMinimizer         Whether to run software compensation weights minimization
+  --runMinimizer        Whether to run software compensation weights minimization
   --maxParallel MAXPARALLEL
-                        The maximum number of marlin instance to run in parallel (process)
-  --minimizeClusterEnergy
-                        Whether to use to cluster energy in the software compensation minimizer program (default: mc energy)
+                        The maximum number of marlin instance to run in parallel (process) for soft comp
+  ...
 ```
 
-The script is decomposed into two parts :
+This calibration can be run in two sub-step if needed :
 
 - Run Marlin reconstruction on the the simulation samples. This produces Pandora root files used as input for the next step.
 - Run a minimizer on the training root files and output new SC weights
 
-By omitting the argument --runMarlin, you will skip the Marlin reconstruction part and directly process the minimization. In the same way you can skip the minimizer and just run the reconstruction part to produce the root files first by specifying the argument --noMinimizer.
+By omitting the argument --runMarlin, you will skip the Marlin reconstruction part and directly process the minimization. In the same way you can skip the minimizer and just run the reconstruction part to produce the root files first by omitting the argument --runMinimizer.
 
 Processing the high energy samples could take a lot of time. If your machine allows it, you can run the different Marlin reconstruction in parallel over the input files. To do this, use the --maxParallel argument to specify how many instances of Marlin you want to run concurrently.
 
@@ -423,8 +405,6 @@ The argument --rootFilePattern works in the same way. For the Marlin reconstruct
 --rootFilePattern ./sc_data/Training-kaon0L-%{energy}GeV-SCCalibration.root
 ```
 
-The last argument --minimizeClusterEnergy is used for testing purpose. **Do not use it, except if you know what you are doing !**
-
 The next commands show :
 
 - how to run Marlin reconstruction only, to produce the training root files, with 5 instances in parallel
@@ -436,83 +416,45 @@ for the ILD model ILD_l4_v02.
 **Marlin reconstruction only** :
 
 ```shell
-python scripts/calibrate-software-compensation.py \
+python scripts/run-ild-calibration.py \
   --runMarlin \
-  --noMinimizer \
   --compactFile $lcgeo_DIR/ILD/compact/ILD_l4_v02/ILD_l4_v02.xml \
   --steeringFile bbudsc_3evt_stdreco_dd4hep.xml \
-  --pandoraSettingsFile PandoraSettingsDefault.xml \
   --lcioFilePattern ./sc_data/ddsim-kaon0L-%{energy}GeV-SCCalibration.slcio \
   --rootFilePattern ./sc_data/Training-kaon0L-%{energy}GeV-SCCalibration.root \
   --energies 10 20 30 40 50 60 70 80 90 \
-  --maxParallel 5
+  --maxParallel 5 \
+  --startStep 6 \
+  --endStep 6
 ```
 
 **Minimizer only** :
 
 ```shell
-python scripts/calibrate-software-compensation.py \
-  --compactFile $lcgeo_DIR/ILD/compact/ILD_l4_v02/ILD_l4_v02.xml \
-  --steeringFile bbudsc_3evt_stdreco_dd4hep.xml \
-  --pandoraSettingsFile PandoraSettingsDefault.xml \
-  --lcioFilePattern ./sc_data/ddsim-kaon0L-%{energy}GeV-SCCalibration.slcio \
+python scripts/run-ild-calibration.py \
+  --runMinimizer \
   --rootFilePattern ./sc_data/Training-kaon0L-%{energy}GeV-SCCalibration.root \
-  --energies 10 20 30 40 50 60 70 80 90
+  --energies 10 20 30 40 50 60 70 80 90 \
+  --startStep 6 \
+  --endStep 6
 ```
 
 **Marlin reconstruction and minimizer** :
 
 ```shell
-python scripts/calibrate-software-compensation.py \
+python scripts/run-ild-calibration.py \
   --runMarlin \
+  --runMinimizer \
   --compactFile $lcgeo_DIR/ILD/compact/ILD_l4_v02/ILD_l4_v02.xml \
   --steeringFile bbudsc_3evt_stdreco_dd4hep.xml \
-  --pandoraSettingsFile PandoraSettingsDefault.xml \
   --lcioFilePattern ./sc_data/ddsim-kaon0L-%{energy}GeV-SCCalibration.slcio \
   --rootFilePattern ./sc_data/Training-kaon0L-%{energy}GeV-SCCalibration.root \
   --energies 10 20 30 40 50 60 70 80 90 \
-  --maxParallel 5
+  --maxParallel 5 \
+  --startStep 6 \
+  --endStep 6
 ```
 
-After processing the minimization, you should get a file called "*PandoraSoftComp_Calibration.txt*" in your working directory. The content of this file could look like this :
-
-```txt
-_____________________________________________________________________________________
-Software compensation weight determination         : 
-File pattern                                       : ./sc_data/Training-kaon0L-%{energy}GeV-SCCalibration.root
-Input energies                                     : 10:20:30:40:50:60:70:80:90
-True energy used                                   : false
-Minimizer                                          : Minuit (Migrad)
-Software compensation parameters                   : 
-Parameter 0                                        : 1.53608
-Parameter 1                                        : 0.0020365
-Parameter 2                                        : -3.84416e-05
-Parameter 3                                        : -0.0932101
-Parameter 4                                        : -0.00354252
-Parameter 5                                        : 2.32054e-05
-Parameter 6                                        : 0.924933
-Parameter 7                                        : 1.25159
-Parameter 8                                        : -0.0447545
-The total number of events considered was          : 114352
-```
-
-If your know a bit about software compensation, you can yet check the parameters in this file.
-
-The last step of this calibration is to replace the new weights in the Pandora settings file. An utility python script is provided in the scripts directory and can be used in this way :
-
-```shell
-$ python scripts/replace-software-compensation-parameters.py \
-  --pandoraSettings PandoraSettingsDefault.xml \
-  --inputFile PandoraSoftComp_Calibration.txt
-``` 
-
-As for the *replace-marlin-parameters.py* script, a new file can be produced :
-
-```shell
-$ python scripts/replace-software-compensation-parameters.py \
-  --pandoraSettings PandoraSettingsDefault.xml \
-  --inputFile PandoraSoftComp_Calibration.txt \
-  --newPandoraSettings PandoraSettingsDefault_SCUpdated.xml
-```
+As you did for the previous calibration you can merge your calibration constants using the *replace-marlin-parameters.py*.
 
 Your now ready to run a fully calibrated reconstruction ! 
