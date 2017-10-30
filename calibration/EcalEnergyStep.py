@@ -16,6 +16,7 @@ class EcalEnergyStep(CalibrationStep) :
 
         self._maxNIterations = 5
         self._energyScaleAccuracy = 0.01
+        self._photonEnergy = 0
 
         self._inputEcalRingGeometryFactor = None
         self._inputMinCosThetaBarrel = None
@@ -78,6 +79,8 @@ class EcalEnergyStep(CalibrationStep) :
 
         self._inputMinCosThetaBarrel, self._inputMaxCosThetaBarrel = self._getGeometry().getEcalBarrelCosThetaRange()
         self._inputMinCosThetaEndcap, self._inputMaxCosThetaEndcap = self._getGeometry().getEcalEndcapCosThetaRange()
+        
+        self._photonEnergy = parsed.photonEnergy
 
     """ Initialize the calibration step
     """
@@ -110,6 +113,7 @@ class EcalEnergyStep(CalibrationStep) :
         pfoAnalysisFile = ""
         
         ecalCalibrator = EcalCalibrator()
+        ecalCalibrator.setPhotonEnergy(self._photonEnergy)
 
         for iteration in range(self._maxNIterations) :
 
@@ -137,7 +141,7 @@ class EcalEnergyStep(CalibrationStep) :
                 ecalCalibrator.run()
                 
                 newBarrelPhotonEnergy = ecalCalibrator.getEcalDigiMean()
-                barrelRescaleFactor = 10. / newBarrelPhotonEnergy
+                barrelRescaleFactor = float(self._photonEnergy) / newBarrelPhotonEnergy
                 barrelRescaleFactorCumul = barrelRescaleFactorCumul*barrelRescaleFactor
                 barrelCurrentPrecision = abs(1 - 1. / barrelRescaleFactor)
 
@@ -149,7 +153,7 @@ class EcalEnergyStep(CalibrationStep) :
                 ecalCalibrator.run()
                                 
                 newEndcapPhotonEnergy = ecalCalibrator.getEcalDigiMean()
-                endcapRescaleFactor = 10 / newEndcapPhotonEnergy
+                endcapRescaleFactor = float(self._photonEnergy) / newEndcapPhotonEnergy
                 endcapRescaleFactorCumul = endcapRescaleFactorCumul*endcapRescaleFactor
                 endcapCurrentPrecision = abs(1 - 1. / endcapRescaleFactor)
             
