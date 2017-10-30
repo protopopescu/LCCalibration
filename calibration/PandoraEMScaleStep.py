@@ -19,6 +19,7 @@ class PandoraEMScaleStep(CalibrationStep) :
 
         self._maxNIterations = 5
         self._energyScaleAccuracy = 0.01
+        self._photonEnergy = 0
 
         # step input
         self._inputEcalToEMGeV = None
@@ -49,6 +50,7 @@ class PandoraEMScaleStep(CalibrationStep) :
 
         self._maxNIterations = int(parsed.maxNIterations)
         self._energyScaleAccuracy = float(parsed.ecalCalibrationAccuracy)
+        self._photonEnergy = parsed.photonEnergy
         
         # setup pandora settings
         pandoraSettings = self._marlin.getProcessorParameter(self._marlinPandoraProcessor, "PandoraSettingsXmlFile")
@@ -82,6 +84,7 @@ class PandoraEMScaleStep(CalibrationStep) :
         hcalToEMGeV = self._inputHcalToEMGeV
         
         emScaleCalibrator = PandoraEMScaleCalibrator()
+        emScaleCalibrator.setPhotonEnergy(self._photonEnergy)
 
         for iteration in range(self._maxNIterations) :
 
@@ -98,11 +101,11 @@ class PandoraEMScaleStep(CalibrationStep) :
 
             # ... and calibration script
             emScaleCalibrator.setRootFile(pfoAnalysisFile)
-            emScaleCalibrator.setPhotonEnergy(10)
+            emScaleCalibrator.setPhotonEnergy(self._photonEnergy)
             emScaleCalibrator.run()
 
             newPhotonEnergy = emScaleCalibrator.getEcalToEMMean()
-            calibrationRescaleFactor = 10. / newPhotonEnergy
+            calibrationRescaleFactor = float(self._photonEnergy) / newPhotonEnergy
             calibrationRescaleFactorCumul = calibrationRescaleFactorCumul*calibrationRescaleFactor
             currentPrecision = abs(1 - 1. / calibrationRescaleFactor)
 
