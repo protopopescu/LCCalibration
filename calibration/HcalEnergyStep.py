@@ -15,6 +15,7 @@ class HcalEnergyStep(CalibrationStep) :
 
         self._maxNIterations = 5
         self._energyScaleAccuracy = 0.01
+        self._kaon0LEnergy = 0
         
         self._inputHcalRingGeometryFactor = None
         self._inputMinCosThetaBarrel = None
@@ -84,6 +85,8 @@ class HcalEnergyStep(CalibrationStep) :
 
         self._inputMinCosThetaBarrel, self._inputMaxCosThetaBarrel = self._getGeometry().getHcalBarrelCosThetaRange()
         self._inputMinCosThetaEndcap, self._inputMaxCosThetaEndcap = self._getGeometry().getHcalEndcapCosThetaRange()
+        
+        self._kaon0LEnergy = parsed.kaon0LEnergy
 
     def init(self, config) :    
         self._cleanupElement(config)
@@ -114,7 +117,7 @@ class HcalEnergyStep(CalibrationStep) :
         pfoAnalysisFile = ""
         
         hcalEnergyCalibrator = HcalCalibrator()
-        hcalEnergyCalibrator.setKaon0LEnergy(20)
+        hcalEnergyCalibrator.setKaon0LEnergy(self._kaon0LEnergy)
 
         for iteration in range(self._maxNIterations) :
 
@@ -143,7 +146,7 @@ class HcalEnergyStep(CalibrationStep) :
                 hcalEnergyCalibrator.run()
                 
                 newBarrelKaon0LEnergy = hcalEnergyCalibrator.getHcalDigiMean()
-                barrelRescaleFactor = 20 / newBarrelKaon0LEnergy
+                barrelRescaleFactor = float(self._kaon0LEnergy) / newBarrelKaon0LEnergy
                 barrelRescaleFactorCumul = barrelRescaleFactorCumul*barrelRescaleFactor
                 barrelCurrentPrecision = abs(1 - 1. / barrelRescaleFactor)                
 
@@ -155,7 +158,7 @@ class HcalEnergyStep(CalibrationStep) :
                 hcalEnergyCalibrator.run()
                 
                 newEndcapKaon0LEnergy = hcalEnergyCalibrator.getHcalDigiMean()
-                endcapRescaleFactor = 20 / newEndcapKaon0LEnergy
+                endcapRescaleFactor = float(self._kaon0LEnergy) / newEndcapKaon0LEnergy
                 endcapRescaleFactorCumul = endcapRescaleFactorCumul*endcapRescaleFactor
                 endcapCurrentPrecision = abs(1 - 1. / endcapRescaleFactor)
 
@@ -206,7 +209,7 @@ class HcalEnergyStep(CalibrationStep) :
         if self._runRingCalibration:
             hcalRingCalibrator = HcalRingCalibrator()
             hcalRingCalibrator.setRootFile(pfoAnalysisFile)
-            hcalRingCalibrator.setKaon0LEnergy(20)
+            hcalRingCalibrator.setKaon0LEnergy(self._kaon0LEnergy)
             hcalRingCalibrator.run()
 
             directionCorrectionEndcap = hcalRingCalibrator.getEndcapMeanDirectionCorrection()
