@@ -1,7 +1,7 @@
 # LCCalibration documentation
 - Author : Remi Ete, DESY
 - Contact : remi.ete@desy.de
-- Last revision : 09/2017
+- Last revision : 10/2017
 
 ## Introduction
 
