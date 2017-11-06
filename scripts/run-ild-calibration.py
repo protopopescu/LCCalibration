@@ -69,6 +69,7 @@ if __name__ == "__main__":
     stepNames.append(ecalEnergyStep.name())
     ecalEnergyStep.setEcalRecoNames("MyEcalBarrelReco", "MyEcalEndcapReco", "MyEcalRingReco")
     ecalEnergyStep.setRunProcessors(["MyAIDAProcessor", "InitDD4hep",
+        "MergeCollectionsEcalBarrelHits", "MergeCollectionsEcalEndcapHits", 
         "MyEcalBarrelDigi", "MyEcalBarrelReco", "MyEcalBarrelGapFiller",
         "MyEcalEndcapDigi", "MyEcalEndcapReco", "MyEcalEndcapGapFiller",
         "MyEcalRingDigi", "MyEcalRingReco",
@@ -89,6 +90,7 @@ if __name__ == "__main__":
     hcalEnergyStep.setHcalRecoNames("MyHcalBarrelReco", "MyHcalEndcapReco", "MyHcalRingReco")
     hcalEnergyStep.setHcalDigiNames("MyHcalBarrelDigi", "MyHcalEndcapDigi", "MyHcalRingDigi")
     hcalEnergyStep.setRunProcessors(["MyAIDAProcessor", "InitDD4hep",
+        "MergeCollectionsEcalBarrelHits", "MergeCollectionsEcalEndcapHits", 
         "MyEcalBarrelDigi", "MyEcalBarrelReco", "MyEcalBarrelGapFiller",
         "MyEcalEndcapDigi", "MyEcalEndcapReco", "MyEcalEndcapGapFiller",
         "MyEcalRingDigi", "MyEcalRingReco",
@@ -108,6 +110,7 @@ if __name__ == "__main__":
     pandoraMipScaleStep.setLoadStepOutputs(list(stepNames))
     stepNames.append(pandoraMipScaleStep.name())
     pandoraMipScaleStep.setRunProcessors(["MyAIDAProcessor", "InitDD4hep",
+        "MergeCollectionsEcalBarrelHits", "MergeCollectionsEcalEndcapHits", 
         "MyEcalBarrelDigi", "MyEcalBarrelReco", "MyEcalBarrelGapFiller",
         "MyEcalEndcapDigi", "MyEcalEndcapReco", "MyEcalEndcapGapFiller",
         "MyEcalRingDigi", "MyEcalRingReco",
