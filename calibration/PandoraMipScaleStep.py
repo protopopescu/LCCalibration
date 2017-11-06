@@ -15,7 +15,7 @@ class PandoraMipScaleStep(CalibrationStep) :
     def __init__(self) :
         CalibrationStep.__init__(self, "PandoraMipScale")
         self._marlin = None
-        self._muonFile = 0
+        self._muonEnergy = 0
 
         self._pfoOutputFile = "./PfoAnalysis_" + self._name + ".root"
 
@@ -42,7 +42,7 @@ class PandoraMipScaleStep(CalibrationStep) :
         self._marlin.setInputFiles(self._extractFileList(parsed.lcioMuonFile, "slcio"))
         self._marlin.setProcessorParameter(self._pfoAnalysisProcessor, "RootFile", self._pfoOutputFile)
         
-        self._muonFile = parsed.muonFile
+        self._muonEnergy = parsed.muonEnergy
 
     def init(self, config) :
         self._cleanupElement(config)
@@ -56,7 +56,7 @@ class PandoraMipScaleStep(CalibrationStep) :
         self._marlin.run()
 
         mipScaleCalibrator = PandoraMipScaleCalibrator()
-        mipScaleCalibrator.setMuonEnergy(self._muonFile)
+        mipScaleCalibrator.setMuonEnergy(self._muonEnergy)
         mipScaleCalibrator.setRootFile(self._pfoOutputFile)
         mipScaleCalibrator.run()
 
