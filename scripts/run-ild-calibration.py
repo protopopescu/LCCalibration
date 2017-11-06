@@ -18,6 +18,7 @@ from calibration.PandoraMipScaleStep import *
 from calibration.PandoraEMScaleStep import *
 from calibration.PandoraHadScaleStep import *
 from calibration.PandoraSoftCompStep import *
+from calibration.SwitchStep import *
 
 
 if __name__ == "__main__":
