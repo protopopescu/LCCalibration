@@ -81,7 +81,9 @@ class HcalEnergyStep(CalibrationStep) :
 
         self._maxNIterations = int(parsed.maxNIterations)
         self._energyScaleAccuracy = float(parsed.hcalCalibrationAccuracy)
-        self._inputHcalRingGeometryFactor = self._getGeometry().getHcalGeometryFactor()
+        
+        if self._runRingCalibration:
+            self._inputHcalRingGeometryFactor = self._getGeometry().getHcalGeometryFactor()
 
         self._inputMinCosThetaBarrel, self._inputMaxCosThetaBarrel = self._getGeometry().getHcalBarrelCosThetaRange()
         self._inputMinCosThetaEndcap, self._inputMaxCosThetaEndcap = self._getGeometry().getHcalEndcapCosThetaRange()
