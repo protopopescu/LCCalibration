@@ -18,7 +18,6 @@ class EcalEnergyStep(CalibrationStep) :
         self._energyScaleAccuracy = 0.01
         self._photonEnergy = 0
 
-        self._inputEcalRingGeometryFactor = None
         self._inputMinCosThetaBarrel = None
         self._inputMaxCosThetaBarrel = None
         self._inputMinCosThetaEndcap = None
@@ -75,7 +74,6 @@ class EcalEnergyStep(CalibrationStep) :
 
         self._maxNIterations = int(parsed.maxNIterations)
         self._energyScaleAccuracy = float(parsed.ecalCalibrationAccuracy)
-        self._inputEcalRingGeometryFactor = self._getGeometry().getEcalGeometryFactor()
 
         self._inputMinCosThetaBarrel, self._inputMaxCosThetaBarrel = self._getGeometry().getEcalBarrelCosThetaRange()
         self._inputMinCosThetaEndcap, self._inputMaxCosThetaEndcap = self._getGeometry().getEcalEndcapCosThetaRange()
