@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
 """ Implementation of standard calibration procedure for SiD models 
-    fine tuned by Dan Protopopescu, Glasgow
     Compatible with:
      - SiD_o2_v02
      - SiD_o3_v02
 
     @author Remi Ete, DESY
+    @author Dan Protopopescu, Glasgow
 """
 
 from calibration.CalibrationManager import CalibrationManager
