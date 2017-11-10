@@ -1,8 +1,12 @@
 #!/usr/bin/python
 
-""" Implementation of standard calibration procedure for SiD models with current
-     
+""" Implementation of standard calibration procedure for SiD models 
+    Compatible with:
+     - SiD_o2_v02
+     - SiD_o3_v02
+
     @author Remi Ete, DESY
+    @author Dan Protopopescu, Glasgow
 """
 
 from calibration.CalibrationManager import CalibrationManager
@@ -16,8 +20,7 @@ from calibration.PandoraHadScaleStep import *
 
 
 if __name__ == "__main__":
-    # FIXME GearForSiD plugin not implemented. Default doesn't work too ...
-    MarlinXML.gearConversionPlugin = "default"
+    MarlinXML.gearConversionPlugin = "GearForSiD"
     pandoraProcessor = "MyDDMarlinPandora"
     pfoAnalysisProcessor = "MyPfoAnalysis"
     runEcalRingCalibration = False
@@ -41,12 +44,12 @@ if __name__ == "__main__":
     ecalEnergyStep = SplitRecoEcalEnergyStep()
     ecalEnergyStep.setLoadStepOutputs(list(stepNames))
     stepNames.append(ecalEnergyStep.name())
-    ecalEnergyStep.setEcalRecoNames("EcalBarrelReco", "EcalEndcapReco", "EcalRingReco")
+    ecalEnergyStep.setEcalRecoNames("ECalBarrelReco", "ECalEndcapReco", None)
     ecalEnergyStep.setRunProcessors(["MyAIDAProcessor", "InitDD4hep",
-        "EcalBarrelDigi", "EcalBarrelReco",
-        "EcalEndcapDigi", "EcalEndcapReco",
-        "HcalBarrelDigi", "HcalBarrelReco",
-        "HcalEndcapDigi", "HcalEndcapReco",
+        "ECalBarrelDigi", "ECalBarrelReco",
+        "ECalEndcapDigi", "ECalEndcapReco",
+        "HCalBarrelDigi", "HCalBarrelReco",
+        "HCalEndcapDigi", "HCalEndcapReco", "MySimpleMuonDigi",
         "MyPfoAnalysis"])
     ecalEnergyStep.setPfoAnalysisProcessor(pfoAnalysisProcessor)
     ecalEnergyStep.setMarlinPandoraProcessor(pandoraProcessor)
@@ -57,13 +60,13 @@ if __name__ == "__main__":
     hcalEnergyStep = SplitRecoHcalEnergyStep()
     hcalEnergyStep.setLoadStepOutputs(list(stepNames))
     stepNames.append(hcalEnergyStep.name())
-    hcalEnergyStep.setHcalRecoNames("HcalBarrelReco", "HcalEndcapReco", "HcalRingReco")
-    hcalEnergyStep.setHcalDigiNames("HcalBarrelDigi", "HcalEndcapDigi", "HcalRingDigi")
+    hcalEnergyStep.setHcalRecoNames("HCalBarrelReco", "HCalEndcapReco", None)
+    hcalEnergyStep.setHcalDigiNames("HCalBarrelDigi", "HCalEndcapDigi", None)
     hcalEnergyStep.setRunProcessors(["MyAIDAProcessor", "InitDD4hep",
-        "EcalBarrelDigi", "EcalBarrelReco",
-        "EcalEndcapDigi", "EcalEndcapReco",
-        "HcalBarrelDigi", "HcalBarrelReco",
-        "HcalEndcapDigi", "HcalEndcapReco",
+        "ECalBarrelDigi", "ECalBarrelReco",
+        "ECalEndcapDigi", "ECalEndcapReco",
+        "HCalBarrelDigi", "HCalBarrelReco",
+        "HCalEndcapDigi", "HCalEndcapReco", "MySimpleMuonDigi",
         "MyPfoAnalysis"])
     hcalEnergyStep.setPfoAnalysisProcessor(pfoAnalysisProcessor)
     hcalEnergyStep.setMarlinPandoraProcessor(pandoraProcessor)
@@ -76,10 +79,10 @@ if __name__ == "__main__":
     pandoraMipScaleStep.setLoadStepOutputs(list(stepNames))
     stepNames.append(pandoraMipScaleStep.name())
     pandoraMipScaleStep.setRunProcessors(["MyAIDAProcessor", "InitDD4hep",
-        "EcalBarrelDigi", "EcalBarrelReco",
-        "EcalEndcapDigi", "EcalEndcapReco",
-        "HcalBarrelDigi", "HcalBarrelReco",
-        "HcalEndcapDigi", "HcalEndcapReco",
+        "ECalBarrelDigi", "ECalBarrelReco",
+        "ECalEndcapDigi", "ECalEndcapReco",
+        "HCalBarrelDigi", "HCalBarrelReco",
+        "HCalEndcapDigi", "HCalEndcapReco", "MySimpleMuonDigi",
         "MyPfoAnalysis"])
     pandoraMipScaleStep.setPfoAnalysisProcessor(pfoAnalysisProcessor)
     pandoraMipScaleStep.setMarlinPandoraProcessor(pandoraProcessor)

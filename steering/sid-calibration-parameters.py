@@ -1,4 +1,8 @@
 """ Parameter set used for calibrating SiD detector with the reconstruction chain in SiDPerformance.
+    Supported models:
+       - SiD_o2_v02
+       - SiD_o3_v02
+    Calibration for other models may be supported if the Marlin reco chain remains the same.
     For alternative support, please read the documentation in the 'doc' directory
     @author Remi Ete, DESY
 """
