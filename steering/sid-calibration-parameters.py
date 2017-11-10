@@ -5,6 +5,7 @@
     Calibration for other models may be supported if the Marlin reco chain remains the same.
     For alternative support, please read the documentation in the 'doc' directory
     @author Remi Ete, DESY
+    @author Dan Protopopescu, Glasgow
 """
 
 calibrationParameters = []
