@@ -80,7 +80,7 @@ class PandoraSoftCompStep(CalibrationStep) :
 
                 marlin = Marlin(steeringFile)
                 marlin.setCompactFile(parsed.compactFile)
-                gearFile = marlin.convertToGear(parsed.compactFile)
+                gearFile = self._manager.getGearConverter().convertToGear(parsed.compactFile)
                 marlin.setGearFile(gearFile)
                 marlin.setInputFiles(lcioFiles)
                 marlin.setMaxRecordNumber(parsed.maxRecordNumber)

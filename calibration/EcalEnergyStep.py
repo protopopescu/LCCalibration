@@ -4,6 +4,7 @@ from calibration.CalibrationStep import CalibrationStep
 from calibration.Marlin import Marlin
 from calibration.PandoraAnalysis import *
 from calibration.FileTools import *
+from calibration.GearConverter import *
 import os, sys
 from calibration.XmlTools import etree
 
@@ -66,7 +67,7 @@ class EcalEnergyStep(CalibrationStep) :
     def readCmdLine(self, parsed):
         # setup marlin
         self._marlin = Marlin(parsed.steeringFile)
-        gearFile = self._marlin.convertToGear(parsed.compactFile)
+        gearFile = self._manager.getGearConverter().convertToGear(parsed.compactFile)
         self._marlin.setGearFile(gearFile)
         self._marlin.setCompactFile(parsed.compactFile)
         self._marlin.setMaxRecordNumber(parsed.maxRecordNumber)
