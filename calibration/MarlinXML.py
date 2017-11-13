@@ -179,20 +179,6 @@ class MarlinXML(object):
     """
     def setRandomSeed(self, randomSeed) :
         self.setGlobalParameter("RandomSeed", randomSeed)
-
-    """ Convert the compact file to gear file using 'convertToGear' binary
-    """
-    def convertToGear(self, compactFile, force=False) :
-        gearFile = "gear_" + os.path.split(compactFile)[1]
-
-        if os.path.isfile(gearFile) and not force:
-            return gearFile
-
-        args = ['convertToGear', gearConversionPlugin, compactFile, gearFile]
-        process = subprocess.Popen(args = args)
-        if process.wait() :
-            raise RuntimeError("Couldn't convert compact file to gear file")
-        return gearFile
     
     def _getExecuteProcessors(self, element):
         processors = element.findall("processor")

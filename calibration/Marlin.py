@@ -102,11 +102,6 @@ class Marlin(object) :
             raise RuntimeError
         self._logger.info("Marlin ended with status 0")
 
-    """ Convert the compact file to gear file using 'convertToGear' binary
-    """
-    def convertToGear(self, compactFile, force=False) :
-        return self._marlinXML.convertToGear(compactFile, force)
-
     """ Create the marlin process command line argument (Marlin + args)
     """
     def createProcessArgs(self) :
