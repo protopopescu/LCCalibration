@@ -22,7 +22,7 @@ from calibration.SwitchStep import *
 
 
 if __name__ == "__main__":
-    MarlinXML.gearConversionPlugin = "default"
+    gearConversionPlugin = "default"
     pandoraProcessor = "MyDDMarlinPandora"
     pfoAnalysisProcessor = "MyPfoAnalysis"
     runEcalRingCalibration = True
@@ -52,6 +52,8 @@ if __name__ == "__main__":
 
     parser.add_argument("--maxParallel", action="store", default=1,
                             help="The maximum number of marlin instance to run in parallel (process) for soft comp")
+
+    manager.getGearConverter().setPluginName(gearConversionPlugin)
 
     # mip scale for all detectors
     mipScaleStep = SplitDigiMipScaleStep()
