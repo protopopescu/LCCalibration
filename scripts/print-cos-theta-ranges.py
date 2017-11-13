@@ -6,6 +6,7 @@
 """
 
 from calibration.GeometryInterface import *
+from calibration.GearConverter import *
 import argparse
 
 parser = argparse.ArgumentParser("Running energy calibration:",
@@ -14,9 +15,16 @@ parser = argparse.ArgumentParser("Running energy calibration:",
 parser.add_argument("--compactFile", action="store", default="",
                         help="The compact XML file", required = True)
 
+parser.add_argument("--gearConverterPlugin", action="store", default="default",
+                        help="The gear plugin to convert the conmpact file to gear file", required = False)
+
 parsed = parser.parse_args()
 
-geo = GeometryInterface(parsed.compactFile)
+gearConverter = GearConverter()
+gearConverter.setCompactFile(parsed.compactFile)
+gearConverter.setPluginName(parsed.gearConverterPlugin)
+gearFile = gearConverter.convertToGear()
+geo = GeometryInterface(gearFile)
 
 ebmin, ebmax = geo.getEcalBarrelCosThetaRange()
 print "Ecal barrel cos theta range : [{0},{1}]".format(ebmin, ebmax)
