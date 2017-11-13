@@ -5,9 +5,7 @@ import tempfile
 import subprocess
 
 
-class MarlinXML(object):
-    gearConversionPlugin = "default"
-    
+class MarlinXML(object):    
     def __init__(self, steeringFile=None):
         self._steeringFile = steeringFile
         self._xmlTree = None
