@@ -5,6 +5,7 @@ from calibration.Marlin import Marlin
 from calibration.PandoraAnalysis import *
 from calibration.FileTools import *
 from calibration.GeometryInterface import GeometryInterface
+from calibration.GearConverter import *
 import os, sys
 from calibration.XmlTools import *
 import argparse
@@ -21,6 +22,7 @@ class CalibrationManager(object) :
         self._endStep = sys.maxint
         self._badRun = False
         self._runException = None
+        self._gearConverter = GearConverter()
         
         # Preconfigure logging before any other thing...
         # Use a specific argparser for that
@@ -101,6 +103,9 @@ class CalibrationManager(object) :
     
     def getArgParser(self):
         return self._argparser
+    
+    def getGearConverter(self):
+        return self._gearConverter
         
     def printSteps(self):
         stepId = 0
@@ -158,7 +163,9 @@ class CalibrationManager(object) :
         self._outputXmlFile = parsed.outputCalibrationFile if parsed.outputCalibrationFile else parsed.inputCalibrationFile
         parser = createXMLParser()
         self._xmlTree = etree.parse(self._xmlFile, parser)
-        self._geometry = GeometryInterface(parsed.compactFile)
+        self._gearConverter.setCompactFile(parsed.compactFile)
+        gearFile = self._gearConverter.convertToGear()
+        self._geometry = GeometryInterface(gearFile)
             
         # Step 5) : Pass command line result to running steps
         for step in self._steps[self._startStep:self._endStep+1] :
