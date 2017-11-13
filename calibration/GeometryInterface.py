@@ -6,25 +6,10 @@ from calibration.XmlTools import *
 import subprocess
 
 class GeometryInterface(object) :
-    def __init__(self, compactFile):
-        self._compactFile = compactFile
-        self._gearFile = self._convertToGear(self._compactFile)
+    def __init__(self, gearFile):
+        self._gearFile = gearFile
         parser = createXMLParser()
         self._xmlTree = etree.parse(self._gearFile, parser)
-    
-    """ Convert the compact file to gear file using 'convertToGear' binary
-    """
-    def _convertToGear(self, compactFile, force=False) :
-        gearFile = "gear_" + os.path.split(compactFile)[1]
-
-        if os.path.isfile(gearFile) and not force:
-            return gearFile
-
-        args = ['convertToGear', 'default', compactFile, gearFile]
-        process = subprocess.Popen(args = args)
-        if process.wait() :
-            raise RuntimeError("Couldn't convert compact file to gear file")
-        return gearFile
     
     def _getGearDetector(self, dname, dtype) :
         elements = self._xmlTree.xpath("//gear/detectors/detector[@name='{0}'][@geartype='{1}']".format(dname, dtype))
