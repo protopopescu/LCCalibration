@@ -51,7 +51,7 @@ if __name__ == "__main__":
         "ECalBarrelDigi", "ECalBarrelReco",
         "ECalEndcapDigi", "ECalEndcapReco",
         "HCalBarrelDigi", "HCalBarrelReco",
-        "HCalEndcapDigi", "HCalEndcapReco", "MySimpleMuonDigi",
+        "HCalEndcapDigi", "HCalEndcapReco", "MyDDSimpleMuonDigi",
         "MyPfoAnalysis"])
     ecalEnergyStep.setPfoAnalysisProcessor(pfoAnalysisProcessor)
     ecalEnergyStep.setMarlinPandoraProcessor(pandoraProcessor)
@@ -68,7 +68,7 @@ if __name__ == "__main__":
         "ECalBarrelDigi", "ECalBarrelReco",
         "ECalEndcapDigi", "ECalEndcapReco",
         "HCalBarrelDigi", "HCalBarrelReco",
-        "HCalEndcapDigi", "HCalEndcapReco", "MySimpleMuonDigi",
+        "HCalEndcapDigi", "HCalEndcapReco", "MyDDSimpleMuonDigi",
         "MyPfoAnalysis"])
     hcalEnergyStep.setPfoAnalysisProcessor(pfoAnalysisProcessor)
     hcalEnergyStep.setMarlinPandoraProcessor(pandoraProcessor)
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         "ECalBarrelDigi", "ECalBarrelReco",
         "ECalEndcapDigi", "ECalEndcapReco",
         "HCalBarrelDigi", "HCalBarrelReco",
-        "HCalEndcapDigi", "HCalEndcapReco", "MySimpleMuonDigi",
+        "HCalEndcapDigi", "HCalEndcapReco", "MyDDSimpleMuonDigi",
         "MyPfoAnalysis"])
     pandoraMipScaleStep.setPfoAnalysisProcessor(pfoAnalysisProcessor)
     pandoraMipScaleStep.setMarlinPandoraProcessor(pandoraProcessor)
